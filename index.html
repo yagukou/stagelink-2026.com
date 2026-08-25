@@ -547,6 +547,140 @@ section {
   font-weight: bold;
 }
 
+/* --- 9月企画紹介：無限スライド（ループ）アニメーション --- */
+.planning-section {
+  background: #0b0b0b;
+  color: #ffffff;
+  padding: 110px 0;
+  overflow: hidden;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.planning-slider-wrapper {
+  width: 100%;
+  margin-top: 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ホバー時に一時停止 */
+.planning-slider-wrapper:hover .planning-track {
+  animation-play-state: paused;
+}
+
+.planning-track {
+  display: flex;
+  gap: 30px;
+  width: max-content;
+  animation: infinite-slide 25s linear infinite;
+}
+
+/* 左方向へ無限移動 */
+@keyframes infinite-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 15px));
+  }
+}
+
+.plan-card {
+  width: 460px;
+  background: #141414;
+  border: 1px solid #282828;
+  border-top: 3px solid #c5a059;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+  border-color: #c5a059;
+  box-shadow: 0 10px 30px rgba(197, 160, 89, 0.15);
+}
+
+.plan-img-box {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: #1f1f1f;
+}
+
+.plan-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.plan-card:hover .plan-img {
+  transform: scale(1.05);
+}
+
+.plan-tag {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(11, 11, 11, 0.85);
+  color: #c5a059;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border: 1px solid #c5a059;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+.plan-info {
+  padding: 28px 25px 35px;
+}
+
+.plan-sub {
+  display: block;
+  color: #c5a059;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.plan-title {
+  font-size: 23px;
+  margin: 0 0 15px 0;
+  font-family: "Yu Mincho", serif;
+  color: #ffffff;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.plan-title-sub {
+  font-size: 15px;
+  color: #ccc;
+  font-weight: normal;
+}
+
+.plan-desc {
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+  .plan-card {
+    width: 310px;
+  }
+  .plan-img-box {
+    height: 190px;
+  }
+  .plan-title {
+    font-size: 19px;
+  }
+}
+
 /* スマホ対応 */
 @media (max-width: 960px) {
   .bira-grid { grid-template-columns: 1fr; gap: 25px; }
@@ -702,13 +836,68 @@ section {
     <button class="next">▶</button>
   </div>
 
-  <section class="guide-section" style="background: #0b0b0b; color: #fff;">
-    <div class="section-head"><p class="section-en">Planning</p><h2>9月企画紹介</h2></div>
-    <div class="guide-grid">
-      <div class="guide-card"><h3>9月企画紹介（ざっと）</h3><p>詳細な内容をここに記載します。</p></div>
-      <div class="guide-card"><h3>9月企画紹介（ざっと）</h3><p>詳細な内容をここに記載します。</p></div>
+  <!-- ① 9月企画紹介 セクション（無限ループスライダー） -->
+<section class="planning-section">
+  <div class="section-head">
+    <p class="section-en">Planning</p>
+    <h2>9月企画紹介</h2>
+  </div>
+
+  <div class="planning-slider-wrapper">
+    <div class="planning-track">
+      <!-- 企画1: 夏の交流WS＋BBQ -->
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="ws-bbq.jpg" alt="夏の交流WS＋BBQ" class="plan-img">
+          <span class="plan-tag">WORKSHOP & BBQ</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">劇団の垣根を越えて、新たな表現技法と仲間に出会う</span>
+          <h3 class="plan-title">夏の交流WS＋BBQ</h3>
+          <p class="plan-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです。<br><span style="color:#c5a059; font-size: 12px;">（慶應義塾の劇団所属メンバー限定）</span></p>
+        </div>
+      </div>
+
+      <!-- 企画2: 慶劇祭 -->
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="keigekisai.jpg" alt="慶劇祭（慶應義塾大学演劇祭）" class="plan-img">
+          <span class="plan-tag">FESTIVAL</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</span>
+          <h3 class="plan-title">慶劇祭<span class="plan-title-sub">（慶應義塾大学演劇祭）</span></h3>
+          <p class="plan-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、StageLink最大のフェスティバルです！</p>
+        </div>
+      </div>
+
+      <!-- ※無限ループを途切れさせないための複製パーツ -->
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="ws-bbq.jpg" alt="夏の交流WS＋BBQ" class="plan-img">
+          <span class="plan-tag">WORKSHOP & BBQ</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">劇団の垣根を越えて、新たな表現技法と仲間に出会う</span>
+          <h3 class="plan-title">夏の交流WS＋BBQ</h3>
+          <p class="plan-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです。<br><span style="color:#c5a059; font-size: 12px;">（慶應義塾の劇団所属メンバー限定）</span></p>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="keigekisai.jpg" alt="慶劇祭（慶應義塾大学演劇祭）" class="plan-img">
+          <span class="plan-tag">FESTIVAL</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</span>
+          <h3 class="plan-title">慶劇祭<span class="plan-title-sub">（慶應義塾大学演劇祭）</span></h3>
+          <p class="plan-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、StageLink最大のフェスティバルです！</p>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
 <!-- ③ ビラネットワーク セクション（画像表示版） -->
 <!-- ③ ビラネットワーク セクション（3Dフリップアニメーション版） -->
