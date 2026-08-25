@@ -382,6 +382,109 @@ section {
   margin-top: -1px; /* わずかなズレを補正 */
 }
 
+/* --- ビラネットワーク専用デザイン --- */
+.bira-section {
+  background: #111111;
+  color: #ffffff;
+  padding: 110px 10%;
+  border-top: 1px solid #222;
+}
+
+.bira-section .section-en {
+  color: #c5a059;
+}
+
+.bira-section .section-head::after {
+  background: #c5a059;
+}
+
+.bira-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  max-width: 1200px;
+  margin: 60px auto 0;
+}
+
+.bira-card {
+  background: #171717;
+  padding: 45px 30px 35px;
+  border: 1px solid #282828;
+  border-top: 3px solid #c5a059;
+  position: relative;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bira-card:hover {
+  transform: translateY(-6px);
+  border-color: #c5a059;
+  box-shadow: 0 12px 30px rgba(197, 160, 89, 0.12);
+}
+
+.bira-icon {
+  font-size: 38px;
+  color: #c5a059;
+  margin-bottom: 20px;
+}
+
+.bira-number {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  font-family: "Times New Roman", serif;
+  font-size: 22px;
+  color: #333;
+  font-weight: bold;
+}
+
+.bira-card h3 {
+  font-size: 20px;
+  margin: 0 0 15px 0;
+  font-family: "Yu Mincho", serif;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.bira-card p {
+  color: #aaa;
+  line-height: 1.8;
+  font-size: 14px;
+  margin: 0;
+}
+
+.bira-action {
+  text-align: center;
+  margin-top: 55px;
+}
+
+.bira-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 38px;
+  background: transparent;
+  color: #c5a059;
+  border: 1px solid #c5a059;
+  font-size: 13px;
+  letter-spacing: 2px;
+  transition: 0.3s;
+  font-family: sans-serif;
+  text-decoration: none;
+}
+
+.bira-btn:hover {
+  background: #c5a059;
+  color: #0b0b0b;
+}
+
+/* スマホ対応 */
+@media (max-width: 960px) {
+  .bira-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
     /* PC・タブレット共通レスポンシブ */
     @media (max-width: 960px) {
       .guide-grid { grid-template-columns: 1fr; gap: 25px; }
@@ -539,13 +642,41 @@ section {
     </div>
   </section>
 
-  <section class="guide-section">
-    <div class="section-head"><p class="section-en">Bira Network</p><h2>ビラネットワークの紹介</h2></div>
-    <div class="guide-grid">
-      <div class="guide-card"><h3>ビラネについて</h3><p>キャッチコピーをここに入れます。</p></div>
-      <div class="guide-card"><h3>ビラネについて</h3><p>詳細な説明をここに記載します。</p></div>
+<section class="bira-section">
+  <div class="section-head">
+    <p class="section-en">Bira Network</p>
+    <h2>ビラネットワーク</h2>
+  </div>
+
+  <div class="bira-grid">
+    <div class="bira-card">
+      <div class="bira-icon"><i class="ti ti-file-text"></i></div>
+      <span class="bira-number">01</span>
+      <h3>相互挟み込み</h3>
+      <p>他団体の公演プログラムへのビラ挟み込み依頼や、自団体公演での受け入れ調整をスムーズにマッチングします。</p>
     </div>
-  </section>
+
+    <div class="bira-card">
+      <div class="bira-icon"><i class="ti ti-writing"></i></div>
+      <span class="bira-number">02</span>
+      <h3>告知・広報連携</h3>
+      <p>加盟団体同士で公演情報やビラ画像を連携・シェアし、演劇ファンへより深くアプローチします。</p>
+    </div>
+
+    <div class="bira-card">
+      <div class="bira-icon"><i class="ti ti-bookmarks"></i></div>
+      <span class="bira-number">03</span>
+      <h3>デジタルライブラリ</h3>
+      <p>過去の公演ビラをアーカイブ化。劇団の歴史や実績を美しく保存し、いつでも閲覧可能な状態にします。</p>
+    </div>
+  </div>
+
+  <div class="bira-action">
+    <a href="Participant.html" class="bira-btn">
+      ビラネットの詳細を見る <i class="ti ti-arrow-right"></i>
+    </a>
+  </div>
+</section>
 
 <section class="news-section">
     <div class="section-head"><p class="section-en">News</p><h2>ニュース</h2></div>
