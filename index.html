@@ -1227,6 +1227,68 @@ section {
     function escapeHtml(str) {
       return str ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
     }
+
+    (function () {
+    var block = document.getElementById('logoBlock');
+    if (!block) return;
+    var sPath = document.getElementById('sPath');
+    var dotEnd = block.querySelector('.dot-end');
+    var DRAW_DELAY = 0;
+    var DRAW_DURATION = 3500;
+    var len = 0;
+
+    if (sPath) {
+      len = sPath.getTotalLength();
+      sPath.style.strokeDasharray = len;
+      sPath.style.strokeDashoffset = len;
+    }
+
+    function playAnimation() {
+      if (sPath && sPath.animate) {
+        sPath.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
+        );
+      } else if (sPath) {
+        sPath.style.strokeDashoffset = 0;
+      }
+      if (dotEnd && dotEnd.animate) {
+        dotEnd.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 300, delay: DRAW_DELAY + DRAW_DURATION - 100, easing: 'ease-out', fill: 'forwards' }
+        );
+      } else if (dotEnd) {
+        dotEnd.style.opacity = 1;
+      }
+    }
+
+    var triggered = false;
+    var isIntersecting = false;
+    var hasScrolled = false;
+
+    function tryTrigger() {
+      if (triggered || !isIntersecting || !hasScrolled) return;
+      triggered = true;
+      block.classList.add('in-view');
+      playAnimation();
+      io.unobserve(block);
+      window.removeEventListener('scroll', onFirstScroll);
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        isIntersecting = entry.isIntersecting;
+        tryTrigger();
+      });
+    }, { threshold: 0.35, rootMargin: '0px 0px -60px 0px' });
+    io.observe(block);
+
+    function onFirstScroll() {
+      hasScrolled = true;
+      tryTrigger();
+    }
+    window.addEventListener('scroll', onFirstScroll, { passive: true });
+  })();
   </script>
 </body>
 </html>
