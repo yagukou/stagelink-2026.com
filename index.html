@@ -690,6 +690,22 @@ section {
   animation: fadeInText 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.stagelink-text span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInLetter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* 1文字ずつ遅れて再生される */
+  animation-delay: calc(0.08s * var(--i)); 
+}
+
+@keyframes fadeInLetter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes fadeInText {
   0% {
     opacity: 0;
@@ -861,7 +877,17 @@ section {
 
 <section class="stagelink-hero-section">
     <div class="stagelink-wrapper">
-      <h1 class="stagelink-text">StageLink</h1>
+      <h1 class="stagelink-text">
+  <span style="--i: 1;">S</span>
+  <span style="--i: 2;">t</span>
+  <span style="--i: 3;">a</span>
+  <span style="--i: 4;">g</span>
+  <span style="--i: 5;">e</span>
+  <span style="--i: 6;">L</span>
+  <span style="--i: 7;">i</span>
+  <span style="--i: 8;">n</span>
+  <span style="--i: 9;">k</span>
+</h1>
     </div>
   </section>
 
