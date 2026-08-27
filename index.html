@@ -16,7 +16,7 @@
   <link rel="shortcut icon" href="https://blviywoprvcatwwrrysi.supabase.co/storage/v1/object/public/assets/Untitled%20folder/favicon.ico" type="image/x-icon" />
   
   <style>
-    /* --- 全体設定 --- */
+    /* --- 全体設定：明朝体をベースに格式高さを演出 --- */
     body {
       margin: 0;
       font-family: "Times New Roman", "Yu Mincho", "游明朝", "Noto Serif JP", serif;
@@ -25,7 +25,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* --- ヘッダー --- */
+    /* --- ヘッダー：赤背景・チケット左配置 --- */
     header {
       display: flex;
       justify-content: space-between;
@@ -203,6 +203,7 @@
       z-index: 2;
     }
 
+    /* 高級デザイン設定 */
     .section-head {
       text-align: center;
       margin-bottom: 70px;
@@ -236,175 +237,58 @@
       margin: 20px auto 0;
     }
 
-    /* ビラネット */
-    .bira-section {
-      background: #0b0b0b;
-      color: #ffffff;
-      padding: 110px 10%;
-      border-top: 1px solid #222;
-    }
-
-    .bira-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      max-width: 1200px;
-      margin: 60px auto 0;
-    }
-
-    .bira-flip-card {
-      background-color: transparent;
-      height: 380px;
-      perspective: 1000px;
-    }
-
-    .bira-flip-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
-      transform-style: preserve-3d;
-    }
-
-    .bira-flip-card:hover .bira-flip-inner {
-      transform: rotateY(180deg);
-    }
-
-    .bira-flip-front, .bira-flip-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      border: 1px solid #282828;
-      border-top: 3px solid #c5a059;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-
-    .bira-flip-front { background-color: #121212; }
-    .bira-flip-front img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: 0.5s; }
-    .bira-flip-card:hover .bira-flip-front img { filter: brightness(0.9); }
-
-    .bira-front-overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 25px 20px;
-      background: linear-gradient(to top, rgba(11,11,11,0.95), transparent);
-      text-align: left;
-    }
-
-    .bira-front-overlay h3 { font-size: 21px; margin: 0 0 5px 0; font-family: "Yu Mincho", serif; color: #fff; }
-    .flip-hint { font-size: 11px; color: #c5a059; letter-spacing: 1px; font-family: sans-serif; display: flex; align-items: center; gap: 4px; }
-
-    .bira-flip-back {
-      background: #161616;
-      color: white;
-      transform: rotateY(180deg);
+    /* ① トップニュース */
+    .top-news {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 30px 25px;
-      box-shadow: inset 0 0 30px rgba(197, 160, 89, 0.1);
-    }
-
-    .bira-back-content { text-align: left; }
-    .bira-back-num { font-family: "Times New Roman", serif; font-size: 32px; color: #c5a059; display: block; margin-bottom: 10px; }
-    .bira-back-content h3 { font-size: 20px; margin: 0 0 15px 0; font-family: "Yu Mincho", serif; color: #ffffff; }
-    .bira-back-content p { color: #ccc; line-height: 1.8; font-size: 13.5px; margin-bottom: 25px; }
-
-    .bira-mini-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: #c5a059;
-      color: #0b0b0b;
-      font-size: 12px;
-      font-weight: bold;
+      background: #161616;
+      border-top: 1px solid #2a2a2a;
+      border-bottom: 1px solid #2a2a2a;
+      padding: 22px 8%;
+      font-size: 15px;
       letter-spacing: 1px;
-      text-decoration: none;
-      transition: 0.3s;
     }
 
-    .bira-mini-btn:hover { background: #ffffff; color: #0b0b0b; }
-
-    .bira-number {
-      position: absolute;
-      top: 15px; right: 15px;
-      font-family: "Times New Roman", serif;
-      font-size: 16px;
-      color: #c5a059;
-      background: rgba(11, 11, 11, 0.85);
+    .news-label {
+      color: #b90e0e;
+      margin-right: 25px;
+      font-weight: bold;
+      border: 1px solid #b90e0e;
       padding: 2px 10px;
-      border: 1px solid #c5a059;
-      font-weight: bold;
-    }
-
-    /* 9月企画紹介 */
-    .planning-section {
-      background: #0b0b0b;
-      color: #ffffff;
-      padding: 110px 0;
-      overflow: hidden;
-      border-bottom: 1px solid #1a1a1a;
-    }
-
-    .planning-slider-wrapper { width: 100%; margin-top: 50px; position: relative; overflow: hidden; }
-    .planning-slider-wrapper:hover .planning-track { animation-play-state: paused; }
-
-    .planning-track {
-      display: flex;
-      gap: 30px;
-      width: max-content;
-      animation: infinite-slide 25s linear infinite;
-    }
-
-    @keyframes infinite-slide {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-50% - 15px)); }
-    }
-
-    .plan-card {
-      width: 460px;
-      background: #141414;
-      border: 1px solid #282828;
-      border-top: 3px solid #c5a059;
-      flex-shrink: 0;
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .plan-card:hover {
-      transform: translateY(-5px);
-      border-color: #c5a059;
-      box-shadow: 0 10px 30px rgba(197, 160, 89, 0.15);
-    }
-
-    .plan-img-box { position: relative; width: 100%; height: 250px; overflow: hidden; background: #1f1f1f; }
-    .plan-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-    .plan-card:hover .plan-img { transform: scale(1.05); }
-
-    .plan-tag {
-      position: absolute; top: 15px; left: 15px;
-      background: rgba(11, 11, 11, 0.85);
-      color: #c5a059;
-      font-size: 11px;
+      font-size: 12px;
       letter-spacing: 2px;
-      padding: 4px 12px;
-      border: 1px solid #c5a059;
-      font-family: sans-serif;
-      font-weight: bold;
     }
 
-    .plan-info { padding: 28px 25px 35px; }
-    .plan-sub { display: block; color: #c5a059; font-size: 13px; letter-spacing: 1px; margin-bottom: 8px; font-weight: 500; }
-    .plan-title { font-size: 23px; margin: 0 0 15px 0; font-family: "Yu Mincho", serif; color: #ffffff; font-weight: 500; line-height: 1.3; }
-    .plan-title-sub { font-size: 15px; color: #ccc; font-weight: normal; }
-    .plan-desc { color: #bbb; font-size: 14px; line-height: 1.8; margin: 0; }
+    .news-text { color: #ddd; }
 
-    /* ニュース */
+    /* ② スケジュール */
+    .schedule-section { background: #0b0b0b; padding: 120px 10%; }
+    .schedule-list { max-width: 1000px; margin: 60px auto 0; }
+    .schedule-item { display: flex; align-items: center; border-bottom: 1px solid #222; padding: 40px 20px; transition: 0.4s; }
+    .schedule-item:hover { background: rgba(197, 160, 89, 0.03); }
+    .schedule-date { color: #c5a059; font-size: 16px; width: 160px; line-height: 1.2; letter-spacing: 2px; border-right: 1px solid #333; }
+    .schedule-date span { font-size: 46px; font-family: "Times New Roman", serif; display: block; font-weight: 300; }
+    .schedule-info { flex: 1; padding-left: 40px; }
+    .schedule-info h3 { color: #ffffff; font-size: 24px; margin: 0 0 12px 0; font-family: "Yu Mincho", serif; font-weight: 500; }
+    .schedule-meta { display: flex; gap: 15px; align-items: center; font-size: 14px; color: #aaa; }
+    .schedule-venue { color: #c5a059; }
+    .status-tag { background: #b90e0e; color: white; font-size: 11px; padding: 2px 8px; font-family: sans-serif; font-weight: bold; }
+
+    /* ③ ガイド */
+    .guide-section { background: #fbf9f6; color: #1a1a1a; padding: 120px 10%; }
+    .guide-section .section-en { color: #b90e0e; }
+    .guide-section .section-head::after { background: #b90e0e; }
+    .guide-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 1200px; margin: 60px auto 0; }
+    .guide-card { background: #ffffff; padding: 45px 35px; color: #1a1a1a; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border-top: 3px solid #c5a059; transition: 0.3s; }
+    .guide-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(185,14,14,0.08); }
+    .guide-card h3 { font-size: 20px; margin-top: 0; margin-bottom: 20px; font-family: "Yu Mincho", serif; color: #b90e0e; }
+    .guide-card p { color: #555; line-height: 1.8; font-size: 14px; margin: 0; }
+
+    /* ④ ニュースセクション */
     .news-section { background: #ffffff; color: #1a1a1a; padding: 120px 10%; border-top: 1px solid #f0e9e0; }
+    .news-section .section-en { color: #c5a059; }
+    .news-section .section-head::after { background: #c5a059; }
     .news-list { max-width: 1000px; margin: 60px auto 0; border-top: 1px solid #e5dfd5; }
     .news-item { display: flex; align-items: center; padding: 30px 15px; border-bottom: 1px solid #e5dfd5; text-decoration: none; transition: 0.35s; }
     .news-item:hover { background: #fbf9f6; padding-left: 30px; }
@@ -415,60 +299,485 @@
     .news-arrow { color: #c5a059; font-size: 20px; transition: 0.3s; font-family: sans-serif; }
     .news-item:hover .news-arrow { color: #b90e0e; transform: translateX(8px); }
 
-    /* メディア */
+    /* ⑤ メディア */
     .media-section { background: #0b0b0b; padding: 120px 10%; }
-    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1200px; margin: 60px auto 0; }
+    .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 50px; max-width: 1200px; margin: 60px auto 0; }
     .media-card { text-decoration: none; overflow: hidden; background: #121212; border: 1px solid #222; transition: 0.4s; }
     .media-card:hover { border-color: #c5a059; box-shadow: 0 10px 30px rgba(197,160,89,0.1); }
-    .media-thumb-wrapper { position: relative; overflow: hidden; width: 100%; height: 240px; }
+    .media-thumb-wrapper { position: relative; overflow: hidden; width: 100%; height: 340px; }
     .media-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
     .media-card:hover img { transform: scale(1.06); }
-    .media-text { padding: 25px 20px; }
-    .media-text h3 { color: white; font-size: 18px; margin: 0; font-family: "Yu Mincho", serif; font-weight: 500; line-height: 1.4; }
+    .media-tag { position: absolute; top: 20px; left: 20px; background: rgba(11,11,11,0.85); color: #c5a059; font-size: 11px; letter-spacing: 2px; padding: 4px 12px; border: 1px solid #c5a059; font-family: sans-serif; }
+    .media-text { padding: 30px 25px; }
+    .media-text h3 { color: white; font-size: 22px; margin: 0; font-family: "Yu Mincho", serif; font-weight: 500; line-height: 1.4; }
 
     /* フッター */
     footer { background: #070707; border-top: 1px solid #1a1a1a; padding: 60px 5% 40px; text-align: center; }
     .sns { display: flex; justify-content: center; gap: 35px; margin-bottom: 40px; }
+    .sns-item { display: inline-block; transition: 0.3s; }
+    .sns-item:hover { transform: translateY(-3px); filter: brightness(1.2); }
     .sns-item img { width: 36px; height: 36px; }
     .footer-copy { font-size: 11px; color: #555; letter-spacing: 1px; font-family: sans-serif; }
     .hamburger { display: none; }
 
-    /* ドロワーメニュー */
+/* 🌐 右側からスライドインするメニュー */
     #global-dropdown {
-      position: fixed; top: 0; right: -300px;
-      width: 300px; height: 100vh;
+      position: fixed;
+      top: 0;
+      right: -300px; /* 普段は右側に隠す */
+      width: 300px;
+      height: 100vh;
       background: #111111;
       box-shadow: -5px 0 25px rgba(0,0,0,0.7);
       z-index: 9999;
-      display: flex; flex-direction: column;
+      display: flex; 
+      flex-direction: column;
       padding-top: 60px;
       transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    #global-dropdown.open { right: 0; }
-    #global-dropdown a { color: #fff; padding: 20px 30px; text-decoration: none; font-size: 16px; border-bottom: 1px solid #222; }
 
+    #global-dropdown.open {
+      right: 0; /* 表示時は0の位置に */
+    }
+
+    /* メニュー内のリンクデザイン（微調整） */
+    #global-dropdown a {
+      color: #fff;
+      padding: 20px 30px;
+      text-decoration: none;
+      font-size: 16px;
+      border-bottom: 1px solid #222;
+    }
+
+    /* 暗い背景レイヤー */
     #menu-overlay {
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
       background: rgba(0, 0, 0, 0.6);
-      z-index: 9998; display: none; opacity: 0; transition: opacity 0.3s;
+      z-index: 9998;
+      display: none; /* 初期は非表示 */
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    #menu-overlay.open { display: block; opacity: 1; }
+    #menu-overlay.open {
+      display: block;
+      opacity: 1;
+    }
 
+/* 1. 空間を消すためのリセット */
+.slider, .slides, .slide {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block; /* 余計な隙間を防ぐ */
+}
+
+/* 2. ヒーローテキスト下の余白を強制ゼロに */
+.hero-text {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* 3. セクション間の不自然な隙間を詰める */
+section {
+  margin-top: -1px; /* わずかなズレを補正 */
+}
+
+/* --- 3Dカードフリップ アニメーションCSS --- */
+.bira-section {
+  background: #0b0b0b;
+  color: #ffffff;
+  padding: 110px 10%;
+  border-top: 1px solid #222;
+}
+
+.bira-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  max-width: 1200px;
+  margin: 60px auto 0;
+}
+
+/* カードの外枠（3D空間の設定） */
+.bira-flip-card {
+  background-color: transparent;
+  height: 380px;
+  perspective: 1000px; /* 奥行き感 */
+}
+
+/* カードの内枠（回転軸） */
+.bira-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* ホバー時にY軸で180度回転 */
+.bira-flip-card:hover .bira-flip-inner {
+  transform: rotateY(180deg);
+}
+
+/* 表と裏の共通設定 */
+.bira-flip-front, .bira-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border: 1px solid #282828;
+  border-top: 3px solid #c5a059;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 【表面】のデザイン */
+.bira-flip-front {
+  background-color: #121212;
+}
+
+.bira-flip-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+  transition: 0.5s;
+}
+
+.bira-flip-card:hover .bira-flip-front img {
+  filter: brightness(0.9);
+}
+
+.bira-front-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 25px 20px;
+  background: linear-gradient(to top, rgba(11,11,11,0.95), transparent);
+  text-align: left;
+}
+
+.bira-front-overlay h3 {
+  font-size: 21px;
+  margin: 0 0 5px 0;
+  font-family: "Yu Mincho", serif;
+  color: #fff;
+}
+
+.flip-hint {
+  font-size: 11px;
+  color: #c5a059;
+  letter-spacing: 1px;
+  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 【裏面】のデザイン */
+.bira-flip-back {
+  background: #161616;
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 25px;
+  box-shadow: inset 0 0 30px rgba(197, 160, 89, 0.1);
+}
+
+.bira-back-content {
+  text-align: left;
+}
+
+.bira-back-num {
+  font-family: "Times New Roman", serif;
+  font-size: 32px;
+  color: #c5a059;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.bira-back-content h3 {
+  font-size: 20px;
+  margin: 0 0 15px 0;
+  font-family: "Yu Mincho", serif;
+  color: #ffffff;
+}
+
+.bira-back-content p {
+  color: #ccc;
+  line-height: 1.8;
+  font-size: 13.5px;
+  margin-bottom: 25px;
+}
+
+.bira-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #c5a059;
+  color: #0b0b0b;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.bira-mini-btn:hover {
+  background: #ffffff;
+  color: #0b0b0b;
+}
+
+.bira-number {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-family: "Times New Roman", serif;
+  font-size: 16px;
+  color: #c5a059;
+  background: rgba(11, 11, 11, 0.85);
+  padding: 2px 10px;
+  border: 1px solid #c5a059;
+  font-weight: bold;
+}
+
+/* --- 9月企画紹介：無限スライド（ループ）アニメーション --- */
+.planning-section {
+  background: #0b0b0b;
+  color: #ffffff;
+  padding: 110px 0;
+  overflow: hidden;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.planning-slider-wrapper {
+  width: 100%;
+  margin-top: 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ホバー時に一時停止 */
+.planning-slider-wrapper:hover .planning-track {
+  animation-play-state: paused;
+}
+
+.planning-track {
+  display: flex;
+  gap: 30px;
+  width: max-content;
+  animation: infinite-slide 25s linear infinite;
+}
+
+/* 左方向へ無限移動 */
+@keyframes infinite-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 15px));
+  }
+}
+
+.plan-card {
+  width: 460px;
+  background: #141414;
+  border: 1px solid #282828;
+  border-top: 3px solid #c5a059;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-5px);
+  border-color: #c5a059;
+  box-shadow: 0 10px 30px rgba(197, 160, 89, 0.15);
+}
+
+.plan-img-box {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: #1f1f1f;
+}
+
+.plan-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.plan-card:hover .plan-img {
+  transform: scale(1.05);
+}
+
+.plan-tag {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(11, 11, 11, 0.85);
+  color: #c5a059;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border: 1px solid #c5a059;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+.plan-info {
+  padding: 28px 25px 35px;
+}
+
+.plan-sub {
+  display: block;
+  color: #c5a059;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.plan-title {
+  font-size: 23px;
+  margin: 0 0 15px 0;
+  font-family: "Yu Mincho", serif;
+  color: #ffffff;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.plan-title-sub {
+  font-size: 15px;
+  color: #ccc;
+  font-weight: normal;
+}
+
+.plan-desc {
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+  .plan-card {
+    width: 310px;
+  }
+  .plan-img-box {
+    height: 190px;
+  }
+  .plan-title {
+    font-size: 19px;
+  }
+}
+
+/* スマホ対応 */
+@media (max-width: 960px) {
+  .bira-grid { grid-template-columns: 1fr; gap: 25px; }
+  .bira-flip-card { height: 340px; }
+}
+
+    /* PC・タブレット共通レスポンシブ */
     @media (max-width: 960px) {
-      .bira-grid { grid-template-columns: 1fr; gap: 25px; }
-      .media-grid { grid-template-columns: 1fr; gap: 25px; }
+      .guide-grid { grid-template-columns: 1fr; gap: 25px; }
+      .media-grid { grid-template-columns: 1fr; gap: 35px; }
+    }
+    @media (max-width: 992px) {
+      .card-container { flex-direction: column; align-items: center; gap: 30px; padding: 0 20px; }
+      .card { width: 100%; max-width: 500px; }
     }
 
+    /* ==========================================================
+       📱 スマートフォン・タブレット用レイアウト設定
+       ========================================================== */
     @media (max-width: 768px) {
-      header { height: 70px !important; padding: 0 20px !important; }
-      .menu-left, .menu-right { display: none !important; }
-      .hamburger { display: block !important; position: absolute; top: 50%; right: 20px; transform: translateY(-50%); font-size: 28px; color: white; cursor: pointer; z-index: 9999; }
-      .hero-text h1 { font-size: 42px; }
-      .plan-card { width: 310px; }
-      .plan-img-box { height: 190px; }
-    }
-  </style>
+      header { 
+        height: 70px !important; 
+        padding: 0 20px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+      }
+      
+      .logo { 
+        position: absolute; 
+        left: 50%; 
+        top: 50%; 
+        transform: translate(-50%, -50%); 
+        margin: 0; 
+        max-width: 55% !important; 
+      }
+      .logo-main { font-size: 20px; }
+      .logo-sub { font-size: 11px; }
 
+      .menu-left, .menu-right { display: none !important; }
+
+      .hamburger {
+        display: block !important;
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        font-size: 28px;
+        color: white !important; 
+        cursor: pointer;
+        z-index: 9999 !important;
+        font-family: sans-serif;
+        line-height: 1;
+      }
+
+      .hero-text h1 { font-size: 42px; }
+      .schedule-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+      .schedule-date { border-right: none; border-bottom: 1px solid #333; padding-bottom: 10px; width: 100%; }
+      .schedule-info { padding-left: 0; }
+      .news-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .news-date { width: auto; }
+      .slider-container { height: 50vh; }
+      .section-title { font-size: 22px; margin-bottom: 25px; }
+      section { padding: 50px 15px; }
+      footer { padding: 20px 15px; font-size: 11px; }
+    }
+
+    @media (max-width: 480px) {
+      .slider-container { height: 40vh; }
+    }
+
+    /* 閉じるボタン（メニュー内に追加推奨） */
+    .menu-close-btn {
+      align-self: flex-end;
+      font-size: 30px;
+      color: #fff;
+      background: transparent;
+      border: none;
+      margin-right: 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    /* 暗い背景レイヤー */
+    #menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+      display: none;
+    }
+    #menu-overlay.open { display: block; }
+
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
@@ -479,6 +788,15 @@
 
 <body>
   <div id="menu-overlay"></div>
+
+  <script>
+  window.difyChatbotConfig = { token: 'cfUgpimDdajARduo', inputs: {}, systemVariables: {}, userVariables: {} }
+  </script>
+  <script src="https://udify.app/embed.min.js" id="cfUgpimDdajARduo" defer></script>
+  <style>
+    #dify-chatbot-bubble-button { background-color: #b90e0e !important; }
+    #dify-chatbot-bubble-window { width: 24rem !important; height: 40rem !important; }
+  </style>
 
   <header>
     <div class="menu-left">
@@ -510,6 +828,8 @@
     <a href="Inquiry.html">・お問い合わせ</a>
   </nav>
 
+  
+
   <div class="slider">
     <div class="slides">
       <img src="img1.jpg" class="slide active">
@@ -520,150 +840,163 @@
     <button class="next">▶</button>
   </div>
 
-  <!-- 9月企画紹介 -->
-  <section class="planning-section">
-    <div class="section-head">
-      <p class="section-en">Planning</p>
-      <h2>9月企画紹介</h2>
+  <!-- ① 9月企画紹介 セクション（無限ループスライダー） -->
+<section class="planning-section">
+  <div class="section-head">
+    <p class="section-en">Planning</p>
+    <h2>9月企画紹介</h2>
+  </div>
+
+  <div class="planning-slider-wrapper">
+    <div class="planning-track">
+      <!-- 企画1: 夏の交流WS＋BBQ -->
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="ws-bbq.jpg" alt="夏の交流WS＋BBQ" class="plan-img">
+          <span class="plan-tag">WORKSHOP & BBQ</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">劇団の垣根を越えて、新たな表現技法と仲間に出会う</span>
+          <h3 class="plan-title">夏の交流WS＋BBQ</h3>
+          <p class="plan-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです。<br><span style="color:#c5a059; font-size: 12px;">（慶應義塾の劇団所属メンバー限定）</span></p>
+        </div>
+      </div>
+
+      <!-- 企画2: 慶劇祭 -->
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="keigekisai.jpg" alt="慶劇祭（慶應義塾大学演劇祭）" class="plan-img">
+          <span class="plan-tag">FESTIVAL</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</span>
+          <h3 class="plan-title">慶劇祭<span class="plan-title-sub">（慶應義塾大学演劇祭）</span></h3>
+          <p class="plan-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、StageLink最大のフェスティバルです！</p>
+        </div>
+      </div>
+
+      <!-- ※無限ループを途切れさせないための複製パーツ -->
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="ws-bbq.jpg" alt="夏の交流WS＋BBQ" class="plan-img">
+          <span class="plan-tag">WORKSHOP & BBQ</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">劇団の垣根を越えて、新たな表現技法と仲間に出会う</span>
+          <h3 class="plan-title">夏の交流WS＋BBQ</h3>
+          <p class="plan-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです。<br><span style="color:#c5a059; font-size: 12px;">（慶應義塾の劇団所属メンバー限定）</span></p>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-img-box">
+          <img src="keigekisai.jpg" alt="慶劇祭（慶應義塾大学演劇祭）" class="plan-img">
+          <span class="plan-tag">FESTIVAL</span>
+        </div>
+        <div class="plan-info">
+          <span class="plan-sub">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</span>
+          <h3 class="plan-title">慶劇祭<span class="plan-title-sub">（慶應義塾大学演劇祭）</span></h3>
+          <p class="plan-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、StageLink最大のフェスティバルです！</p>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
 
-    <div class="planning-slider-wrapper">
-      <div class="planning-track">
-        <div class="plan-card">
-          <div class="plan-img-box">
-            <img src="ws-bbq.jpg" alt="夏の交流WS＋BBQ" class="plan-img">
-            <span class="plan-tag">WORKSHOP & BBQ</span>
-          </div>
-          <div class="plan-info">
-            <span class="plan-sub">劇団の垣根を越えて、新たな表現技法と仲間に出会う</span>
-            <h3 class="plan-title">夏の交流WS＋BBQ</h3>
-            <p class="plan-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです。<br><span style="color:#c5a059; font-size: 12px;">（慶應義塾の劇団所属メンバー限定）</span></p>
+<!-- ③ ビラネットワーク セクション（画像表示版） -->
+<!-- ③ ビラネットワーク セクション（3Dフリップアニメーション版） -->
+<section class="bira-section">
+  <div class="section-head">
+    <p class="section-en">Bira Network</p>
+    <h2>ビラネットワーク</h2>
+  </div>
+
+  <div class="bira-grid">
+    <!-- 01 -->
+    <div class="bira-flip-card">
+      <div class="bira-flip-inner">
+        <!-- 表面 -->
+        <div class="bira-flip-front">
+          <img src="bira-img-1.jpg" alt="相互挟み込み">
+          <span class="bira-number">01</span>
+          <div class="bira-front-overlay">
+            <h3>相互挟み込み</h3>
+            <span class="flip-hint"><i class="ti ti-rotate-clockwise-2"></i> HOVER / TAP</span>
           </div>
         </div>
-
-        <div class="plan-card">
-          <div class="plan-img-box">
-            <img src="keigekisai.jpg" alt="慶劇祭" class="plan-img">
-            <span class="plan-tag">FESTIVAL</span>
-          </div>
-          <div class="plan-info">
-            <span class="plan-sub">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</span>
-            <h3 class="plan-title">慶劇祭<span class="plan-title-sub">（慶應義塾大学演劇祭）</span></h3>
-            <p class="plan-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、StageLink最大のフェスティバルです！</p>
-          </div>
-        </div>
-
-        <!-- 複製用ループカード -->
-        <div class="plan-card">
-          <div class="plan-img-box">
-            <img src="ws-bbq.jpg" alt="夏の交流WS＋BBQ" class="plan-img">
-            <span class="plan-tag">WORKSHOP & BBQ</span>
-          </div>
-          <div class="plan-info">
-            <span class="plan-sub">劇団の垣根を越えて、新たな表現技法と仲間に出会う</span>
-            <h3 class="plan-title">夏の交流WS＋BBQ</h3>
-            <p class="plan-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです。<br><span style="color:#c5a059; font-size: 12px;">（慶應義塾の劇団所属メンバー限定）</span></p>
-          </div>
-        </div>
-
-        <div class="plan-card">
-          <div class="plan-img-box">
-            <img src="keigekisai.jpg" alt="慶劇祭" class="plan-img">
-            <span class="plan-tag">FESTIVAL</span>
-          </div>
-          <div class="plan-info">
-            <span class="plan-sub">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</span>
-            <h3 class="plan-title">慶劇祭<span class="plan-title-sub">（慶應義塾大学演劇祭）</span></h3>
-            <p class="plan-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、StageLink最大のフェスティバルです！</p>
+        <!-- 裏面 -->
+        <div class="bira-flip-back">
+          <div class="bira-back-content">
+            <span class="bira-back-num">01</span>
+            <h3>相互挟み込み</h3>
+            <p>他団体の公演プログラムへのビラ挟み込み依頼や、自団体公演での受け入れ調整をスムーズにマッチングします。</p>
+            <a href="Participant.html" class="bira-mini-btn">詳細を見る <i class="ti ti-arrow-right"></i></a>
           </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- ビラネットワーク -->
-  <section class="bira-section">
-    <div class="section-head">
-      <p class="section-en">Bira Network</p>
-      <h2>ビラネットワーク</h2>
-    </div>
-
-    <div class="bira-grid">
-      <div class="bira-flip-card">
-        <div class="bira-flip-inner">
-          <div class="bira-flip-front">
-            <img src="bira-img-1.jpg" alt="相互挟み込み">
-            <span class="bira-number">01</span>
-            <div class="bira-front-overlay">
-              <h3>相互挟み込み</h3>
-              <span class="flip-hint"><i class="ti ti-rotate-clockwise-2"></i> HOVER / TAP</span>
-            </div>
-          </div>
-          <div class="bira-flip-back">
-            <div class="bira-back-content">
-              <span class="bira-back-num">01</span>
-              <h3>相互挟み込み</h3>
-              <p>他団体の公演プログラムへのビラ挟み込み依頼や、自団体公演での受け入れ調整をスムーズにマッチングします。</p>
-              <a href="Participant.html" class="bira-mini-btn">詳細を見る <i class="ti ti-arrow-right"></i></a>
-            </div>
+    <!-- 02 -->
+    <div class="bira-flip-card">
+      <div class="bira-flip-inner">
+        <!-- 表面 -->
+        <div class="bira-flip-front">
+          <img src="bira-img-2.jpg" alt="告知・広報連携">
+          <span class="bira-number">02</span>
+          <div class="bira-front-overlay">
+            <h3>告知・広報連携</h3>
+            <span class="flip-hint"><i class="ti ti-rotate-clockwise-2"></i> HOVER / TAP</span>
           </div>
         </div>
-      </div>
-
-      <div class="bira-flip-card">
-        <div class="bira-flip-inner">
-          <div class="bira-flip-front">
-            <img src="bira-img-2.jpg" alt="告知・広報連携">
-            <span class="bira-number">02</span>
-            <div class="bira-front-overlay">
-              <h3>告知・広報連携</h3>
-              <span class="flip-hint"><i class="ti ti-rotate-clockwise-2"></i> HOVER / TAP</span>
-            </div>
-          </div>
-          <div class="bira-flip-back">
-            <div class="bira-back-content">
-              <span class="bira-back-num">02</span>
-              <h3>告知・広報連携</h3>
-              <p>加盟団体同士で公演情報やビラ画像を連携・シェアし、演劇ファンへより深くアプローチします。</p>
-              <a href="Participant.html" class="bira-mini-btn">詳細を見る <i class="ti ti-arrow-right"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bira-flip-card">
-        <div class="bira-flip-inner">
-          <div class="bira-flip-front">
-            <img src="bira-img-3.jpg" alt="デジタルライブラリ">
-            <span class="bira-number">03</span>
-            <div class="bira-front-overlay">
-              <h3>デジタルライブラリ</h3>
-              <span class="flip-hint"><i class="ti ti-rotate-clockwise-2"></i> HOVER / TAP</span>
-            </div>
-          </div>
-          <div class="bira-flip-back">
-            <div class="bira-back-content">
-              <span class="bira-back-num">03</span>
-              <h3>デジタルライブラリ</h3>
-              <p>過去の公演ビラをアーカイブ化。劇団の歴史や実績を美しく保存し、いつでも閲覧可能な状態にします。</p>
-              <a href="Participant.html" class="bira-mini-btn">詳細を見る <i class="ti ti-arrow-right"></i></a>
-            </div>
+        <!-- 裏面 -->
+        <div class="bira-flip-back">
+          <div class="bira-back-content">
+            <span class="bira-back-num">02</span>
+            <h3>告知・広報連携</h3>
+            <p>加盟団体同士で公演情報やビラ画像を連携・シェアし、演劇ファンへより深くアプローチします。</p>
+            <a href="Participant.html" class="bira-mini-btn">詳細を見る <i class="ti ti-arrow-right"></i></a>
           </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- ニュースセクション -->
-  <section class="news-section">
+    <!-- 03 -->
+    <div class="bira-flip-card">
+      <div class="bira-flip-inner">
+        <!-- 表面 -->
+        <div class="bira-flip-front">
+          <img src="bira-img-3.jpg" alt="デジタルライブラリ">
+          <span class="bira-number">03</span>
+          <div class="bira-front-overlay">
+            <h3>デジタルライブラリ</h3>
+            <span class="flip-hint"><i class="ti ti-rotate-clockwise-2"></i> HOVER / TAP</span>
+          </div>
+        </div>
+        <!-- 裏面 -->
+        <div class="bira-flip-back">
+          <div class="bira-back-content">
+            <span class="bira-back-num">03</span>
+            <h3>デジタルライブラリ</h3>
+            <p>過去の公演ビラをアーカイブ化。劇団の歴史や実績を美しく保存し、いつでも閲覧可能な状態にします。</p>
+            <a href="Participant.html" class="bira-mini-btn">詳細を見る <i class="ti ti-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="news-section">
     <div class="section-head"><p class="section-en">News</p><h2>ニュース</h2></div>
-    <div class="news-list" id="top-news-list"></div>
+    <!-- id="top-news-list" を追加 -->
+    <div class="news-list" id="top-news-list">
+      <!-- ここに最新3件が自動挿入されます -->
+    </div>
     <div style="text-align:center; margin-top:30px;">
       <a href="news.html" class="news-item" style="border:none; justify-content:center;">もっと見る ➔</a>
     </div>
   </section>
 
-  <!-- メディアセクション -->
   <section class="media-section">
     <div class="media-grid">
       <a href="what.html" class="media-card">
@@ -681,7 +1014,6 @@
     </div>
   </section>
 
-  <!-- フッター -->
   <footer>
     <div class="sns">
       <a href="https://x.com/sokei_dramalink?s=21" target="_blank"><img src="x.png" alt="X"></a>
@@ -692,7 +1024,7 @@
   </footer>
 
   <script>
-    /* スライダー制御 */
+/* 1. スライダー制御 */
     let index = 0;
     const slides = document.querySelectorAll(".slide");
     function showSlide(n) {
@@ -703,12 +1035,13 @@
     document.querySelector(".prev").onclick = () => { index = (index - 1 + slides.length) % slides.length; showSlide(index); };
     setInterval(() => { index = (index + 1) % slides.length; showSlide(index); }, 9000); 
 
-    /* ドロワーメニュー制御 */
+    /* 2. サイドメニューの開閉処理 */
     const hamburgerBtn = document.querySelector(".hamburger");
     const pcMenuBtn = document.querySelector(".pc-menu-btn");
     const globalDropdown = document.getElementById("global-dropdown");
     const menuOverlay = document.getElementById("menu-overlay");
 
+    // メニューとオーバーレイを一緒に開閉する関数
     function toggleMenu(e) {
       if (e) {
         e.preventDefault();
@@ -718,10 +1051,14 @@
       menuOverlay.classList.toggle("open");
     }
 
+    // イベントリスナーの登録
     if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
     if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
+    
+    // オーバーレイ（背景）クリックで閉じる
     if (menuOverlay) menuOverlay.onclick = toggleMenu;
 
+    // メニュー内のリンクをクリックした時も閉じる
     document.querySelectorAll("#global-dropdown a").forEach(link => {
       link.onclick = () => {
         globalDropdown.classList.remove("open");
@@ -729,7 +1066,7 @@
       };
     });
 
-    /* Supabaseニュース取得 */
+    /* 3. Supabaseから最新ニュース3件を取得して表示 */
     document.addEventListener('DOMContentLoaded', fetchTopNews);
 
     async function fetchTopNews() {
@@ -737,6 +1074,7 @@
       if (!newsContainer) return;
 
       try {
+        // 作成日時順（降順）で最新3件のみ取得
         const { data, error } = await db
           .from('news')
           .select(`id, created_at, category, news_translations!inner (title)`)
@@ -751,10 +1089,11 @@
           return;
         }
 
-        newsContainer.innerHTML = '';
+        newsContainer.innerHTML = ''; // クリア
 
         data.forEach(item => {
           const trans = item.news_translations[0];
+          // 日付フォーマット (YYYY.MM.DD)
           const dateStr = new Date(item.created_at)
             .toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' })
             .replace(/\//g, '.');
