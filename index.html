@@ -662,24 +662,34 @@ section {
   margin: 0;
 }
 
+/* 独立したテキスト表示用セクション */
+.stagelink-hero-section {
+  background-color: #0b0b0b;
+  padding: 80px 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #1a1a1a;
+}
 
 /* 文字をふわっと浮き上がらせるアニメーションの設定 */
 .stagelink-text {
-  font-size: clamp(3rem, 8vw, 6rem); /* 画面サイズに合わせて文字サイズが可変 */
+  font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.02em;
   font-family: sans-serif;
+  margin: 0;
   
   /* 初期状態：透明にして少し下へ配置 */
   opacity: 0;
   transform: translateY(20px);
   
-  /* アニメーションの実行（1.2秒かけて滑らかに変化） */
+  /* アニメーションの実行 */
   animation: fadeInText 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* アニメーションの軌跡（設計図） */
 @keyframes fadeInText {
   0% {
     opacity: 0;
@@ -849,9 +859,11 @@ section {
     <a href="Inquiry.html">・お問い合わせ</a>
   </nav>
 
-  <div class="stagelink-wrapper">
-  <h1 class="stagelink-text">StageLink</h1>
-</div>
+<section class="stagelink-hero-section">
+    <div class="stagelink-wrapper">
+      <h1 class="stagelink-text">StageLink</h1>
+    </div>
+  </section>
 
   <div class="slider">
     <div class="slides">
