@@ -17,7 +17,13 @@
   
   <style>
     /* --- 全体設定：明朝体をベースに格式高さを演出 --- */
-
+    body {
+      margin: 0;
+      font-family: "Times New Roman", "Yu Mincho", "游明朝", "Noto Serif JP", serif;
+      background: #0b0b0b;  
+      color: #ffffff; 
+      -webkit-font-smoothing: antialiased;
+    }
 
     /* --- ヘッダー：赤背景・チケット左配置 --- */
     header {
@@ -662,124 +668,7 @@ section {
   margin: 0;
 }
 
-/* 独立したテキスト表示用セクション */
-.stagelink-hero-section {
-  background-color: #0b0b0b;
-  padding: 80px 20px;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-bottom: 1px solid #1a1a1a;
-}
 
-.stagelink-text {
-  font-size: clamp(3.5rem, 9vw, 7rem);
-  font-weight: 900;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  text-transform: uppercase; /* 英字をスタイリッシュな大文字に */
-  letter-spacing: -0.03em;
-  margin: 0;
-  
-  /* 洗練されたグラデーションとシャドウ */
-  background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 10px 30px rgba(255, 255, 255, 0.15));
-
-  /* 登場モーション：ダイナミックにズームしながら現れる */
-  opacity: 0;
-  transform: scale(1.1);
-  animation: tokyoStyleFade 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* 文字を切り抜く親コンテナ */
-.stagelink-mask {
-  overflow: hidden;
-  display: inline-block;
-}
-
-.stagelink-text {
-  font-size: clamp(3.5rem, 9vw, 7rem);
-  font-weight: 900;
-  color: #ffffff;
-  margin: 0;
-
-  /* 下からスライドイン＋フェード */
-  transform: translateY(100%);
-  opacity: 0;
-  animation: slideUpMask 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.2s;
-}
-
-@keyframes slideUpMask {
-  0% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes tokyoStyleFade {
-  0% {
-    opacity: 0;
-    transform: scale(1.1);
-    letter-spacing: 0.1em; /* 登場時は文字間が少し空いていて、スッと締まる */
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    letter-spacing: -0.03em;
-  }
-}
-
-/* 親要素をフレックスボックスにして横並びにする */
-.hero-title-area {
-  display: flex;
-  align-items: center; /* 垂直方向の中央揃え */
-  justify-content: center; /* 必要に応じて調整（flex-start など） */
-  gap: 20px; /* ロゴと文字の間隔 */
-}
-
-/* ロゴ側のサイズ感を調整（必要に応じて幅や高さを指定） */
-.intro-logo {
-  flex-shrink: 0; /* ロゴが縮んでしまわないようにする */
-  width: 120px;   /* 全体のレイアウトに合わせてサイズを調整してください */
-}
-
-.logo-block {
-  width: 100%;
-  max-width: 1005px;
-}
-
-.logo-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-text {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.logo-svg-container {
-  width: 150px; /* 表示したい適度なサイズに調整 */
-  height: auto;
-}
-
-/* 画面幅が狭い場合（スマホなど）に縦並びにしたい場合の設定例 */
-@media (max-width: 900px) {
-  .hero-title-area {
-    flex-direction: column; /* スマホでは縦並びにする場合 */
-    text-align: center;
-  }
-}
 
 /* スマホ対応 */
 @media (max-width: 768px) {
@@ -939,26 +828,7 @@ section {
     <a href="Inquiry.html">・お問い合わせ</a>
   </nav>
 
-<!-- 親要素で囲む -->
-<div class="hero-title-area">
-  <!-- 左側に配置するロゴ（提供いただいたコード） -->
-  <div class="intro-photo intro-logo">
-    <div class="logo-block" id="logoBlock">
-      <div class="logo-anim" role="img" aria-label="Stage Link ロゴ">
-        <img class="logo-layer logo-text" src="images/logo_text.png" alt="">
-        <img class="logo-layer logo-L" src="images/logo_L.png" alt="">
-        <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
-          <path id="sPath" d="..." ></path>
-          <circle class="s-dot dot-start" cx="150.3" cy="11.4" r="4.5"></circle>
-          <circle class="s-dot dot-end" cx="353.7" cy="521.4" r="8"></circle>
-        </svg>
-      </div>
-    </div>
-  </div>
-
-  <!-- 右側に配置する「Stagelink」のテキスト（既存の要素） -->
-  <h1 class="site-title">Stagelink</h1>
-</div>
+  
 
   <div class="slider">
     <div class="slides">
@@ -1245,61 +1115,6 @@ section {
     function escapeHtml(str) {
       return str ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
     }
-
-    (function () {
-    var block = document.getElementById('logoBlock');
-    if (!block) return;
-    var sPath = document.getElementById('sPath');
-    var dotEnd = block.querySelector('.dot-end');
-    var DRAW_DELAY = 200;       // 開始の遅延
-    var DRAW_DURATION = 3500;   // 描画にかかる時間 (ms)
-    var len = 0;
-
-    if (sPath) {
-      // パスデータが空でない場合のみ長さを取得
-      try {
-        len = sPath.getTotalLength();
-        sPath.style.strokeDasharray = len;
-        sPath.style.strokeDashoffset = len;
-      } catch (e) {
-        console.warn('SVGのパスデータ(d属性)が正しく設定されていない可能性があります。');
-      }
-    }
-
-    function playAnimation() {
-      if (sPath && sPath.animate && len > 0) {
-        sPath.animate(
-          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
-          { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
-        );
-      } else if (sPath) {
-        sPath.style.strokeDashoffset = 0;
-      }
-      if (dotEnd && dotEnd.animate) {
-        dotEnd.animate(
-          [{ opacity: 0 }, { opacity: 1 }],
-          { duration: 300, delay: DRAW_DELAY + DRAW_DURATION - 100, easing: 'ease-out', fill: 'forwards' }
-        );
-      } else if (dotEnd) {
-        dotEnd.style.opacity = 1;
-      }
-    }
-
-    // 画面内に入ったらすぐにアニメーションを実行（スクロール必須条件を排除）
-    var triggered = false;
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting && !triggered) {
-          triggered = true;
-          block.classList.add('in-view');
-          playAnimation();
-          io.unobserve(block);
-        }
-      });
-    }, { threshold: 0.2 });
-
-    io.observe(block);
-  })();
   </script>
 </body>
 </html>
