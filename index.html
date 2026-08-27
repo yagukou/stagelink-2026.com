@@ -668,20 +668,39 @@ section {
   margin: 0;
 }
 
-/* 全体を横並びに配置 */
+/* --- ロゴブロックのレイアウト・サイズ修正 --- */
 .header-logo-container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 15px;
   padding: 15px 0;
-  background-color: #000; /* ロゴが見えやすいよう黒背景を設定 */
+  background-color: #000;
+  width: 100%;
+  overflow: hidden;
 }
 
-/* 左側：LとSのロゴマーク領域 */
-.header-logo-container .logo-block {
-  width: 60px;
+.logo-block {
+  position: relative;
+  width: 60px; /* ロゴの横幅（必要に応じて調整） */
+  height: 60px; /* ロゴの縦幅（必要に応じて調整） */
   margin: 0;
+}
+
+.logo-anim {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 巨大化しているLとSの画像を正しく収める設定 */
+.logo-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;  /* 親要素(60px)内に強制的に収める */
+  height: 100% !important; /* 親要素(60px)内に強制的に収める */
+  object-fit: contain;
 }
 
 /* ロゴブロック内部で、文字画像を非表示にしてL/Sのみ残す */
