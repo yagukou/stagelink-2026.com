@@ -673,47 +673,93 @@ section {
   border-bottom: 1px solid #1a1a1a;
 }
 
-/* 文字をふわっと浮き上がらせるアニメーションの設定 */
 .stagelink-text {
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-  font-family: sans-serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 900;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  text-transform: uppercase; /* 英字をスタイリッシュな大文字に */
+  letter-spacing: -0.03em;
   margin: 0;
   
-  /* 初期状態：透明にして少し下へ配置 */
+  /* 洗練されたグラデーションとシャドウ */
+  background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 10px 30px rgba(255, 255, 255, 0.15));
+
+  /* 登場モーション：ダイナミックにズームしながら現れる */
   opacity: 0;
-  transform: translateY(20px);
-  
-  /* アニメーションの実行 */
-  animation: fadeInText 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform: scale(1.1);
+  animation: tokyoStyleFade 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.stagelink-text span {
+/* 文字を切り抜く親コンテナ */
+.stagelink-mask {
+  overflow: hidden;
   display: inline-block;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInLetter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  /* 1文字ずつ遅れて再生される */
-  animation-delay: calc(0.08s * var(--i)); 
 }
 
-@keyframes fadeInLetter {
-  to {
-    opacity: 1;
+.stagelink-text {
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+
+  /* 下からスライドイン＋フェード */
+  transform: translateY(100%);
+  opacity: 0;
+  animation: slideUpMask 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+@keyframes slideUpMask {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
-@keyframes fadeInText {
+@keyframes tokyoStyleFade {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: scale(1.1);
+    letter-spacing: 0.1em; /* 登場時は文字間が少し空いていて、スッと締まる */
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
+    letter-spacing: -0.03em;
+  }
+}
+
+/* 親要素をフレックスボックスにして横並びにする */
+.hero-title-area {
+  display: flex;
+  align-items: center; /* 垂直方向の中央揃え */
+  justify-content: center; /* 必要に応じて調整（flex-start など） */
+  gap: 20px; /* ロゴと文字の間隔 */
+}
+
+/* ロゴ側のサイズ感を調整（必要に応じて幅や高さを指定） */
+.intro-logo {
+  flex-shrink: 0; /* ロゴが縮んでしまわないようにする */
+  width: 120px;   /* 全体のレイアウトに合わせてサイズを調整してください */
+}
+
+.logo-block {
+  width: 100%;
+  max-width: 1005px;
+}
+
+/* 画面幅が狭い場合（スマホなど）に縦並びにしたい場合の設定例 */
+@media (max-width: 900px) {
+  .hero-title-area {
+    flex-direction: column; /* スマホでは縦並びにする場合 */
+    text-align: center;
   }
 }
 
@@ -875,21 +921,26 @@ section {
     <a href="Inquiry.html">・お問い合わせ</a>
   </nav>
 
-<section class="stagelink-hero-section">
-    <div class="stagelink-wrapper">
-      <h1 class="stagelink-text">
-  <span style="--i: 1;">S</span>
-  <span style="--i: 2;">t</span>
-  <span style="--i: 3;">a</span>
-  <span style="--i: 4;">g</span>
-  <span style="--i: 5;">e</span>
-  <span style="--i: 6;">L</span>
-  <span style="--i: 7;">i</span>
-  <span style="--i: 8;">n</span>
-  <span style="--i: 9;">k</span>
-</h1>
+<!-- 親要素で囲む -->
+<div class="hero-title-area">
+  <!-- 左側に配置するロゴ（提供いただいたコード） -->
+  <div class="intro-photo intro-logo">
+    <div class="logo-block" id="logoBlock">
+      <div class="logo-anim" role="img" aria-label="Stage Link ロゴ">
+        <img class="logo-layer logo-text" src="images/logo_text.png" alt="">
+        <img class="logo-layer logo-L" src="images/logo_L.png" alt="">
+        <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
+          <path id="sPath" d="..." ></path>
+          <circle class="s-dot dot-start" cx="150.3" cy="11.4" r="4.5"></circle>
+          <circle class="s-dot dot-end" cx="353.7" cy="521.4" r="8"></circle>
+        </svg>
+      </div>
     </div>
-  </section>
+  </div>
+
+  <!-- 右側に配置する「Stagelink」のテキスト（既存の要素） -->
+  <h1 class="site-title">Stagelink</h1>
+</div>
 
   <div class="slider">
     <div class="slides">
