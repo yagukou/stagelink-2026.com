@@ -1233,18 +1233,23 @@ section {
     if (!block) return;
     var sPath = document.getElementById('sPath');
     var dotEnd = block.querySelector('.dot-end');
-    var DRAW_DELAY = 0;
-    var DRAW_DURATION = 3500;
+    var DRAW_DELAY = 200;       // 開始の遅延
+    var DRAW_DURATION = 3500;   // 描画にかかる時間 (ms)
     var len = 0;
 
     if (sPath) {
-      len = sPath.getTotalLength();
-      sPath.style.strokeDasharray = len;
-      sPath.style.strokeDashoffset = len;
+      // パスデータが空でない場合のみ長さを取得
+      try {
+        len = sPath.getTotalLength();
+        sPath.style.strokeDasharray = len;
+        sPath.style.strokeDashoffset = len;
+      } catch (e) {
+        console.warn('SVGのパスデータ(d属性)が正しく設定されていない可能性があります。');
+      }
     }
 
     function playAnimation() {
-      if (sPath && sPath.animate) {
+      if (sPath && sPath.animate && len > 0) {
         sPath.animate(
           [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
           { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
@@ -1262,32 +1267,20 @@ section {
       }
     }
 
+    // 画面内に入ったらすぐにアニメーションを実行（スクロール必須条件を排除）
     var triggered = false;
-    var isIntersecting = false;
-    var hasScrolled = false;
-
-    function tryTrigger() {
-      if (triggered || !isIntersecting || !hasScrolled) return;
-      triggered = true;
-      block.classList.add('in-view');
-      playAnimation();
-      io.unobserve(block);
-      window.removeEventListener('scroll', onFirstScroll);
-    }
-
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        isIntersecting = entry.isIntersecting;
-        tryTrigger();
+        if (entry.isIntersecting && !triggered) {
+          triggered = true;
+          block.classList.add('in-view');
+          playAnimation();
+          io.unobserve(block);
+        }
       });
-    }, { threshold: 0.35, rootMargin: '0px 0px -60px 0px' });
-    io.observe(block);
+    }, { threshold: 0.2 });
 
-    function onFirstScroll() {
-      hasScrolled = true;
-      tryTrigger();
-    }
-    window.addEventListener('scroll', onFirstScroll, { passive: true });
+    io.observe(block);
   })();
   </script>
 </body>
