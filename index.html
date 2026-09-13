@@ -797,51 +797,34 @@ section {
   max-width: 1200px;
   gap: 4rem;
 }
-
-/* --- LOGO エリア（what.htmlと同じ構造） --- */
-.logo-block {
-  flex: 0 0 35%;
-  max-width: 380px;
+/* --- SVGアニメーション & 描画補正 --- */
+#sPath, .s-path {
+  fill: none !important; /* 塗りつぶしを完全に無効化 */
+  stroke: #c80000;
+  stroke-width: 6px;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 2.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.logo-anim {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 484 / 611;
-  perspective: 1400px; /* 3D回転 */
-}
-
-.logo-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Lのロゴ：3D回転の設定 */
-.logo-L {
-  transform-origin: 50.17% 50.0%;
-  transform: rotateY(0deg);
-  transition: transform 2s cubic-bezier(.45, 0, .55, 1);
-  will-change: transform;
-}
-
-.logo-block.in-view .logo-L {
-  transform: rotateY(-360deg); /* 画面に入ったら1回転 */
-}
-
-/* SVGストロークアニメーション（Sの線を描画） */
-.s-path {
-  stroke-dasharray: 1200;
-  stroke-dashoffset: 1200;
-  transition: stroke-dashoffset 2s ease-out;
-}
-
+/* 画面内に入ったら線を最後まで描画する */
+.logo-block.in-view #sPath,
 .logo-block.in-view .s-path {
-  stroke-dashoffset: 0;
+  stroke-dashoffset: 0 !important;
 }
 
+/* 始点・終点の丸の表示制御 */
+.s-dot {
+  transition: opacity 0.5s ease;
+}
+
+.dot-end {
+  opacity: 0;
+}
+
+.logo-block.in-view .dot-end {
+  opacity: 1;
+  transition-delay: 2.2s; /* 線が描き終わる直前に表示 */
+}
 
 /* --- ド派手な StageLink 2026 タイポグラフィ --- */
 .massive-title-wrapper {
@@ -925,34 +908,6 @@ section {
   }
 }
 
-/* --- SVGアニメーション & 描画補正 --- */
-#sPath, .s-path {
-  fill: none !important; /* 塗りつぶしを完全に無効化 */
-  stroke: #c80000;
-  stroke-width: 6px;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 2.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* 画面内に入ったら線を最後まで描画する */
-.logo-block.in-view #sPath,
-.logo-block.in-view .s-path {
-  stroke-dashoffset: 0 !important;
-}
-
-/* 始点・終点の丸の表示制御 */
-.s-dot {
-  transition: opacity 0.5s ease;
-}
-
-.dot-end {
-  opacity: 0;
-}
-
-.logo-block.in-view .dot-end {
-  opacity: 1;
-  transition-delay: 2.2s; /* 線が描き終わる直前に表示 */
-}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -1343,48 +1298,22 @@ section {
     document.addEventListener('DOMContentLoaded', function () {
   var heroLogo = document.getElementById('heroLogoBlock');
   var sPath = document.getElementById('sPath');
-  var dotEnd = heroLogo ? heroLogo.querySelector('.dot-end') : null;
 
-  if (heroLogo) {
-    // 線の長さを取得してセット（what.htmlと同じ処理）
-    var len = 0;
-    if (sPath) {
-      len = sPath.getTotalLength();
-      sPath.style.strokeDasharray = len;
-      sPath.style.strokeDashoffset = len;
-    }
+  if (heroLogo && sPath) {
+    // 線の総長さを正確に計算してCSS変数/プロパティに適用
+    var len = sPath.getTotalLength();
+    sPath.style.strokeDasharray = len;
+    sPath.style.strokeDashoffset = len;
 
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          // Lの回転アニメーションを起動
+          // クラスを付与してCSSアニメーション（Lの回転とSの描画）を一括起動
           heroLogo.classList.add('in-view');
-
-          // Sの線を描画するアニメーション
-          if (sPath && sPath.animate) {
-            sPath.animate(
-              [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
-              { duration: 2500, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
-            );
-          } else if (sPath) {
-            sPath.style.strokeDashoffset = 0;
-          }
-
-          // 終わりの丸を表示
-          if (dotEnd && dotEnd.animate) {
-            dotEnd.animate(
-              [{ opacity: 0 }, { opacity: 1 }],
-              { duration: 300, delay: 2400, easing: 'ease-out', fill: 'forwards' }
-            );
-          } else if (dotEnd) {
-            dotEnd.style.opacity = 1;
-          }
-
-          // 一度実行したら監視を解除
           observer.unobserve(heroLogo);
         }
       });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.2 });
 
     observer.observe(heroLogo);
   }
