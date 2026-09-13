@@ -1,110 +1,293 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>早慶演劇祭リンク - スケジュール</title>
-    <style>
-        :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --primary: #4f46e5; /* モダンなインディゴ */
-            --accent-live: #ef4444; /* 上演中のビビッド赤 */
-            --accent-archive: #94a3b8; /* アーカイブのグレー */
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-            --radius: 12px;
-        }
-        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 40px 20px; line-height: 1.5; }
-        .container { max-width: 900px; margin: 0 auto; }
-        
-        /* ヘッダーデザイン */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; }
-        h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.05em; margin: 0; background: linear-gradient(to right, #4f46e5, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-add { background-color: var(--primary); color: white; text-decoration: none; padding: 10px 18px; font-weight: 600; border-radius: 8px; font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
-        .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); }
-        
-        h2 { font-size: 20px; font-weight: 700; margin-top: 40px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-        
-        /* グリッド・カードデザイン */
-        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
-        
-        .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); border: 1px solid #f1f5f9; position: relative; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
-        
-        /* バッジ */
-        .badge { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 20px; text-transform: uppercase; margin-bottom: 12px; width: fit-content; }
-        .badge-live { background-color: #fee2e2; color: var(--accent-live); }
-        .badge-archive { background-color: #f1f5f9; color: var(--text-muted); }
-        
-        .card-title { font-size: 18px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-main); }
-        .group-name { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 12px; }
-        .date { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-bottom: 12px; }
-        .desc { font-size: 14px; color: #475569; margin: 0; line-height: 1.6; }
-        
-        /* 編集ボタン */
-        .btn-edit { position: absolute; top: 20px; right: 20px; background: #f1f5f9; color: var(--text-muted); text-decoration: none; padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; transition: background 0.2s, color 0.2s; }
-        .btn-edit:hover { background: #e2e8f0; color: var(--text-main); }
-        
-        .empty-message { color: var(--text-muted); font-size: 14px; background: #f1f5f9; padding: 20px; text-align: center; border-radius: var(--radius); border: 2px dashed #cbd5e1; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAGELINK 2026 - Schedule</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #161f33;
+      --accent-color: #00f2fe;
+      --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --text-color: #ffffff;
+      --text-sub: #94a3b8;
+      --border-color: #2a364f;
+      --stage-a: #ff007f;
+      --stage-b: #00f2fe;
+      --stage-c: #7928ca;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    /* フィルタータブ */
+    .filter-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent-gradient);
+      color: #000;
+      border-color: transparent;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    /* タイムライン構造 */
+    .schedule-list {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .schedule-list::before {
+      content: '';
+      position: absolute;
+      left: 85px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border-color);
+    }
+
+    @media (max-width: 600px) {
+      .schedule-list::before {
+        left: 20px;
+      }
+    }
+
+    /* アイテムカード */
+    .schedule-item {
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.5s forwards ease-out;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .time-box {
+      width: 70px;
+      text-align: right;
+      padding-right: 15px;
+      font-weight: bold;
+      color: var(--accent-color);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) {
+      .time-box {
+        display: none;
+      }
+    }
+
+    .marker {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      border: 3px solid var(--bg-color);
+      position: absolute;
+      left: 79px;
+      top: 18px;
+      z-index: 2;
+      box-shadow: 0 0 10px var(--accent-color);
+    }
+
+    @media (max-width: 600px) {
+      .marker {
+        left: 14px;
+      }
+    }
+
+    .card {
+      margin-left: 30px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.2rem;
+      flex-grow: 1;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateX(5px);
+      border-color: var(--accent-color);
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        margin-left: 45px;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .mobile-time {
+      display: none;
+      font-size: 0.9rem;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .mobile-time {
+        display: block;
+      }
+    }
+
+    .stage-badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .stage-main { background: rgba(255, 0, 127, 0.2); color: #ff007f; border: 1px solid #ff007f; }
+    .stage-side { background: rgba(0, 242, 254, 0.2); color: #00f2fe; border: 1px solid #00f2fe; }
+    .stage-lab  { background: rgba(121, 40, 202, 0.2); color: #b871ff; border: 1px solid #7928ca; }
+
+    .card-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-performer {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>早慶演劇祭リンク</h1>
-            <a href="/schedule/add/" class="btn-add">＋ 新しい公演を設定</a>
-        </header>
-
-        <!-- 🔴 現在開演中 -->
-        <section>
-            <h2><span style="color: var(--accent-live);">●</span> 現在開演中の公演</h2>
-            <div class="grid">
-                {% if current_performances %}
-                    {% for play in current_performances %}
-                        <div class="card">
-                            <div>
-                                <span class="badge badge-live">NOW ON STAGE</span>
-                                <a href="/schedule/edit/{{ play.pk }}/" class="btn-edit">編集</a>
-                                <h3 class="card-title">{{ play.title }}</h3>
-                                <div class="group-name">👤 {{ play.theater_group }}</div>
-                                <div class="date">📅 {{ play.start_date|date:"Y/m/d H:i" }} 〜 {{ play.end_date|date:"m/d H:i" }}</div>
-                            </div>
-                            <p class="desc">{{ play.description|truncatechars:80 }}</p>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-message">現在、上演中の公演はありません。</div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- 📁 アーカイブ -->
-        <section>
-            <h2><span style="color: var(--accent-archive);">●</span> 過去の公演（アーカイブ）</h2>
-            <div class="grid">
-                {% if archive_performances %}
-                    {% for play in archive_performances %}
-                        <div class="card" style="opacity: 0.85;">
-                            <div>
-                                <span class="badge badge-archive">ARCHIVE</span>
-                                <a href="/schedule/edit/{{ play.pk }}/" class="btn-edit">編集</a>
-                                <h3 class="card-title">{{ play.title }}</h3>
-                                <div class="group-name">👤 {{ play.theater_group }}</div>
-                                <div class="date">📅 {{ play.start_date|date:"Y/m/d" }} 〜 {{ play.end_date|date:"Y/m/d" }}</div>
-                            </div>
-                            <p class="desc">{{ play.description|truncatechars:80 }}</p>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-message">過去の公演データはありません。</div>
-                {% endif %}
-            </div>
-        </section>
+  <div class="container">
+    <div class="header">
+      <h1>STAGE LINK 2026</h1>
+      <p style="color: var(--text-sub);">TIMETABLE & SCHEDULE</p>
     </div>
 
+    <!-- ステージ切り替えフィルター -->
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="filterSchedule('all')">ALL STAGES</button>
+      <button class="filter-btn" onclick="filterSchedule('main')">MAIN STAGE</button>
+      <button class="filter-btn" onclick="filterSchedule('side')">SIDE STAGE</button>
+      <button class="filter-btn" onclick="filterSchedule('lab')">CREATIVE LAB</button>
+    </div>
+
+    <!-- スケジュールリスト -->
+    <div class="schedule-list" id="scheduleContainer">
+      <!-- JavaScriptで動的生成 -->
+    </div>
+  </div>
+
+  <script>
+    // スケジュールデータ
+    const scheduleData = [
+      { time: "11:00", stage: "main", stageName: "Main Stage", title: "Opening Keynote: The Future of Stage Technology", performer: "STAGELINK Project Team" },
+      { time: "12:30", stage: "side", stageName: "Side Stage", title: "Interactive Lighting Showcase", performer: "Lumina Studio" },
+      { time: "14:00", stage: "lab", stageName: "Creative Lab", title: "AI x Spatial Audio Live Session", performer: "SoundLab 2026" },
+      { time: "15:30", stage: "main", stageName: "Main Stage", title: "Special Guest Performance", performer: "Cyber Synergy Beats" },
+      { time: "17:00", stage: "side", stageName: "Side Stage", title: "Visual & Sensor Tech Panel", performer: "Guest Creators" },
+      { time: "18:30", stage: "main", stageName: "Main Stage", title: "Grand Finale Live Stream", performer: "STAGELINK All Stars" }
+    ];
+
+    function renderSchedule(filter = 'all') {
+      const container = document.getElementById('scheduleContainer');
+      container.innerHTML = '';
+
+      const filtered = filter === 'all' ? scheduleData : scheduleData.filter(item => item.stage === filter);
+
+      filtered.forEach((item, index) => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'schedule-item';
+        itemEl.style.animationDelay = `${index * 0.1}s`;
+
+        itemEl.innerHTML = `
+          <div class="time-box">${item.time}</div>
+          <div class="marker"></div>
+          <div class="card">
+            <div class="card-header">
+              <span class="mobile-time">${item.time}</span>
+              <span class="stage-badge stage-${item.stage}">${item.stageName}</span>
+            </div>
+            <h2 class="card-title">${item.title}</h2>
+            <p class="card-performer">${item.performer}</p>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function filterSchedule(stage) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderSchedule(stage);
+    }
+
+    // 初回レンダリング
+    renderSchedule();
+  </script>
 </body>
 </html>
