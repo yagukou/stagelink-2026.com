@@ -385,7 +385,7 @@ section {
 /* --- 3Dカードフリップ アニメーションCSS --- */
 .bira-section {
   background: #f4efe6;
-  color: #ffffff;
+  color: #000000;
   padding: 110px 10%;
   border-top: 1px solid #222;
 }
@@ -882,29 +882,29 @@ section {
 
 /* 1文字ごとに飛ばしてくる方向（初期位置）と遅延を変える */
 /* S: 上から */
-.word-main .char:nth-child(1) { --x: 0px; --y: -80px; --r: -20deg; animation-delay: 0.1s; }
+.word-main .char:nth-child(1) { --x: 0px; --y: -80px; --r: -20deg; animation-delay: 1s; }
 /* t: 下から */
-.word-main .char:nth-child(2) { --x: -30px; --y: 80px; --r: 15deg; animation-delay: 0.15s; }
+.word-main .char:nth-child(2) { --x: -30px; --y: 80px; --r: 15deg; animation-delay: 1.2s; }
 /* a: 左から */
-.word-main .char:nth-child(3) { --x: -100px; --y: -20px; --r: -30deg; animation-delay: 0.2s; }
+.word-main .char:nth-child(3) { --x: -100px; --y: -20px; --r: -30deg; animation-delay: 1.4; }
 /* g: 右から */
-.word-main .char:nth-child(4) { --x: 100px; --y: 40px; --r: 25deg; animation-delay: 0.25s; }
+.word-main .char:nth-child(4) { --x: 100px; --y: 40px; --r: 25deg; animation-delay: 1.6s; }
 /* e: 右上から */
-.word-main .char:nth-child(5) { --x: 60px; --y: -70px; --r: -15deg; animation-delay: 0.3s; }
+.word-main .char:nth-child(5) { --x: 60px; --y: -70px; --r: -15deg; animation-delay: 1.8s; }
 /* L: 左下から */
-.word-main .char:nth-child(6) { --x: -80px; --y: 70px; --r: 30deg; animation-delay: 0.35s; }
+.word-main .char:nth-child(6) { --x: -80px; --y: 70px; --r: 30deg; animation-delay: 2.0s; }
 /* i: 上から */
-.word-main .char:nth-child(7) { --x: 20px; --y: -90px; --r: -10deg; animation-delay: 0.4s; }
+.word-main .char:nth-child(7) { --x: 20px; --y: -90px; --r: -10deg; animation-delay: 2.2s; }
 /* n: 右下から */
-.word-main .char:nth-child(8) { --x: 90px; --y: 60px; --r: -20deg; animation-delay: 0.45s; }
+.word-main .char:nth-child(8) { --x: 90px; --y: 60px; --r: -20deg; animation-delay: 2.4s; }
 /* k: 左から */
-.word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 0.5s; }
+.word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 2.6s; }
 
 /* 年数(2026): 奥から・下から順番に集まる */
-.word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 0.6s; }
-.word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 0.65s; }
-.word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 0.7s; }
-.word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 0.75s; }
+.word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 2.8s; }
+.word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 3.0s; }
+.word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 3.2s; }
+.word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 3.4s; }
 
 /* バラバラの位置から定位置へ吸い込まれるキーフレーム */
 @keyframes gatherText {
