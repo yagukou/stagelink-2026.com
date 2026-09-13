@@ -901,10 +901,10 @@ section {
 .word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 3.4s; }
 
 /* 年数(2026): 奥から・下から順番に集まる */
-.word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 0.6s; }
-.word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 0.65s; }
-.word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 0.7s; }
-.word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 0.75s; }
+.word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 3.9s; }
+.word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 4.2s; }
+.word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 4.5s; }
+.word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 4.8s; }
 
 /* バラバラの位置から定位置へ吸い込まれるキーフレーム */
 @keyframes gatherText {
@@ -925,6 +925,34 @@ section {
   }
 }
 
+/* --- SVGアニメーション & 描画補正 --- */
+#sPath, .s-path {
+  fill: none !important; /* 塗りつぶしを完全に無効化 */
+  stroke: #c80000;
+  stroke-width: 6px;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 2.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 画面内に入ったら線を最後まで描画する */
+.logo-block.in-view #sPath,
+.logo-block.in-view .s-path {
+  stroke-dashoffset: 0 !important;
+}
+
+/* 始点・終点の丸の表示制御 */
+.s-dot {
+  transition: opacity 0.5s ease;
+}
+
+.dot-end {
+  opacity: 0;
+}
+
+.logo-block.in-view .dot-end {
+  opacity: 1;
+  transition-delay: 2.2s; /* 線が描き終わる直前に表示 */
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -980,20 +1008,24 @@ section {
         <img class="logo-layer logo-L" src="images/logo_L.png" alt="Lのロゴ">
         
         <!-- Lの周りを走る赤線の「S」SVGアニメーション -->
-        <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
-  <!-- 画像の輪郭に合わせた美しいループ軌道 -->
+        <svg class="logo-layer logo-S" viewBox="0 0 484 611" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- stroke="#c80000"（赤線）と fill="none"（塗りつぶしなし）を指定 -->
   <path id="sPath" 
         d="M 160 30 
            C 0 150 -50 420 170 470 
            C 280 490 310 210 330 180 
            C 360 150 410 220 380 320 
-           C 350 400 290 440 280 440" />
+           C 350 400 290 440 280 440" 
+        fill="none" 
+        stroke="#c80000" 
+        stroke-width="6" 
+        stroke-linecap="round" />
   
   <!-- 始点の丸（右上） -->
-  <circle class="s-dot dot-start" cx="160" cy="30" r="7" fill="#b40707" />
+  <circle class="s-dot dot-start" cx="160" cy="30" r="7" fill="#c80000" />
   
   <!-- 終点の丸（下部） -->
-  <circle class="s-dot dot-end" cx="280" cy="440" r="7" fill="#b40707" />
+  <circle class="s-dot dot-end" cx="280" cy="440" r="7" fill="#c80000" />
 </svg>
       </div>
     </div>
