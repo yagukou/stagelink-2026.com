@@ -777,133 +777,103 @@ section {
     }
     #menu-overlay.open { display: block; }
 
-    /* --- ヒーローエリア全体 --- */
-.hero-brand-section {
+    /* ヒーローエリア全体レイアウト */
+.tf-style-hero {
   width: 100%;
-  padding: 60px 20px;
-  background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%);
+  min-height: 80vh;
+  background-color: #000; /* ダーク背景で演出を際立たせる */
+  color: #fff;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   overflow: hidden;
-  box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5);
 }
 
-.hero-brand-container {
+.tf-hero-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 1200px;
+  gap: 2rem;
+}
+
+/* --- 左側：Lロゴの3D回転演出 --- */
+.rotating-l-wrapper {
+  flex: 0 0 35%;
+  perspective: 1000px; /* 3D回転の奥行き感 */
+  display: flex;
   justify-content: center;
-  gap: 40px;
-  max-width: 1100px;
-  width: 100%;
 }
 
-/* --- 左側：ロゴの動き --- */
-.logo-wrapper {
+.l-logo-spin {
   position: relative;
-  display: inline-block;
-  animation: float 4s ease-in-out infinite; /* ゆらゆら浮かぶ動き */
-  transition: transform 0.3s ease;
+  width: 100%;
+  max-width: 280px;
+  transform-style: preserve-3d;
+  animation: spin3D 8s infinite linear; /* ダイナミックな連続回転 */
 }
 
-.animated-logo {
-  max-width: 140px;
+.l-logo-img {
+  width: 100%;
   height: auto;
-  filter: drop-shadow(0 10px 15px rgba(230, 0, 18, 0.3));
-  transition: filter 0.3s ease, transform 0.3s ease;
+  display: block;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
 }
 
-/* ロゴホバー時の拡大＆光沢効果 */
-.logo-wrapper:hover .animated-logo {
-  transform: scale(1.08) rotate(-2deg);
-  filter: drop-shadow(0 15px 25px rgba(250, 204, 21, 0.6));
+/* 光のリング演出 */
+.ring-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  pointer-events: none;
 }
 
-/* ゆらゆら浮遊アニメーション */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+@keyframes spin3D {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
 }
 
-/* --- 右側：StageLinkテキストデザイン --- */
-.brand-title-wrapper {
-  display: flex;
-  flex-direction: column;
+/* --- 右側：タイポグラフィ --- */
+.massive-title-wrapper {
+  flex: 1;
 }
 
-/* タイトルフォント＆アニメーション設定 */
-.brand-title {
-  font-family: 'Cinzel', 'Montserrat', '游明朝', serif; /* 舞台感のあるエレガントなフォント */
-  font-size: 4.5rem;
-  font-weight: 800;
-  letter-spacing: 4px;
+.massive-title {
+  font-size: clamp(3rem, 8vw, 7rem); /* 画面幅に応じて可変する超巨大文字 */
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
   margin: 0;
-  line-height: 1;
-  background: linear-gradient(45deg, #ffffff 30%, #ff4b5c 70%, #f9d423 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: flex;
-}
-
-/* 一文字ずつ時間差で出現するアニメーション */
-.brand-title .letter {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(30px) rotateX(-90deg);
-  animation: revealLetter 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.27) forwards;
-}
-
-/* 文字の登場アニメーションディレイ */
-.brand-title .letter:nth-child(1) { animation-delay: 0.1s; }
-.brand-title .letter:nth-child(2) { animation-delay: 0.2s; }
-.brand-title .letter:nth-child(3) { animation-delay: 0.3s; }
-.brand-title .letter:nth-child(4) { animation-delay: 0.4s; }
-.brand-title .letter:nth-child(5) { animation-delay: 0.5s; }
-.brand-title .letter:nth-child(6) { animation-delay: 0.6s; }
-.brand-title .letter:nth-child(7) { animation-delay: 0.7s; }
-.brand-title .letter:nth-child(8) { animation-delay: 0.8s; }
-.brand-title .letter:nth-child(9) { animation-delay: 0.9s; }
-
-@keyframes revealLetter {
-  to {
-    opacity: 1;
-    transform: translateY(0) rotateX(0deg);
-  }
-}
-
-/* サブタイトル（キャッチコピー） */
-.brand-subtitle {
-  color: rgba(255, 255, 255, 0.7);
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1.1rem;
-  letter-spacing: 6px;
-  margin-top: 12px;
   text-transform: uppercase;
-  opacity: 0;
-  animation: fadeIn 1s ease forwards 1.2s;
 }
 
-@keyframes fadeIn {
-  to { opacity: 1; }
+.bold-text {
+  color: #fff;
+  display: inline-block;
 }
 
-/* --- レスポンシブ（スマホ対応） --- */
-@media (max-width: 768px) {
-  .hero-brand-container {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-  .brand-title {
-    font-size: 3rem;
-  }
-  .brand-subtitle {
-    font-size: 0.85rem;
-    letter-spacing: 3px;
-  }
-  .animated-logo {
-    max-width: 100px;
-  }
+/* アウトライン（袋文字）で東京芸術祭風の派手さを演出 */
+.outline-text {
+  color: transparent;
+  -webkit-text-stroke: 2px #fff;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.ticker-sub {
+  margin-top: 1.5rem;
+  border-top: 1px solid #333;
+  padding-top: 0.8rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  color: #aaa;
 }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -913,24 +883,6 @@ section {
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
 </head>
-
-<section class="hero-brand-section">
-  <div class="hero-brand-container">
-    <!-- 左側：what.htmlのロゴ（浮遊＆ホバー効果） -->
-    <a href="what.html" class="logo-wrapper">
-      <img src="what3.png" alt="企画ロゴ" class="animated-logo">
-      <span class="logo-glare"></span>
-    </a>
-
-    <!-- 右側：StageLinkタイトル（グラデーション＆タイピングアニメーション） -->
-    <div class="brand-title-wrapper">
-      <h1 class="brand-title">
-        <span class="letter">S</span><span class="letter">t</span><span class="letter">a</span><span class="letter">g</span><span class="letter">e</span><span class="letter">L</span><span class="letter">i</span><span class="letter">n</span><span class="letter">k</span>
-      </h1>
-      <p class="brand-subtitle">Connecting Theatres, Linking Dreams.</p>
-    </div>
-  </div>
-</section>
 
 <body>
   <div id="menu-overlay"></div>
@@ -965,6 +917,32 @@ section {
     <div class="hamburger">☰</div>
   </header>
 
+  <section class="tf-style-hero">
+  <div class="tf-hero-container">
+    
+    <!-- 左側：くるくるダイナミックに回転する「L」ロゴアイコン -->
+    <div class="rotating-l-wrapper">
+      <div class="l-logo-spin">
+        <!-- テキストから画像へ差し替え -->
+        <img src="images/logo_L.png" alt="StageLink L Logo" class="l-logo-img">
+        <!-- 光のリング演出 -->
+        <div class="ring-glow"></div>
+      </div>
+    </div>
+
+    <!-- 右側：東京芸術祭風の超ビッグで派手なStageLinkタイポグラフィ -->
+    <div class="massive-title-wrapper">
+      <h1 class="massive-title">
+        <span class="bold-text">STAGE</span><span class="outline-text">LINK</span>
+      </h1>
+      <div class="ticker-sub">
+        <p class="ticker-text">THEATRE NETWORK & ARCHIVE / 2026 OFFICIAL</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
   <nav id="global-dropdown">
     <a href="Philosophy.html">・私たちの思い ーPhilosophy</a>
     <a href="what.html">・企画紹介</a>
@@ -973,8 +951,6 @@ section {
     <a href="member.html">・メンバー</a>
     <a href="Inquiry.html">・お問い合わせ</a>
   </nav>
-
-  
 
   <div class="slider">
     <div class="slides">
