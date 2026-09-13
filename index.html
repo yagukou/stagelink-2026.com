@@ -777,36 +777,59 @@ section {
     }
     #menu-overlay.open { display: block; }
 
-/* --- 全体デザイン：画像に合わせた生成り色背景 ＆ 赤アクセント --- */
-.tf-style-hero {
-  width: 100%;
-  min-height: 85vh;
-  background-color: #f4efe6; /* 画像の背景色（アイボリー系） */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 5%;
-  box-sizing: border-box;
+/* --- Lロゴ（画像）の表示 & 3D回転アニメーション --- */
+.logo-block {
+  position: relative;
+  width: 320px;
+  height: 400px;
+  perspective: 1000px; /* 3D回転の奥行き感 */
 }
 
-.tf-hero-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.logo-anim {
+  position: relative;
   width: 100%;
-  max-width: 1200px;
-  gap: 4rem;
+  height: 100%;
 }
+
+.logo-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Lの初期状態（Y軸回転＆非表示） */
+.logo-L {
+  transform: rotateY(-90deg);
+  opacity: 0;
+  transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s ease;
+  transform-style: preserve-3d;
+}
+
+/* 画面内に入ったらLが滑らかに回転しながら表示 */
+.logo-block.in-view .logo-L {
+  transform: rotateY(0deg);
+  opacity: 1;
+}
+
 /* --- SVGアニメーション & 描画補正 --- */
+.logo-S {
+  pointer-events: none;
+  z-index: 2;
+}
+
 #sPath, .s-path {
-  fill: none !important; /* 塗りつぶしを完全に無効化 */
+  fill: none !important;
   stroke: #c80000;
   stroke-width: 6px;
   stroke-linecap: round;
   transition: stroke-dashoffset 2.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.5s; /* Lの回転が始まってから線を伸ばす */
 }
 
-/* 画面内に入ったら線を最後まで描画する */
+/* 画面内に入ったら線を最後まで描画 */
 .logo-block.in-view #sPath,
 .logo-block.in-view .s-path {
   stroke-dashoffset: 0 !important;
@@ -823,7 +846,7 @@ section {
 
 .logo-block.in-view .dot-end {
   opacity: 1;
-  transition-delay: 2.2s; /* 線が描き終わる直前に表示 */
+  transition-delay: 2.7s;
 }
 
 /* --- ド派手な StageLink 2026 タイポグラフィ --- */
