@@ -882,23 +882,23 @@ section {
 
 /* 1文字ごとに飛ばしてくる方向（初期位置）と遅延を変える */
 /* S: 上から */
-.word-main .char:nth-child(1) { --x: 0px; --y: -80px; --r: -20deg; animation-delay: 0.1s; }
+.word-main .char:nth-child(1) { --x: 0px; --y: -80px; --r: -20deg; animation-delay: 1s; }
 /* t: 下から */
-.word-main .char:nth-child(2) { --x: -30px; --y: 80px; --r: 15deg; animation-delay: 0.15s; }
+.word-main .char:nth-child(2) { --x: -30px; --y: 80px; --r: 15deg; animation-delay: 1.3s; }
 /* a: 左から */
-.word-main .char:nth-child(3) { --x: -100px; --y: -20px; --r: -30deg; animation-delay: 0.2s; }
+.word-main .char:nth-child(3) { --x: -100px; --y: -20px; --r: -30deg; animation-delay: 1.6s; }
 /* g: 右から */
-.word-main .char:nth-child(4) { --x: 100px; --y: 40px; --r: 25deg; animation-delay: 0.25s; }
+.word-main .char:nth-child(4) { --x: 100px; --y: 40px; --r: 25deg; animation-delay: 1.9s; }
 /* e: 右上から */
-.word-main .char:nth-child(5) { --x: 60px; --y: -70px; --r: -15deg; animation-delay: 0.3s; }
+.word-main .char:nth-child(5) { --x: 60px; --y: -70px; --r: -15deg; animation-delay: 2.2s; }
 /* L: 左下から */
-.word-main .char:nth-child(6) { --x: -80px; --y: 70px; --r: 30deg; animation-delay: 0.35s; }
+.word-main .char:nth-child(6) { --x: -80px; --y: 70px; --r: 30deg; animation-delay: 2.5s; }
 /* i: 上から */
-.word-main .char:nth-child(7) { --x: 20px; --y: -90px; --r: -10deg; animation-delay: 0.4s; }
+.word-main .char:nth-child(7) { --x: 20px; --y: -90px; --r: -10deg; animation-delay: 2.8s; }
 /* n: 右下から */
-.word-main .char:nth-child(8) { --x: 90px; --y: 60px; --r: -20deg; animation-delay: 0.45s; }
+.word-main .char:nth-child(8) { --x: 90px; --y: 60px; --r: -20deg; animation-delay: 3.1s; }
 /* k: 左から */
-.word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 0.5s; }
+.word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 3.4s; }
 
 /* 年数(2026): 奥から・下から順番に集まる */
 .word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 0.6s; }
@@ -980,20 +980,20 @@ section {
         <img class="logo-layer logo-L" src="images/logo_L.png" alt="Lのロゴ">
         
         <!-- Lの周りを走る赤線の「S」SVGアニメーション -->
-        <svg class="logo-layer logo-S" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 画像の赤線軌道（右上の始点 -> 左下へ大きくカーブ -> クロスして右上ループ -> 下の終点） -->
-  <path d="M 160 30 
+        <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
+  <!-- 画像の輪郭に合わせた美しいループ軌道 -->
+  <path id="sPath" 
+        d="M 160 30 
            C 0 150 -50 420 170 470 
            C 280 490 310 210 330 180 
            C 360 150 410 220 380 320 
-           C 350 400 290 440 280 440" 
-        stroke="#c80000" stroke-width="6" stroke-linecap="round" class="s-path" />
+           C 350 400 290 440 280 440" />
   
   <!-- 始点の丸（右上） -->
-  <circle cx="160" cy="30" r="7" fill="#c80000" />
+  <circle class="s-dot dot-start" cx="160" cy="30" r="7" fill="#b40707" />
   
   <!-- 終点の丸（下部） -->
-  <circle cx="325" cy="560" r="7" fill="#c80000" />
+  <circle class="s-dot dot-end" cx="280" cy="440" r="7" fill="#b40707" />
 </svg>
       </div>
     </div>
@@ -1310,11 +1310,46 @@ section {
 
     document.addEventListener('DOMContentLoaded', function () {
   var heroLogo = document.getElementById('heroLogoBlock');
+  var sPath = document.getElementById('sPath');
+  var dotEnd = heroLogo ? heroLogo.querySelector('.dot-end') : null;
+
   if (heroLogo) {
+    // 線の長さを取得してセット（what.htmlと同じ処理）
+    var len = 0;
+    if (sPath) {
+      len = sPath.getTotalLength();
+      sPath.style.strokeDasharray = len;
+      sPath.style.strokeDashoffset = len;
+    }
+
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          heroLogo.classList.add('in-view'); // 画面表示時に「L」が回転し「S」の線が描画される
+          // Lの回転アニメーションを起動
+          heroLogo.classList.add('in-view');
+
+          // Sの線を描画するアニメーション
+          if (sPath && sPath.animate) {
+            sPath.animate(
+              [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+              { duration: 2500, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
+            );
+          } else if (sPath) {
+            sPath.style.strokeDashoffset = 0;
+          }
+
+          // 終わりの丸を表示
+          if (dotEnd && dotEnd.animate) {
+            dotEnd.animate(
+              [{ opacity: 0 }, { opacity: 1 }],
+              { duration: 300, delay: 2400, easing: 'ease-out', fill: 'forwards' }
+            );
+          } else if (dotEnd) {
+            dotEnd.style.opacity = 1;
+          }
+
+          // 一度実行したら監視を解除
+          observer.unobserve(heroLogo);
         }
       });
     }, { threshold: 0.3 });
