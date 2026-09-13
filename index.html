@@ -980,12 +980,20 @@ section {
         <img class="logo-layer logo-L" src="images/logo_L.png" alt="Lのロゴ">
         
         <!-- Lの周りを走る赤線の「S」SVGアニメーション -->
-        <svg class="logo-layer logo-S" viewBox="0 0 484 611" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 歪みをとり、画像通りのきれいな円弧を描くパスへ変更 -->
-  <path d="M 160 30 C -20 180 -20 420 160 420 C 340 420 480 200 340 160 C 240 130 280 480 320 500" 
-        stroke="#c80000" stroke-width="7" stroke-linecap="round" class="s-path" />
+        <svg class="logo-layer logo-S" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 画像の赤線軌道（右上の始点 -> 左下へ大きくカーブ -> クロスして右上ループ -> 下の終点） -->
+  <path d="M 160 30 
+           C 0 150 -50 420 170 470 
+           C 280 490 310 210 330 180 
+           C 360 150 410 220 380 320 
+           C 350 400 290 440 280 440" 
+        stroke="#c80000" stroke-width="6" stroke-linecap="round" class="s-path" />
+  
+  <!-- 始点の丸（右上） -->
   <circle cx="160" cy="30" r="7" fill="#c80000" />
-  <circle cx="320" cy="500" r="7" fill="#c80000" />
+  
+  <!-- 終点の丸（下部） -->
+  <circle cx="325" cy="560" r="7" fill="#c80000" />
 </svg>
       </div>
     </div>
