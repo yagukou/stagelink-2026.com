@@ -777,134 +777,137 @@ section {
     }
     #menu-overlay.open { display: block; }
 
-    /* ヒーローエリア全体レイアウト */
+/* --- ヒーローエリア全体レイアウト --- */
 .tf-style-hero {
   width: 100%;
-  min-height: 80vh;
-  background-color: #000; /* ダーク背景で演出を際立たせる */
-  color: #fff;
+  min-height: 85vh;
+  background-color: #000;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* 左寄せ気味にしてロゴを自然な配置へ */
+  padding: 0 5%;
   overflow: hidden;
 }
 
 .tf-hero-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 90%;
-  max-width: 1200px;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 1400px;
   gap: 2rem;
 }
 
-/* --- 左側：Lロゴの3D回転演出 --- */
-.rotating-l-wrapper {
-  flex: 0 0 35%;
-  perspective: 1000px; /* 3D回転の奥行き感 */
-  display: flex;
-  justify-content: center;
+/* --- what.htmlの「L」ロゴ構造（位置調整付き） --- */
+.logo-block {
+  flex: 0 0 32%; /* 幅を調整してより自然な比率に */
+  max-width: 400px;
 }
 
-/* --- Lにまとわりつく光のリング演出 --- */
-.l-logo-spin {
+.logo-anim {
   position: relative;
-  display: inline-block;
-}
-
-.ring-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-/* 1つ目のリング：揺らめきながら回転 */
-.ring-1 {
-  width: 120%;
-  height: 120%;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.4);
-  animation: pulseRing 3s infinite ease-in-out alternate;
-}
-
-/* 2つ目のリング：逆方向に大きく拡大縮小 */
-.ring-2 {
-  width: 140%;
-  height: 140%;
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  animation: orbitRing 6s infinite linear;
-}
-
-@keyframes pulseRing {
-  0% { transform: translate(-50%, -50%) scale(0.9) rotate(0deg); opacity: 0.5; }
-  100% { transform: translate(-50%, -50%) scale(1.1) rotate(180deg); opacity: 1; }
-}
-
-@keyframes orbitRing {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(-360deg); }
-}
-
-/* --- STAGE LINK 文字のアニメーション --- */
-.massive-title {
-  /* 文字全体を少しふわふわ動かす */
-  animation: floatText 4s infinite ease-in-out alternate;
-}
-
-.bold-text, .outline-text {
-  display: inline-block;
-  transition: transform 0.3s ease;
-}
-
-/* STAGE（塗りつぶし文字）のアニメーション */
-.bold-text {
-  animation: glowPulse 2s infinite alternate;
-}
-
-/* LINK（袋文字）のアニメーション */
-.outline-text {
-  color: transparent;
-  -webkit-text-stroke: 2px #fff;
-  animation: strokeGlow 3s infinite alternate;
-}
-
-@keyframes floatText {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-8px); }
-}
-
-@keyframes glowPulse {
-  0% { text-shadow: 0 0 5px rgba(255,255,255,0.2); }
-  100% { text-shadow: 0 0 20px rgba(255,255,255,0.8); }
-}
-
-@keyframes strokeGlow {
-  0% { -webkit-text-stroke-color: #fff; }
-  100% { -webkit-text-stroke-color: #aaa; }
-}
-
-/* --- サブテキスト（電光掲示板のように流れる動き） --- */
-.ticker-sub {
-  overflow: hidden;
-  white-space: nowrap;
   width: 100%;
+  aspect-ratio: 484 / 611;
+  perspective: 1400px; /* what.htmlの奥行き設定 */
 }
 
-.ticker-track {
-  display: inline-block;
-  animation: ticker 10s linear infinite;
+.logo-layer {
+  position: absolute;
+  display: block;
 }
 
-.ticker-track span {
-  padding-right: 50px;
+.logo-L {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  transform-origin: 50.17% 50.0%;
+  /* 画面表示時のアニメーション設定 */
+  transform: rotateY(0deg);
+  transition: transform 2s cubic-bezier(.45, 0, .55, 1);
+  will-change: transform;
+  /* ネオン風の光を追加 */
+  filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
 }
 
-@keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* 表示時に360度回転（JSでin-viewを付与） */
+.logo-block.in-view .logo-L {
+  transform: rotateY(-360deg);
+}
+
+
+/* --- 超ド派手な STAGE LINK タイポグラフィ演出 --- */
+.massive-title-wrapper {
+  flex: 1;
+}
+
+.massive-title {
+  font-size: clamp(3.5rem, 9vw, 8.5rem);
+  font-weight: 900;
+  line-height: 0.85;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.word {
+  display: flex;
+}
+
+/* STAGE（グラデーション＆拡大ダイナミックアニメーション） */
+.word.stage .char {
+  color: #fff;
+  background: linear-gradient(45deg, #fff, #ff007f, #00f0ff, #fff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: 
+    gradientShift 3s ease infinite,
+    wavePulse 1.5s ease-in-out infinite alternate;
+}
+
+/* LINK（ド派手ネオン袋文字＆ゆれ演出） */
+.word.link .char {
+  color: transparent;
+  -webkit-text-stroke: 3px #00f0ff;
+  text-shadow: 
+    0 0 10px #00f0ff,
+    0 0 20px #00f0ff,
+    0 0 40px #ff007f;
+  animation: 
+    neonFlicker 2s infinite alternate,
+    wavePulse 1.5s ease-in-out infinite alternate;
+}
+
+/* 1文字ごとにアニメーションのタイミングをずらす（ウェーブ効果） */
+.char:nth-child(1) { animation-delay: 0.0s; }
+.char:nth-child(2) { animation-delay: 0.1s; }
+.char:nth-child(3) { animation-delay: 0.2s; }
+.char:nth-child(4) { animation-delay: 0.3s; }
+.char:nth-child(5) { animation-delay: 0.4s; }
+
+/* キーフレーム定義 */
+@keyframes wavePulse {
+  0% { transform: translateY(0) scale(1) rotate(0deg); }
+  100% { transform: translateY(-15px) scale(1.08) rotate(2deg); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes neonFlicker {
+  0%, 100% {
+    -webkit-text-stroke-color: #00f0ff;
+    filter: drop-shadow(0 0 15px #00f0ff);
+  }
+  50% {
+    -webkit-text-stroke-color: #ff007f;
+    filter: drop-shadow(0 0 25px #ff007f);
+  }
 }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -948,31 +951,27 @@ section {
     <div class="hamburger">☰</div>
   </header>
 
-  <section class="tf-style-hero">
+<section class="tf-style-hero">
   <div class="tf-hero-container">
     
-    <!-- 左側：回転するLロゴとまとわりつく光のリング -->
-    <div class="rotating-l-wrapper">
-      <div class="l-logo-spin">
-        <img src="images/logo_L.png" alt="StageLink L Logo" class="l-logo-img">
-        <!-- Lにまとわりつく光のリング（2重にして動きを強調） -->
-        <div class="ring-glow ring-1"></div>
-        <div class="ring-glow ring-2"></div>
+    <!-- 左側：what.htmlから移植した「L」のロゴ（左寄りに配置） -->
+    <div class="logo-block" id="heroLogoBlock">
+      <div class="logo-anim">
+        <!-- 回転する L のロゴ画像 -->
+        <img class="logo-layer logo-L" src="images/logo_L.png" alt="Lのロゴ">
       </div>
     </div>
 
-    <!-- 右側：動きのあるStageLinkタイポグラフィ -->
+    <!-- 右側：超ド派手に動くStageLinkタイポグラフィ -->
     <div class="massive-title-wrapper">
       <h1 class="massive-title">
-        <span class="bold-text">STAGE</span><span class="outline-text">LINK</span>
+        <span class="word stage">
+          <span class="char">S</span><span class="char">T</span><span class="char">A</span><span class="char">G</span><span class="char">E</span>
+        </span>
+        <span class="word link">
+          <span class="char">L</span><span class="char">I</span><span class="char">N</span><span class="char">K</span>
+        </span>
       </h1>
-      <div class="ticker-sub">
-        <!-- 横方向に流れるテキスト -->
-        <div class="ticker-track">
-          <span>THEATRE NETWORK & ARCHIVE / 2026 OFFICIAL</span>
-          <span>THEATRE NETWORK & ARCHIVE / 2026 OFFICIAL</span>
-        </div>
-      </div>
     </div>
 
   </div>
