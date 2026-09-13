@@ -14,7 +14,7 @@
 
   <link rel="icon" href="https://blviywoprvcatwwrrysi.supabase.co/storage/v1/object/public/assets/Untitled%20folder/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" href="https://blviywoprvcatwwrrysi.supabase.co/storage/v1/object/public/assets/Untitled%20folder/favicon.ico" type="image/x-icon" />
-  
+
   <style>
     /* --- 全体設定：明朝体をベースに格式高さを演出 --- */
     body {
@@ -711,7 +711,7 @@ section {
         justify-content: space-between !important;
         align-items: center !important;
       }
-      
+
       .logo { 
         position: absolute; 
         left: 50%; 
@@ -777,18 +777,38 @@ section {
     }
     #menu-overlay.open { display: block; }
 
-/* --- Lロゴ（画像）の表示 & 3D回転アニメーション --- */
+/* --- 全体デザイン：画像に合わせた生成り色背景 ＆ 赤アクセント --- */
+.tf-style-hero {
+  width: 100%;
+  min-height: 85vh;
+  background-color: #f4efe6; /* 画像の背景色（アイボリー系） */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 5%;
+  box-sizing: border-box;
+}
+
+.tf-hero-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  gap: 4rem;
+}
+
+/* --- LOGO エリア（what.htmlと同じ構造） --- */
 .logo-block {
-  position: relative;
-  width: 320px;
-  height: 400px;
-  perspective: 1000px; /* 3D回転の奥行き感 */
+  flex: 0 0 35%;
+  max-width: 380px;
 }
 
 .logo-anim {
   position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 484 / 611;
+  perspective: 1400px; /* 3D回転 */
 }
 
 .logo-layer {
@@ -797,57 +817,31 @@ section {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
 }
 
-/* Lの初期状態（Y軸回転＆非表示） */
+/* Lのロゴ：3D回転の設定 */
 .logo-L {
-  transform: rotateY(-90deg);
-  opacity: 0;
-  transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s ease;
-  transform-style: preserve-3d;
-}
-
-/* 画面内に入ったらLが滑らかに回転しながら表示 */
-.logo-block.in-view .logo-L {
+  transform-origin: 50.17% 50.0%;
   transform: rotateY(0deg);
-  opacity: 1;
+  transition: transform 2s cubic-bezier(.45, 0, .55, 1);
+  will-change: transform;
 }
 
-/* --- SVGアニメーション & 描画補正 --- */
-.logo-S {
-  pointer-events: none;
-  z-index: 2;
+.logo-block.in-view .logo-L {
+  transform: rotateY(-360deg); /* 画面に入ったら1回転 */
 }
 
-#sPath, .s-path {
-  fill: none !important;
-  stroke: #c80000;
-  stroke-width: 6px;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 2.5s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: 0.5s; /* Lの回転が始まってから線を伸ばす */
+/* SVGストロークアニメーション（Sの線を描画） */
+.s-path {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  transition: stroke-dashoffset 2s ease-out;
 }
 
-/* 画面内に入ったら線を最後まで描画 */
-.logo-block.in-view #sPath,
 .logo-block.in-view .s-path {
-  stroke-dashoffset: 0 !important;
+  stroke-dashoffset: 0;
 }
 
-/* 始点・終点の丸の表示制御 */
-.s-dot {
-  transition: opacity 0.5s ease;
-}
-
-.dot-end {
-  opacity: 0;
-}
-
-.logo-block.in-view .dot-end {
-  opacity: 1;
-  transition-delay: 2.7s;
-}
 
 /* --- ド派手な StageLink 2026 タイポグラフィ --- */
 .massive-title-wrapper {
@@ -888,29 +882,29 @@ section {
 
 /* 1文字ごとに飛ばしてくる方向（初期位置）と遅延を変える */
 /* S: 上から */
-.word-main .char:nth-child(1) { --x: 0px; --y: -80px; --r: -20deg; animation-delay: 1s; }
+.word-main .char:nth-child(1) { --x: 0px; --y: -80px; --r: -20deg; animation-delay: 0.1s; }
 /* t: 下から */
-.word-main .char:nth-child(2) { --x: -30px; --y: 80px; --r: 15deg; animation-delay: 1.3s; }
+.word-main .char:nth-child(2) { --x: -30px; --y: 80px; --r: 15deg; animation-delay: 0.15s; }
 /* a: 左から */
-.word-main .char:nth-child(3) { --x: -100px; --y: -20px; --r: -30deg; animation-delay: 1.6s; }
+.word-main .char:nth-child(3) { --x: -100px; --y: -20px; --r: -30deg; animation-delay: 0.2s; }
 /* g: 右から */
-.word-main .char:nth-child(4) { --x: 100px; --y: 40px; --r: 25deg; animation-delay: 1.9s; }
+.word-main .char:nth-child(4) { --x: 100px; --y: 40px; --r: 25deg; animation-delay: 0.25s; }
 /* e: 右上から */
-.word-main .char:nth-child(5) { --x: 60px; --y: -70px; --r: -15deg; animation-delay: 2.2s; }
+.word-main .char:nth-child(5) { --x: 60px; --y: -70px; --r: -15deg; animation-delay: 0.3s; }
 /* L: 左下から */
-.word-main .char:nth-child(6) { --x: -80px; --y: 70px; --r: 30deg; animation-delay: 2.5s; }
+.word-main .char:nth-child(6) { --x: -80px; --y: 70px; --r: 30deg; animation-delay: 0.35s; }
 /* i: 上から */
-.word-main .char:nth-child(7) { --x: 20px; --y: -90px; --r: -10deg; animation-delay: 2.8s; }
+.word-main .char:nth-child(7) { --x: 20px; --y: -90px; --r: -10deg; animation-delay: 0.4s; }
 /* n: 右下から */
-.word-main .char:nth-child(8) { --x: 90px; --y: 60px; --r: -20deg; animation-delay: 3.1s; }
+.word-main .char:nth-child(8) { --x: 90px; --y: 60px; --r: -20deg; animation-delay: 0.45s; }
 /* k: 左から */
-.word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 3.4s; }
+.word-main .char:nth-child(9) { --x: -110px; --y: 0px; --r: 15deg; animation-delay: 0.5s; }
 
 /* 年数(2026): 奥から・下から順番に集まる */
-.word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 3.9s; }
-.word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 4.2s; }
-.word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 4.5s; }
-.word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 4.8s; }
+.word-year .char-num:nth-child(1) { --x: -50px; --y: 100px; --r: -40deg; animation-delay: 0.6s; }
+.word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 0.65s; }
+.word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 0.7s; }
+.word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 0.75s; }
 
 /* バラバラの位置から定位置へ吸い込まれるキーフレーム */
 @keyframes gatherText {
@@ -975,35 +969,36 @@ section {
 
 <section class="tf-style-hero">
   <div class="tf-hero-container">
-    
+
     <!-- 左側：what.html完全再現のロゴ（L画像 ＋ S線描画SVG） -->
     <div class="logo-block" id="heroLogoBlock">
       <div class="logo-anim">
         <!-- 背景レイヤーテキスト（必要に応じて） -->
         <img class="logo-layer logo-text" src="images/logo_text.png" alt="" style="display: none;">
-        
+
         <!-- 回転する L のロゴ画像 -->
         <img class="logo-layer logo-L" src="images/logo_L.png" alt="Lのロゴ">
-        
+
         <!-- Lの周りを走る赤線の「S」SVGアニメーション -->
         <svg class="logo-layer logo-S" viewBox="0 0 484 611" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- stroke="#c80000"（赤線）と fill="none"（塗りつぶしなし）を指定 -->
-  <path id="sPath" 
-        d="M 160 30 
+  <!-- 歪みをとり、画像通りのきれいな円弧を描くパスへ変更 -->
+  <path d="M 160 30 C -20 180 -20 420 160 420 C 340 420 480 200 340 160 C 240 130 280 480 320 500" 
+        stroke="#c80000" stroke-width="7" stroke-linecap="round" class="s-path" />
+        <svg class="logo-layer logo-S" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 画像の赤線軌道（右上の始点 -> 左下へ大きくカーブ -> クロスして右上ループ -> 下の終点） -->
+  <path d="M 160 30 
            C 0 150 -50 420 170 470 
            C 280 490 310 210 330 180 
            C 360 150 410 220 380 320 
            C 350 400 290 440 280 440" 
-        fill="none" 
-        stroke="#c80000" 
-        stroke-width="6" 
-        stroke-linecap="round" />
+        stroke="#c80000" stroke-width="6" stroke-linecap="round" class="s-path" />
   
   <!-- 始点の丸（右上） -->
-  <circle class="s-dot dot-start" cx="160" cy="30" r="7" fill="#c80000" />
+  <circle cx="160" cy="30" r="7" fill="#c80000" />
+  <circle cx="320" cy="500" r="7" fill="#c80000" />
   
   <!-- 終点の丸（下部） -->
-  <circle class="s-dot dot-end" cx="280" cy="440" r="7" fill="#c80000" />
+  <circle cx="325" cy="560" r="7" fill="#c80000" />
 </svg>
       </div>
     </div>
@@ -1256,7 +1251,7 @@ section {
     // イベントリスナーの登録
     if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
     if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
-    
+
     // オーバーレイ（背景）クリックで閉じる
     if (menuOverlay) menuOverlay.onclick = toggleMenu;
 
@@ -1320,27 +1315,17 @@ section {
 
     document.addEventListener('DOMContentLoaded', function () {
   var heroLogo = document.getElementById('heroLogoBlock');
-  var sPath = document.getElementById('sPath');
-
-  if (heroLogo && sPath) {
-    // 線の総長さを正確に計算してCSS変数/プロパティに適用
-    var len = sPath.getTotalLength();
-    sPath.style.strokeDasharray = len;
-    sPath.style.strokeDashoffset = len;
-
+  if (heroLogo) {
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          // クラスを付与してCSSアニメーション（Lの回転とSの描画）を一括起動
-          heroLogo.classList.add('in-view');
-          observer.unobserve(heroLogo);
+          heroLogo.classList.add('in-view'); // 画面表示時に「L」が回転し「S」の線が描画される
         }
       });
-    }, { threshold: 0.2 });
+    }, { threshold: 0.3 });
 
     observer.observe(heroLogo);
   }
 });
   </script>
 </body>
-</html>
