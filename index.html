@@ -797,51 +797,59 @@ section {
   max-width: 1200px;
   gap: 4rem;
 }
-
-/* --- LOGO エリア（what.htmlと同じ構造） --- */
-.logo-block {
-  flex: 0 0 35%;
-  max-width: 380px;
-}
-
 .logo-anim {
   position: relative;
   width: 100%;
   aspect-ratio: 484 / 611;
-  perspective: 1400px; /* 3D回転 */
+  margin: 0 auto;
+  perspective: 1400px;
 }
 
 .logo-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  display: block;
 }
 
-/* Lのロゴ：3D回転の設定 */
+/* Lの画像と回転設定 */
 .logo-L {
+  left: -10.537%;
+  top: 6.547%;
+  width: 112.397%;
+  height: 89.034%;
   transform-origin: 50.17% 50.0%;
   transform: rotateY(0deg);
-  transition: transform 2s cubic-bezier(.45, 0, .55, 1);
+  transition: transform 2s cubic-bezier(.45,0,.55,1);
   will-change: transform;
 }
 
-.logo-block.in-view .logo-L {
-  transform: rotateY(-360deg); /* 画面に入ったら1回転 */
+/* SのSVGスタイル */
+.logo-S {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-/* SVGストロークアニメーション（Sの線を描画） */
-.s-path {
-  stroke-dasharray: 1200;
-  stroke-dashoffset: 1200;
-  transition: stroke-dashoffset 2s ease-out;
+#sPath {
+  fill: none;
+  stroke: #d60a0a;
+  stroke-width: 5.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.logo-block.in-view .s-path {
-  stroke-dashoffset: 0;
+.s-dot {
+  fill: #b40707;
 }
 
+.s-dot.dot-end {
+  opacity: 0;
+}
+
+/* 表示領域に入った（in-viewがついた）時に L が Y軸に-360度回転する */
+.logo-block.in-view .logo-L { 
+  transform: rotateY(-360deg); 
+}
 
 /* --- ド派手な StageLink 2026 タイポグラフィ --- */
 .massive-title-wrapper {
@@ -970,33 +978,19 @@ section {
 <section class="tf-style-hero">
   <div class="tf-hero-container">
 
-    <!-- 左側：what.html完全再現のロゴ（L画像 ＋ S線描画SVG） -->
-    <div class="logo-block" id="heroLogoBlock">
-      <div class="logo-anim">
-        <!-- 背景レイヤーテキスト（必要に応じて） -->
-        <img class="logo-layer logo-text" src="images/logo_text.png" alt="" style="display: none;">
-
-        <!-- 回転する L のロゴ画像 -->
-        <img class="logo-layer logo-L" src="images/logo_L.png" alt="Lのロゴ">
-
-        <!-- Lの周りを走る赤線の「S」SVGアニメーション -->
-        
-  <!-- 画像の赤線軌道（右上の始点 -> 左下へ大きくカーブ -> クロスして右上ループ -> 下の終点） -->
-  <path d="M 160 30 
-           C 0 150 -50 420 170 470 
-           C 280 490 310 210 330 180 
-           C 360 150 410 220 380 320 
-           C 350 400 290 440 280 440" 
-        stroke="#c80000" stroke-width="6" stroke-linecap="round" class="s-path" />
-  
-  <!-- 始点の丸（右上） -->
-  <circle cx="160" cy="30" r="7" fill="#c80000" />
-  
-  <!-- 終点の丸（下部） -->
-  <circle cx="325" cy="560" r="7" fill="#c80000" />
-</svg>
-      </div>
-    </div>
+    <div class="logo-block" id="logoBlock">
+  <div class="logo-anim" role="img" aria-label="Stage Link ロゴ">
+    <img class="logo-layer logo-text" src="images/logo_text.png" alt="">
+    <!-- Lの画像 -->
+    <img class="logo-layer logo-L" src="images/logo_L.png" alt="">
+    <!-- SのSVGパス -->
+    <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
+      <path id="sPath" d="M 150.3 11.4 C ... (中略) ... 353.7 521.4"></path>
+      <circle class="s-dot dot-start" cx="150.3" cy="11.4" r="4.5"></circle>
+      <circle class="s-dot dot-end" cx="353.7" cy="521.4" r="8"></circle>
+    </svg>
+  </div>
+</div>
 
     <!-- 右側：StageLink 2026 タイポグラフィ -->
     <div class="massive-title-wrapper">
@@ -1308,19 +1302,72 @@ section {
       return str ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-  var heroLogo = document.getElementById('heroLogoBlock');
-  if (heroLogo) {
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          heroLogo.classList.add('in-view'); // 画面表示時に「L」が回転し「S」の線が描画される
-        }
-      });
-    }, { threshold: 0.3 });
+(function () {
+  var block = document.getElementById('logoBlock');
+  if (!block) return;
+  var sPath = document.getElementById('sPath');
+  var dotEnd = block.querySelector('.dot-end');
+  var DRAW_DELAY = 0;
+  var DRAW_DURATION = 3500;
+  var len = 0;
 
-    observer.observe(heroLogo);
+  if (sPath) {
+    len = sPath.getTotalLength();
+    sPath.style.strokeDasharray = len;
+    sPath.style.strokeDashoffset = len;
   }
-});
+
+  // Sを描画するアニメーション
+  function playAnimation() {
+    if (sPath && sPath.animate) {
+      sPath.animate(
+        [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+        { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
+      );
+    } else if (sPath) {
+      sPath.style.strokeDashoffset = 0;
+    }
+    if (dotEnd && dotEnd.animate) {
+      dotEnd.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 300, delay: DRAW_DELAY + DRAW_DURATION - 100, easing: 'ease-out', fill: 'forwards' }
+      );
+    } else if (dotEnd) {
+      dotEnd.style.opacity = 1;
+    }
+  }
+
+  var triggered = false;
+  var isIntersecting = false;
+  var hasScrolled = false;
+
+  function tryTrigger() {
+    if (triggered || !isIntersecting || !hasScrolled) return;
+    triggered = true;
+    
+    // in-view クラスを付与して CSS で L を回転させる
+    block.classList.add('in-view');
+    // Sの描画アニメーションを開始する
+    playAnimation();
+    
+    io.unobserve(block);
+    window.removeEventListener('scroll', onFirstScroll);
+  }
+
+  // スクロールおよび画面内検知 (IntersectionObserver)
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      isIntersecting = entry.isIntersecting;
+      tryTrigger();
+    });
+  }, { threshold: 0.35, rootMargin: '0px 0px -60px 0px' });
+  io.observe(block);
+
+  function onFirstScroll() {
+    hasScrolled = true;
+    tryTrigger();
+  }
+  window.addEventListener('scroll', onFirstScroll, { passive: true });
+})();
   </script>
 </body>
