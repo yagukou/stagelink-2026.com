@@ -804,53 +804,36 @@ section {
   flex-shrink: 0;     /* フレックスボックス内で潰れるのを防ぐ */
 }
 
+/* ロゴエリア全体の基準 */
 .logo-anim {
   position: relative;
   width: 100%;
-  aspect-ratio: 484 / 611;
+  max-width: 600px; /* デザインに応じたベース幅 */
+  aspect-ratio: 484 / 611; /* SVGのviewBox比率に合わせる */
   margin: 0 auto;
-  perspective: 1400px;
 }
 
+/* 各レイヤー（画像・SVG）をピッタリ重ね合わせる */
 .logo-layer {
   position: absolute;
-  display: block;
-}
-
-/* Lの画像と回転設定 */
-.logo-L {
-  left: -10.537%;
-  top: 6.547%;
-  width: 112.397%;
-  height: 89.034%;
-  transform-origin: 50.17% 50.0%;
-  transform: rotateY(0deg);
-  transition: transform 2s cubic-bezier(.45,0,.55,1);
-  will-change: transform;
-}
-
-/* SのSVGスタイル */
-.logo-S {
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  object-fit: contain;
+}
+
+/* SVG要素 */
+.logo-S {
+  z-index: 3;
   overflow: visible;
 }
 
-#sPath {
-  fill: none;
-  stroke: #d60a0a;
-  stroke-width: 5.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.s-dot {
-  fill: #b40707;
-}
-
+/* i の点となる終点ドットの調整 */
 .s-dot.dot-end {
-  opacity: 0;
+  transform-origin: center;
+  /* 位置が微調整必要な場合は cx/cy か、以下の transform でピクセル微調整可能です */
+  /* transform: translate(2px, -3px); */
 }
 
 /* 表示領域に入った（in-viewがついた）時に L が Y軸に-360度回転する */
@@ -987,17 +970,24 @@ section {
 
     <div class="logo-block" id="logoBlock">
       <div class="logo-anim" role="img" aria-label="Stage Link ロゴ">
-        <img class="logo-layer logo-text" src="images/logo_text.png" alt="">
+        <!-- ベースとなるテキスト（iの点が無い/空いている状態） -->
+        <img class="logo-layer logo-text" src="images/logo_text.png" alt="Stage Link">
+        
         <!-- Lの画像 -->
         <img class="logo-layer logo-L" src="images/logo_L.png" alt="">
-        <!-- SのSVGパス -->
+
+        <!-- SのSVGパスとiの点となる終点ドット -->
         <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
-          <path id="sPath" d="M 150.3 11.4 C ... (中略) ... 353.7 521.4"></path>
-          <circle class="s-dot dot-start" cx="150.3" cy="11.4" r="4.5"></circle>
-          <circle class="s-dot dot-end" cx="353.7" cy="521.4" r="8"></circle>
+          <path id="sPath" d="M150.3,11.4 C100,11.4 30,60 30,150 C30,280 450,220 450,420 C450,520 350,521.4 353.7,521.4" fill="none" stroke="#d30a0a" stroke-width="4"></path>
+          <circle class="s-dot dot-start" cx="150.3" cy="11.4" r="4.5" fill="#d30a0a"></circle>
+          <!-- この終点（cx, cy）が i の点の位置に重なります -->
+          <circle class="s-dot dot-end" cx="353.7" cy="521.4" r="10" fill="#d30a0a"></circle>
         </svg>
       </div>
     </div>
+
+  </div>
+</section>
 
     <!-- 右側：StageLink 2026 タイポグラフィ -->
     <div class="massive-title-wrapper">
