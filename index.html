@@ -993,10 +993,11 @@ section {
     
     <!-- SのSVGパス（綺麗に曲線を描くよう修正） -->
     <svg class="logo-layer logo-S" viewBox="0 0 484 611" xmlns="http://www.w3.org/2000/svg">
-      <path id="sPath" d="M340,90 C220,10 70,120 70,230 C70,360 410,290 410,430 C410,530 280,560 180,520"></path>
-      <circle class="s-dot dot-start" cx="340" cy="90" r="5"></circle>
-      <circle class="s-dot dot-end" cx="180" cy="520" r="8"></circle>
-    </svg>
+  <!-- 画像のパスに合わせて軌道を微調整 -->
+  <path id="sPath" d="M 152 6 C 120 40, 20 180, 20 380 C 20 540, 180 500, 280 400 C 380 300, 420 180, 390 160 C 350 140, 280 240, 340 600"></path>
+  <!-- 上端の小さな赤ポチ -->
+  <circle class="s-dot dot-start" cx="152" cy="6" r="6" fill="#b40707"></circle>
+</svg>
   </div>
 </div>
 
