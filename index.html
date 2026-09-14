@@ -940,6 +940,18 @@ section {
   }
 }
 
+/* アニメーションするロゴ・テキスト要素に適用 */
+.logo-block,
+.logo-layer,
+.logo-text {
+  /* GPU描画を強制して動きをなめらかにする */
+  will-change: transform;
+  transform: translateZ(0);
+
+  /* 文字や画像のアンチエイリアス（描画のなめらかさ）を有効化 */
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
