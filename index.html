@@ -888,11 +888,17 @@ section {
   gap: 0.2rem;
 }
 
-/* 1文字ごとの個別のド派手なウエーブ ＆ バウンスアニメーション */
+/* 1文字ごとの個別のウエーブ ＆ バウンスアニメーション */
 .char, .char-num {
   display: inline-block;
   opacity: 0;
   animation: gatherText 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  /* --- 描画のチラつき・ゆれを防ぐ設定を追加 --- */
+  will-change: transform, opacity, filter;
+  transform: translateZ(0); /* 3Dアクセラレーションを有効化 */
+  backface-visibility: hidden; /* 裏面描写をオフにしてちらつき防止 */
+  -webkit-font-smoothing: antialiased; /* フォントのフチを滑らかに */
 }
 
 /* 1文字ごとに飛ばしてくる方向（初期位置）と遅延を変える */
@@ -920,188 +926,6 @@ section {
 .word-year .char-num:nth-child(2) { --x: 0px; --y: 120px; --r: 0deg; animation-delay: 3.0s; }
 .word-year .char-num:nth-child(3) { --x: 50px; --y: 100px; --r: 40deg; animation-delay: 3.2s; }
 .word-year .char-num:nth-child(4) { --x: 120px; --y: 30px; --r: -25deg; animation-delay: 3.4s; }
-
-/* --- 最上部 新HEROセクション（SCSKスタイル） --- */
-.scsk-hero-banner {
-  position: relative;
-  width: 100%;
-  height: calc(100vh - 90px);
-  min-height: 580px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #09090b;
-  overflow: hidden;
-  color: #ffffff;
-  font-family: "Noto Sans JP", sans-serif;
-}
-
-/* 背景画像とグラデーション */
-.scsk-hero-bg {
-  position: absolute;
-  inset: 0;
-  background-image: url('images/hero-bg.jpg'); /* 生成画像やキービジュアル画像を設定 */
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.6) contrast(1.1);
-  transform: scale(1.05);
-  transition: transform 10s ease-out;
-}
-
-.scsk-hero-banner:hover .scsk-hero-bg {
-  transform: scale(1);
-}
-
-.scsk-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(9, 9, 11, 0.3) 0%, rgba(9, 9, 11, 0.85) 100%);
-}
-
-/* コンテンツレイアウト */
-.scsk-hero-container {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  max-width: 900px;
-  padding: 0 20px;
-}
-
-.scsk-hero-tag {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: #e11d48; /* SCSK風鮮やかレッド */
-  border: 1px solid rgba(225, 29, 72, 0.4);
-  padding: 6px 16px;
-  border-radius: 20px;
-  margin-bottom: 24px;
-  background: rgba(225, 29, 72, 0.1);
-}
-
-.scsk-hero-title {
-  margin: 0 0 30px 0;
-}
-
-.scsk-title-main {
-  display: block;
-  font-size: clamp(3rem, 7vw, 5.5rem);
-  font-weight: 900;
-  letter-spacing: -1px;
-  line-height: 1.1;
-  background: linear-gradient(180deg, #ffffff 0%, #b0b0b0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.scsk-title-sub {
-  display: block;
-  font-size: clamp(1rem, 2.5vw, 1.4rem);
-  font-weight: 500;
-  color: #d4d4d8;
-  margin-top: 16px;
-  letter-spacing: 1px;
-}
-
-/* アクションボタン */
-.scsk-hero-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 40px;
-}
-
-.scsk-btn {
-  padding: 14px 32px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.scsk-btn.primary {
-  background: #e11d48;
-  color: #ffffff;
-  box-shadow: 0 4px 20px rgba(225, 29, 72, 0.4);
-}
-
-.scsk-btn.primary:hover {
-  background: #be123c;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(225, 29, 72, 0.6);
-}
-
-.scsk-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-}
-
-.scsk-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-/* スクロール線 */
-.scsk-scroll-down {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.scsk-scroll-down span {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #a1a1aa;
-}
-
-.scsk-scroll-line {
-  width: 1px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.scsk-scroll-line::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #e11d48;
-  animation: scskScroll 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-}
-
-@keyframes scskScroll {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-@media (max-width: 768px) {
-  .scsk-hero-actions {
-    flex-direction: column;
-    width: 100%;
-    max-width: 280px;
-    margin: 30px auto 0;
-  }
-  .scsk-btn {
-    width: 100%;
-    text-align: center;
-    box-sizing: border-box;
-  }
-}
 
 /* バラバラの位置から定位置へ吸い込まれるキーフレーム */
 @keyframes gatherText {
@@ -1144,32 +968,6 @@ section {
 </head>
 
 <body>
-  <!-- === 最上部に新設するファーストビュー（つかみ） === -->
-<section class="scsk-hero-banner">
-  <!-- 背景ビジュアル -->
-  <div class="scsk-hero-bg"></div>
-  <div class="scsk-hero-overlay"></div>
-
-  <!-- 中央メインコンテンツ -->
-  <div class="scsk-hero-container">
-    <p class="scsk-hero-tag">StageLink 2026 OFFICIAL WEBSITE</p>
-    <h1 class="scsk-hero-title">
-      <span class="scsk-title-main">StageLink</span>
-      <span class="scsk-title-sub">舞台を繋ぎ、劇団の可能性を広げるプラットフォーム</span>
-    </h1>
-    <div class="scsk-hero-actions">
-      <a href="what.html" class="scsk-btn primary">企画概要を見る ➔</a>
-      <a href="Participant.html" class="scsk-btn secondary">ビラネットについて</a>
-    </div>
-  </div>
-
-  <!-- スクロールインジケーター -->
-  <div class="scsk-scroll-down">
-    <span>SCROLL</span>
-    <div class="scsk-scroll-line"></div>
-  </div>
-</section>
-
   <div id="menu-overlay"></div>
 
   <script>
