@@ -520,7 +520,7 @@ header {
     position: absolute;
     top: 0;
     left: 50%;
-    width: var(--w, 380px);
+    width: var(--w, 340px);
     transform: translate3d(calc(-50% + var(--tx, 0px)), var(--ty, 0px), 0) rotate(var(--rot, 0deg)) scale(var(--sc, 1));
     transition: transform .12s linear;
     will-change: transform;
@@ -583,6 +583,7 @@ header {
   .fan-item:nth-child(1) .card-glow { background: radial-gradient(circle at 30% 20%, var(--wine) 0%, transparent 70%); }
   .fan-item:nth-child(2) .card-glow { background: radial-gradient(circle at 30% 20%, var(--gold) 0%, transparent 70%); }
   .fan-item:nth-child(3) .card-glow { background: radial-gradient(circle at 30% 20%, var(--navy) 0%, transparent 70%); }
+  .fan-item:nth-child(4) .card-glow { background: radial-gradient(circle at 30% 20%, var(--sub-ink) 0%, transparent 70%); }
   .card:hover .card-glow { opacity: 0.5; }
 
   .card-media {
@@ -592,6 +593,7 @@ header {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background: var(--line);
   }
 
   .card-media .glyph {
@@ -755,6 +757,7 @@ header {
   .fan-item:nth-child(1) .card-btn:hover { color: var(--wine); border-color: var(--wine); }
   .fan-item:nth-child(2) .card-btn:hover { color: var(--gold-deep); border-color: var(--gold-deep); }
   .fan-item:nth-child(3) .card-btn:hover { color: var(--navy); border-color: var(--navy); }
+  .fan-item:nth-child(4) .card-btn:hover { color: var(--wine-deep); border-color: var(--wine-deep); }
   .card-btn:hover { gap: 13px; }
 
   .card-btn .arrow { transition: transform 0.25s ease; }
@@ -1093,6 +1096,7 @@ header {
         </div>
         <div class="fan-cards">
 
+          <!-- 01: BBQ -->
           <div class="fan-item">
             <article class="card">
               <div class="card-glow"></div>
@@ -1110,6 +1114,7 @@ header {
             </article>
           </div>
 
+          <!-- 02: 慶劇祭 -->
           <div class="fan-item">
             <article class="card">
               <div class="card-glow"></div>
@@ -1128,6 +1133,7 @@ header {
             </article>
           </div>
 
+          <!-- 03: ビラネットワーク -->
           <div class="fan-item">
             <article class="card">
               <div class="card-glow"></div>
@@ -1146,6 +1152,26 @@ header {
                   <span class="card-tag">📢 利用劇団募集中</span>
                 </div>
                 <a href="Participant.html" class="card-btn" target="_blank" rel="noopener">詳しく見る <span class="arrow">➔</span></a>
+              </div>
+            </article>
+          </div>
+
+          <!-- 04: 新規企画の枠組み（追加枠） -->
+          <div class="fan-item">
+            <article class="card">
+              <div class="card-glow"></div>
+              <div class="card-media">
+                <span class="glyph">💡</span>
+              </div>
+              <div class="card-body">
+                <span class="card-index">04</span>
+                <h3 class="card-title">新企画（順次公開予定）</h3>
+                <p class="card-subtitle">新たな共創プロジェクトを展開予定</p>
+                <p class="card-desc">※こちらの枠組みは後日更新・追加予定です。</p>
+                <div class="card-tags">
+                  <span class="card-tag">COMING SOON</span>
+                </div>
+                <a href="#" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
               </div>
             </article>
           </div>
@@ -1288,18 +1314,32 @@ header {
     if (!driver || !items.length) return;
 
     var GAP = 26;
-    var fannedTx = 380;
+    var fannedTx = 340;
     var ticking = false;
 
-    var stacked = [
-      { tx: -16, ty: 10, rot: -7, sc: 0.93, z: 1 },
-      { tx: 0,   ty: 0,  rot: -1, sc: 1,    z: 3 },
-      { tx: 16,  ty: 14, rot: 7,  sc: 0.94, z: 2 }
-    ];
+    // 枚数に応じてスタック時・広がり時の基準を計算
+    function getStacked(i, count) {
+      var centerIndex = (count - 1) / 2;
+      var offset = i - centerIndex;
+      return {
+        tx: offset * 12,
+        ty: Math.abs(offset) * 6,
+        rot: offset * -3,
+        sc: 1 - Math.abs(offset) * 0.03,
+        z: count - Math.abs(Math.round(offset))
+      };
+    }
 
-    function fanned(i) {
-      var d = i - 1;
-      return { tx: d * fannedTx, ty: (i === 1 ? -16 : 14), rot: d * 4, sc: 1, z: stacked[i].z };
+    function fanned(i, count) {
+      var centerIndex = (count - 1) / 2;
+      var offset = i - centerIndex;
+      return {
+        tx: offset * fannedTx,
+        ty: Math.abs(offset) * 8,
+        rot: offset * 3,
+        sc: 1,
+        z: count - i
+      };
     }
 
     function lerp(a, b, t) { return a + (b - a) * t; }
@@ -1307,8 +1347,9 @@ header {
 
     function recalc() {
       var w = cardsBox.clientWidth;
-      var cardW = (w - GAP * 2) / 3;
-      cardW = Math.max(260, Math.min(cardW, 460));
+      var count = items.length;
+      var cardW = (w - GAP * (count - 1)) / count;
+      cardW = Math.max(260, Math.min(cardW, 380));
       fannedTx = cardW + GAP;
       items.forEach(function (el) { el.style.setProperty('--w', cardW + 'px'); });
     }
@@ -1323,9 +1364,10 @@ header {
       var p = scrollable > 0 ? clamp01(-rect.top / scrollable) : 0;
       stage.style.setProperty('--p', p.toFixed(4));
 
+      var count = items.length;
       items.forEach(function (el, i) {
-        var s = stacked[i];
-        var f = fanned(i);
+        var s = getStacked(i, count);
+        var f = fanned(i, count);
         var tx = lerp(s.tx, f.tx, p);
         var ty = lerp(s.ty, f.ty, p);
         var rot = lerp(s.rot, f.rot, p);
