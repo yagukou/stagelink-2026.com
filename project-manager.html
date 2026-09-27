@@ -83,13 +83,19 @@
   .form-group.full {
     grid-column: span 2;
   }
+  .checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
   label {
     font-size: 12px;
     font-weight: bold;
     color: #444;
     margin-bottom: 4px;
   }
-  input, textarea, select {
+  input[type="text"], textarea, select {
     padding: 8px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -155,7 +161,6 @@
 <script>
   let projectsData = [];
 
-  // 初期読み込み（既存の projects.json があれば読み込み）
   fetch('projects.json')
     .then(res => res.json())
     .then(data => {
@@ -163,7 +168,6 @@
       renderList();
     })
     .catch(() => {
-      // 初期ファイルがない場合のダミーデータ
       projectsData = [
         {
           id: "bbq",
@@ -172,6 +176,7 @@
           desc: "所属サークルを超えて、誰もがフラットに集まるワークショップです（慶應義塾の劇団所属メンバー限定）",
           tags: ["2026年9月開催決定！"],
           link: "BBQ.html",
+          targetBlank: false,
           mediaType: "icon",
           icon: "🛠️"
         }
@@ -211,6 +216,10 @@
           <div class="form-group">
             <label>リンク先URL</label>
             <input type="text" value="${escapeHtml(item.link || '#')}" oninput="updateData(${index}, 'link', this.value)">
+            <div class="form-group checkbox-group">
+              <input type="checkbox" id="tb_${index}" ${item.targetBlank ? 'checked' : ''} onchange="updateData(${index}, 'targetBlank', this.checked)">
+              <label for="tb_${index}" style="margin:0; cursor:pointer;">新しいタブで開く</label>
+            </div>
           </div>
           <div class="form-group">
             <label>表示メディアの種類</label>
@@ -292,15 +301,14 @@
       desc: "企画の簡単な概要を記載します。",
       tags: ["NEW"],
       link: "#",
+      targetBlank: false,
       mediaType: "icon",
       icon: "🎉"
     });
     renderList();
-    // 最下部へスクロール
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   });
 
-  // JSONダウンロード
   document.getElementById('btnSave').addEventListener('click', () => {
     const jsonStr = JSON.stringify(projectsData, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
