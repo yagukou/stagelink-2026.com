@@ -1155,6 +1155,154 @@ header {
       </div>
     </div>
   </section>
+  
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // projects.json から追加企画データを取得して動的挿入
+    fetch('projects.json')
+      .then(response => response.json())
+      .then(projects => {
+        const container = document.getElementById('fanCardsContainer');
+        const hint = container ? container.querySelector('.fan-hint') : null;
+
+        if (!container) return;
+
+        // 既存で固定配置されているカードの枚数を取得（BBQや慶劇祭など）
+        const existingCards = container.querySelectorAll('.fan-item');
+        const baseIndex = existingCards.length;
+
+        projects.forEach((proj, index) => {
+          const item = document.createElement('div');
+          item.className = 'fan-item';
+
+          // メディア部分の生成
+          let mediaHtml = '';
+          if (proj.mediaType === 'icon') {
+            mediaHtml = `<div class="card-media"><span class="glyph">${proj.icon || '✨'}</span></div>`;
+          } else if (proj.mediaType === 'layered') {
+            mediaHtml = `
+              <div class="card-media layered" style="background-image: url('${proj.bgImage}');">
+                <span class="poster-tag">${proj.posterTag || ''}</span>
+                <img class="poster" src="${proj.posterImage}" alt="">
+              </div>`;
+          } else {
+            mediaHtml = `<div class="card-media" style="background-image: url('${proj.bgImage}'); background-size: cover; background-position: center;"></div>`;
+          }
+
+          // タグ部分の生成
+          const tagsHtml = (proj.tags || []).map(tag => `<span class="card-tag">${tag}</span>`).join('');
+
+          // リンクのターゲット設定
+          const targetAttr = proj.targetBlank ? 'target="_blank" rel="noopener"' : '';
+
+          // 連番インデックス番号（既存カードの続きからカウント）
+          const idxStr = String(baseIndex + index + 1).padStart(2, '0');
+
+          item.innerHTML = `
+            <article class="card">
+              <div class="card-glow"></div>
+              ${mediaHtml}
+              <div class="card-body">
+                <span class="card-index">${idxStr}</span>
+                <h3 class="card-title">${proj.title}</h3>
+                <p class="card-subtitle">${proj.subtitle}</p>
+                <p class="card-desc">${proj.desc}</p>
+                <div class="card-tags">${tagsHtml}</div>
+                <a href="${proj.link}" class="card-btn" ${targetAttr}>詳しく見る <span class="arrow">➔</span></a>
+              </div>
+            </article>
+          `;
+
+          // BBQや慶劇祭などの固定カードの後ろ（.fan-hint の手前）に挿入
+          if (hint) {
+            container.insertBefore(item, hint);
+          } else {
+            container.appendChild(item);
+          }
+        });
+
+        // カード全件の配置が完了してからファンアニメーションを起動
+        initFanDeck();
+      })
+      .catch(err => {
+        console.error("企画データの読み込みに失敗しました（固定カードのみでアニメーションを初期化します）:", err);
+        initFanDeck();
+      });
+  });
+
+  // ファンデッキ展開アニメーション処理
+  function initFanDeck() {
+    var driver = document.querySelector('.fan-driver');
+    var stage = document.querySelector('.fan-stage');
+    var cardsBox = document.querySelector('.fan-cards');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.fan-item'));
+    if (!driver || !items.length) return;
+
+    var GAP = 26;
+    var fannedTx = 380;
+    var ticking = false;
+
+    // 枚数に応じてスタック位置や傾きを自動計算
+    function getStackedStyle(i, total) {
+      var mid = (total - 1) / 2;
+      var rot = (i - mid) * 6;
+      var tx = (i - mid) * 12;
+      return { tx: tx, ty: Math.abs(i - mid) * 6, rot: rot, sc: 1 - Math.abs(i - mid) * 0.03, z: total - Math.abs(i - mid) };
+    }
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+    function recalc() {
+      var w = cardsBox.clientWidth;
+      var cardW = (w - GAP * 2) / 3;
+      cardW = Math.max(260, Math.min(cardW, 460));
+      fannedTx = cardW + GAP;
+      items.forEach(function (el) { el.style.setProperty('--w', cardW + 'px'); });
+    }
+
+    function isActive() { return window.innerWidth > 900; }
+
+    function update() {
+      ticking = false;
+      if (!isActive()) return;
+      var rect = driver.getBoundingClientRect();
+      var scrollable = rect.height - window.innerHeight;
+      var p = scrollable > 0 ? clamp01(-rect.top / scrollable) : 0;
+      if (stage) stage.style.setProperty('--p', p.toFixed(4));
+
+      var total = items.length;
+      items.forEach(function (el, i) {
+        var s = getStackedStyle(i, total);
+        var d = i - (total - 1) / 2;
+        var f = { tx: d * fannedTx, ty: (i % 2 === 0 ? 14 : -16), rot: d * 3, sc: 1, z: s.z };
+
+        var tx = lerp(s.tx, f.tx, p);
+        var ty = lerp(s.ty, f.ty, p);
+        var rot = lerp(s.rot, f.rot, p);
+        var sc = lerp(s.sc, f.sc, p);
+
+        el.style.setProperty('--tx', tx.toFixed(1) + 'px');
+        el.style.setProperty('--ty', ty.toFixed(1) + 'px');
+        el.style.setProperty('--rot', rot.toFixed(2) + 'deg');
+        el.style.setProperty('--sc', sc.toFixed(3));
+        el.style.zIndex = s.z;
+      });
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }
+
+    recalc();
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function() { recalc(); update(); });
+  }
+</script>
 
   <section class="faq">
     <div class="wrap">

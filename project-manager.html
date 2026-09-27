@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企画管理パネル | Stage Link</title>
+<style>
+  :root {
+    --wine: #7c2946;
+    --wine-deep: #4a1428;
+    --gold: #b8863f;
+    --bg: #f3ecdf;
+    --card-bg: #fffcf5;
+    --line: #e0d3bd;
+    --ink: #1f1a16;
+  }
+  body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+    background-color: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 40px 20px;
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 24px;
+    color: var(--wine-deep);
+    border-bottom: 3px solid var(--gold);
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+  }
+  .desc {
+    font-size: 13.5px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .card-item {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+  }
+  .card-title-num {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--wine-deep);
+  }
+  .btn-delete {
+    background: #c0392b;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .btn-delete:hover { background: #a93226; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  .form-group.full {
+    grid-column: span 2;
+  }
+  label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 4px;
+  }
+  input, textarea, select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+  }
+  textarea { resize: vertical; }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    position: sticky;
+    bottom: 20px;
+    background: rgba(243, 236, 223, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+  }
+  .btn-add {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    flex: 1;
+  }
+  .btn-add:hover { background: #219653; }
+  .btn-save {
+    background: var(--wine-deep);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    flex: 2;
+  }
+  .btn-save:hover { background: var(--wine); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Stage Link 企画追加・編集マネージャー</h1>
+  <p class="desc">
+    ここで企画カードの追加・編集・並び替えができます。<br>
+    編集後は下部の「<strong>projects.json をダウンロード</strong>」ボタンを押し、ダウンロードしたファイルをWebサイトのフォルダ内へ保存（上書き）してください。
+  </p>
+
+  <div id="projectList"></div>
+
+  <div class="actions">
+    <button type="button" class="btn-add" id="btnAdd">＋ 新しい企画を追加</button>
+    <button type="button" class="btn-save" id="btnSave">💾 設定ファイル (projects.json) をダウンロード</button>
+  </div>
+</div>
+
+<script>
+  let projectsData = [];
+
+  // 初期読み込み（既存の projects.json があれば読み込み）
+  fetch('projects.json')
+    .then(res => res.json())
+    .then(data => {
+      projectsData = data;
+      renderList();
+    })
+    .catch(() => {
+      // 初期ファイルがない場合のダミーデータ
+      projectsData = [
+        {
+          id: "bbq",
+          title: "夏の交流WS＋BBQ",
+          subtitle: "劇団の垣根を越えて、新たな表現技法と仲間に出会う",
+          desc: "所属サークルを超えて、誰もがフラットに集まるワークショップです（慶應義塾の劇団所属メンバー限定）",
+          tags: ["2026年9月開催決定！"],
+          link: "BBQ.html",
+          mediaType: "icon",
+          icon: "🛠️"
+        }
+      ];
+      renderList();
+    });
+
+  function renderList() {
+    const listEl = document.getElementById('projectList');
+    listEl.innerHTML = '';
+
+    projectsData.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'card-item';
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="card-title-num">企画 #${String(index + 1).padStart(2, '0')}</span>
+          <button class="btn-delete" onclick="removeProject(${index})">削除</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>タイトル</label>
+            <input type="text" value="${escapeHtml(item.title || '')}" oninput="updateData(${index}, 'title', this.value)">
+          </div>
+          <div class="form-group">
+            <label>サブタイトル</label>
+            <input type="text" value="${escapeHtml(item.subtitle || '')}" oninput="updateData(${index}, 'subtitle', this.value)">
+          </div>
+          <div class="form-group full">
+            <label>説明文</label>
+            <textarea rows="2" oninput="updateData(${index}, 'desc', this.value)">${escapeHtml(item.desc || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>タグ（カンマ区切りで複数指定可）</label>
+            <input type="text" value="${escapeHtml((item.tags || []).join(', '))}" onchange="updateTags(${index}, this.value)">
+          </div>
+          <div class="form-group">
+            <label>リンク先URL</label>
+            <input type="text" value="${escapeHtml(item.link || '#')}" oninput="updateData(${index}, 'link', this.value)">
+          </div>
+          <div class="form-group">
+            <label>表示メディアの種類</label>
+            <select onchange="updateData(${index}, 'mediaType', this.value); renderList();">
+              <option value="icon" ${item.mediaType === 'icon' ? 'selected' : ''}>絵文字 / アイコン</option>
+              <option value="image" ${item.mediaType === 'image' ? 'selected' : ''}>背景画像</option>
+              <option value="layered" ${item.mediaType === 'layered' ? 'selected' : ''}>レイヤー（ビラネ形式）</option>
+            </select>
+          </div>
+          ${renderMediaFields(item, index)}
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
+
+  function renderMediaFields(item, index) {
+    if (item.mediaType === 'icon') {
+      return `
+        <div class="form-group">
+          <label>アイコン (絵文字など)</label>
+          <input type="text" value="${escapeHtml(item.icon || '✨')}" oninput="updateData(${index}, 'icon', this.value)">
+        </div>
+      `;
+    } else if (item.mediaType === 'layered') {
+      return `
+        <div class="form-group">
+          <label>背景画像パス</label>
+          <input type="text" value="${escapeHtml(item.bgImage || '')}" oninput="updateData(${index}, 'bgImage', this.value)">
+        </div>
+        <div class="form-group">
+          <label>前面ポスター画像パス</label>
+          <input type="text" value="${escapeHtml(item.posterImage || '')}" oninput="updateData(${index}, 'posterImage', this.value)">
+        </div>
+        <div class="form-group">
+          <label>ポスター右上のタグ文字</label>
+          <input type="text" value="${escapeHtml(item.posterTag || '')}" oninput="updateData(${index}, 'posterTag', this.value)">
+        </div>
+      `;
+    } else {
+      return `
+        <div class="form-group">
+          <label>背景画像パス</label>
+          <input type="text" value="${escapeHtml(item.bgImage || '')}" oninput="updateData(${index}, 'bgImage', this.value)">
+        </div>
+      `;
+    }
+  }
+
+  function updateData(index, key, value) {
+    projectsData[index][key] = value;
+  }
+
+  function updateTags(index, value) {
+    projectsData[index].tags = value.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  function removeProject(index) {
+    if (confirm(`企画 #${index + 1} を削除してもよろしいですか？`)) {
+      projectsData.splice(index, 1);
+      renderList();
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  document.getElementById('btnAdd').addEventListener('click', () => {
+    projectsData.push({
+      id: "project-" + Date.now(),
+      title: "新規企画",
+      subtitle: "キャッチコピーやサブタイトル",
+      desc: "企画の簡単な概要を記載します。",
+      tags: ["NEW"],
+      link: "#",
+      mediaType: "icon",
+      icon: "🎉"
+    });
+    renderList();
+    // 最下部へスクロール
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
+  // JSONダウンロード
+  document.getElementById('btnSave').addEventListener('click', () => {
+    const jsonStr = JSON.stringify(projectsData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'projects.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+</script>
+
+</body>
+</html>
