@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <style>
-/* ====== サイト共通ヘッダー ====== */
+/* ====== サイト共通ヘッダー（index.htmlの実装をそのまま流用） ====== */
 header {
   display: flex;
   justify-content: space-between;
@@ -126,7 +126,9 @@ header {
   transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-#global-dropdown.open { right: 0; }
+#global-dropdown.open {
+  right: 0;
+}
 
 #global-dropdown a {
   color: #fff;
@@ -190,7 +192,7 @@ header {
 </style>
 
 <style>
-/* ====== 公演紹介ページ本体 ====== */
+/* ====== ここから「公演紹介」ページ本体（Stage Link Actions） ====== */
   :root {
     --bg: #f3ecdf;
     --ink: #1f1a16;
@@ -206,6 +208,7 @@ header {
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   html { scroll-behavior: smooth; }
 
   body {
@@ -320,6 +323,28 @@ header {
     min-width: 0;
   }
 
+  .intro-photo {
+    flex: 0 0 380px;
+    width: 380px;
+    margin-top: 10px;
+  }
+
+  .intro-photo > img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center 30%;
+    border-radius: 44% 56% 61% 39% / 49% 44% 56% 51%;
+    border: 8px solid #fff;
+    box-shadow: 0 28px 50px rgba(31,26,22,0.22);
+    transform: rotate(3deg);
+  }
+
+  @media (max-width: 900px) {
+    .intro-photo { flex-basis: 260px; width: 260px; margin: 0 auto; }
+  }
+
   .intro-logo {
     display: flex;
     align-items: center;
@@ -371,8 +396,13 @@ header {
     stroke-linejoin: round;
   }
 
-  .s-dot { fill: #b40707; }
-  .s-dot.dot-end { opacity: 0; }
+  .s-dot {
+    fill: #b40707;
+  }
+
+  .s-dot.dot-end {
+    opacity: 0;
+  }
 
   .logo-text {
     inset: 0;
@@ -453,9 +483,11 @@ header {
   .cta-link .arrow { transition: transform 0.25s ease; }
   .cta-link:hover .arrow { transform: translateX(5px); }
 
-  .actions { padding: 130px 0 60px; }
+  .actions {
+    padding: 130px 0 60px;
+  }
 
-  /* Fan deck */
+  /* ---------- Fan deck (scroll-driven) ---------- */
   .fan-driver {
     position: relative;
     height: 190vh;
@@ -472,7 +504,10 @@ header {
     gap: 26px;
   }
 
-  .fan-heading { width: min(1360px, 94vw); }
+  .fan-heading {
+    width: min(1360px, 94vw);
+  }
+
   .fan-heading .intro-title-rule { margin-bottom: 0; }
 
   .fan-cards {
@@ -557,8 +592,6 @@ header {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background-size: cover;
-    background-position: center;
   }
 
   .card-media .glyph {
@@ -568,8 +601,16 @@ header {
   }
   .card:hover .card-media .glyph { transform: scale(1.12) rotate(-4deg); }
 
+  .fan-item:nth-child(1) .card-media { background: linear-gradient(135deg, #8a3b57, var(--wine-deep)); }
+  .fan-item:nth-child(2) .card-media {
+    background-image: linear-gradient(180deg, rgba(23,34,45,0) 55%, rgba(23,34,45,0.32) 100%), url('images/hiyoshi-kinenkan.jpg');
+    background-size: cover;
+    background-position: center 55%;
+  }
+
   .card-media.layered {
     height: 300px;
+    background-image: url('images/biraNe-calendar-crop2.png');
     background-size: cover;
     background-position: center 30%;
     justify-content: flex-start;
@@ -719,7 +760,9 @@ header {
   .card-btn .arrow { transition: transform 0.25s ease; }
   .card-btn:hover .arrow { transform: translateX(3px); }
 
-  footer { padding: 30px 0 56px; }
+  footer {
+    padding: 30px 0 56px;
+  }
 
   .footer-inner {
     display: flex;
@@ -744,7 +787,7 @@ header {
     letter-spacing: 0.06em;
   }
 
-  /* FAQ */
+  /* ---------- FAQ ---------- */
   .faq {
     padding: 40px 0 130px;
     position: relative;
@@ -842,8 +885,13 @@ header {
     transition: grid-template-rows .45s cubic-bezier(.22,.85,.3,1);
   }
 
-  .faq-item.is-open .faq-answer-wrap { grid-template-rows: 1fr; }
-  .faq-answer-inner { overflow: hidden; }
+  .faq-item.is-open .faq-answer-wrap {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-answer-inner {
+    overflow: hidden;
+  }
 
   .faq-answer {
     padding: 0 26px 26px 60px;
@@ -854,7 +902,9 @@ header {
     color: var(--ink);
   }
 
-  .faq-answer p + p { margin-top: 12px; }
+  .faq-answer p + p {
+    margin-top: 12px;
+  }
 
   .faq-sublist {
     list-style: none;
@@ -906,7 +956,9 @@ header {
     border-left-color: var(--sub-ink);
   }
 
-  .faq-note--muted strong { color: var(--sub-ink); }
+  .faq-note--muted strong {
+    color: var(--sub-ink);
+  }
 
   .faq-note a {
     color: var(--wine-deep);
@@ -915,7 +967,9 @@ header {
     text-underline-offset: 2px;
   }
 
-  .faq-cta { margin-top: 22px; }
+  .faq-cta {
+    margin-top: 22px;
+  }
 
   @media (max-width: 560px) {
     .faq-answer { padding-left: 26px; }
@@ -924,9 +978,91 @@ header {
 </style>
 </head>
 
-<!-- Supabase SDK の読み込み -->
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script>
+  // ★ご自身の Supabase 情報を設定してください★
+const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Supabaseから最新の企画一覧を取得
+    const { data: projects, error } = await db
+      .from('projects')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error('データ取得失敗:', error);
+      return;
+    }
+
+    renderProjects(projects);
+
+    if (typeof initFanDeck === 'function') {
+      initFanDeck();
+    }
+  });
+
+  function renderProjects(projects) {
+    const container = document.getElementById('fanCardsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    projects.forEach(proj => {
+      const cardA = document.createElement('a');
+      cardA.className = 'fan-card';
+      cardA.href = proj.link || '#';
+      
+      if (proj.target_blank) {
+        cardA.target = '_blank';
+        cardA.rel = 'noopener noreferrer';
+      }
+
+      const tagsHtml = (proj.tags || []).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('');
+
+      let mediaHtml = '';
+      if (proj.media_type === 'icon') {
+        mediaHtml = `<div class="card-icon-wrap"><span class="card-emoji">${escapeHtml(proj.icon || '✨')}</span></div>`;
+      } else if (proj.media_type === 'layered') {
+        mediaHtml = `
+          <div class="card-media layered">
+            <img src="${escapeHtml(proj.bg_image || '')}" class="bg-img" alt="">
+            <div class="poster-wrap">
+              <img src="${escapeHtml(proj.poster_image || '')}" class="poster-img" alt="">
+              ${proj.poster_tag ? `<span class="poster-tag">${escapeHtml(proj.poster_tag)}</span>` : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        mediaHtml = `
+          <div class="card-media">
+            <img src="${escapeHtml(proj.bg_image || '')}" alt="">
+          </div>
+        `;
+      }
+
+      cardA.innerHTML = `
+        ${mediaHtml}
+        <div class="card-content">
+          <div class="card-tags">${tagsHtml}</div>
+          <h3 class="card-title">${escapeHtml(proj.title || '')}</h3>
+          <p class="card-subtitle">${escapeHtml(proj.subtitle || '')}</p>
+          <p class="card-desc">${escapeHtml(proj.desc || '')}</p>
+        </div>
+      `;
+
+      container.appendChild(cardA);
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+</script>
 <body>
 
 <div id="menu-overlay"></div>
@@ -1012,7 +1148,7 @@ header {
             <p class="body-text">より多くの方に演劇に親しみを持っていただくために、Stage Link は、さまざまな特色を持つ演劇集団が既存の枠組みを超えて交わるプラットフォームを目指しています。</p>
             <p class="body-text">単一の劇団の努力に留まらず、お互いの強みを活かし合い、演劇をよりオープンに、より面白くしていく。そんな「共創」の場をつくるため、私たちは以下のような企画を展開しています。</p>
 
-            <a href="Philosophy.html" class="cta-link">Philosophyについて知る <span class="arrow">➔</span></a>
+            <a href="#philosophy" class="cta-link">Philosophyについて知る <span class="arrow">➔</span></a>
           </div>
         </div>
 
@@ -1042,196 +1178,143 @@ header {
           <div class="intro-title-rule"></div>
         </div>
         <div class="fan-cards" id="fanCardsContainer">
-          <!-- Supabaseから動的に読み込まれます -->
+
+          <div class="fan-item">
+            <article class="card">
+              <div class="card-glow"></div>
+              <div class="card-media"><span class="glyph">🛠️</span></div>
+              <div class="card-body">
+                <span class="card-index">01</span>
+                <h3 class="card-title">夏の交流WS＋BBQ</h3>
+                <p class="card-subtitle">劇団の垣根を越えて、新たな表現技法と仲間に出会う</p>
+                <p class="card-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです（慶應義塾の劇団所属メンバー限定）</p>
+                <div class="card-tags">
+                  <span class="card-tag">2026年9月開催決定！</span>
+                </div>
+                <a href="BBQ.html" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+              </div>
+            </article>
+          </div>
+
+          <div class="fan-item">
+            <article class="card">
+              <div class="card-glow"></div>
+              <div class="card-media"></div>
+              <div class="card-body">
+                <span class="card-index">02</span>
+                <h3 class="card-title">慶劇祭（慶應義塾大学演劇祭）</h3>
+                <p class="card-subtitle">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</p>
+                <p class="card-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、Stage Link最大のフェスティバルです！</p>
+                <div class="card-tags">
+                  <span class="card-tag">2027年開催予定</span>
+                  <span class="card-tag">舞台・公演</span>
+                </div>
+                <a href="#" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+              </div>
+            </article>
+          </div>
+
+          <div class="fan-item">
+            <article class="card">
+              <div class="card-glow"></div>
+              <div class="card-media layered">
+                <span class="poster-tag">ビラネットワーク画面</span>
+                <img class="poster" src="images/flyer-sample.png" alt="劇団EnTRoPy 七夕祭公演「借り物の星」のビラ">
+              </div>
+              <div class="card-body">
+                <span class="card-index">03</span>
+                <h3 class="card-title">ビラネットワーク</h3>
+                <p class="card-subtitle">どこの劇団でも利用可能！宣伝の力をシェアして、劇団のファンを増やそう</p>
+                <p class="card-desc">折り込みをもっとシンプルに。公演カレンダーからすぐに折り込み依頼が送れる！</p>
+                <div class="card-tags">
+                  <span class="card-tag">🎫 集客を強化したい</span>
+                  <span class="card-tag">🌐 慶應外部も利用可能</span>
+                  <span class="card-tag">📢 利用劇団募集中</span>
+                </div>
+                <a href="Participant.html" class="card-btn" target="_blank" rel="noopener">詳しく見る <span class="arrow">➔</span></a>
+              </div>
+            </article>
+          </div>
+
+          <p class="fan-hint">Scroll to open ↓</p>
         </div>
       </div>
     </div>
   </section>
-
-  <section class="faq">
-    <div class="wrap">
-      <div class="faq-heading reveal">
-        <p class="intro-eyebrow">FAQ</p>
-        <h2 class="intro-title">よくある質問</h2>
-        <div class="intro-title-rule"></div>
-        <p class="faq-lead">疑問を解消し、次のステップへ。</p>
-      </div>
-
-      <div class="faq-list">
-
-        <div class="faq-item reveal">
-          <button class="faq-q" aria-expanded="false">
-            <span class="faq-q-label"><span class="faq-q-mark">Q</span>9月開催の「交流会＆WS」は、どんなイベントですか？</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </button>
-          <div class="faq-answer-wrap">
-            <div class="faq-answer-inner">
-              <div class="faq-answer">
-                <p>所属団体の枠を飛び越え、異なる劇団の仲間と「出会い、語り、遊ぶ」1日完結の夏限定プログラムです。「他の劇団の稽古って何してる？」「もっと他団体の役者・スタッフと話してみたい！」そんな声に応えるため、気軽に参加できるワークショップと、夏の終わりを詰め込んだフランクな交流会を用意しています。手ぶらで飛び込める、いちばん熱い1日をお届けします。</p>
-                <div class="faq-note">
-                  <p><strong>9月開催分に関する重要なお知らせ</strong><br>9月開催分、Stage Linkと協力関係にある慶應義塾大学内の劇団員メンバーのみを対象とした限定募集となります。他大学の劇団員の方、および一般の方の参加は承っておりませんので、あらかじめご了承ください。</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-q" aria-expanded="false">
-            <span class="faq-q-label"><span class="faq-q-mark">Q</span>ビラネットワークの利用に費用はかかりますか？</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </button>
-          <div class="faq-answer-wrap">
-            <div class="faq-answer-inner">
-              <div class="faq-answer">
-                <p>劇団の皆様の基本的なシステム利用、公演カレンダーへの掲載、および折り込み（挟み込み）依頼の送信はすべて完全無料でご利用いただけます。Stage Linkは学生演劇の持続可能なインフラとして、合理的なプロモーションを全面的にサポートします。</p>
-                <div class="faq-note faq-note--muted">
-                  <p>※演劇団体以外のイベントでのご利用や、特別なタイアップ運営等につきましては、個別で最適なお手伝いをいたしますので、👉 <a href="Inquiry.html">Contact</a> よりお気軽にご相談ください。</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-q" aria-expanded="false">
-            <span class="faq-q-label"><span class="faq-q-mark">Q</span>慶應（SFCや三田・日吉）以外の他大学の劇団ですが、企画に参加できますか？</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </button>
-          <div class="faq-answer-wrap">
-            <div class="faq-answer-inner">
-              <div class="faq-answer">
-                <p>企画の特性に合わせて、以下のように窓口を開放しています。</p>
-                <ul class="faq-sublist">
-                  <li><strong>交流会・WS ＆ 慶劇祭：</strong>原則として、慶應義塾大学を拠点に活動するサークル・団体・メンバーを対象としています。</li>
-                  <li><strong>ビラネットワーク：</strong>大学やサークルの垣根、さらには慶應の内外さえも問わず、日本全国すべての劇団・表現者が完全無料でご利用いただけます。他大学の劇団や、プロ・アマ問わず大歓迎ですので、ぜひ宣伝力のシェアリングにご参加ください。</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-q" aria-expanded="false">
-            <span class="faq-q-label"><span class="faq-q-mark">Q</span>折り込み（ビラ配布）の依頼ルールや流れを教えてください。</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </button>
-          <div class="faq-answer-wrap">
-            <div class="faq-answer-inner">
-              <div class="faq-answer">
-                <p>驚くほどシンプルです。ビラネットワーク内の「公演カレンダー」から折り込みを依頼したい公演を選び、画面のガイドに沿って必要事項を入力・申請するだけで完了します。</p>
-                <p>「何度もメールを往復させる」「フォーマットを気にして連絡する」といった煩雑なコミュニケーションコストを極限までゼロにデザインしています。詳しい画面操作や使い方のコツは、定期開催している「利用説明会」にてデモを交えてご紹介しています。</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-q" aria-expanded="false">
-            <span class="faq-q-label"><span class="faq-q-mark">Q</span>ビラネットワークに参加したい！どうしたらいい？</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </button>
-          <div class="faq-answer-wrap">
-            <div class="faq-answer-inner">
-              <div class="faq-answer">
-                <p>まずは、定期開催している<strong>「ビラネットワーク オンライン利用説明会」</strong>へご参加ください！ 劇団の制作担当者様向けに、システムの概要やメリットを30分程度でスッキリ解説します。説明会への参加完了後、その場ですぐにアカウントが発行され、サービスをご利用いただけます。</p>
-                <p>「まずは話だけ聞いてみたい」「登録するか迷っている」という段階でのご参加も大歓迎です。ご不明な点があれば、いつでも公式Instagram / XのDMやメール窓口にて受け付けております。</p>
-                <a href="Inquiry.html" class="cta-link faq-cta">利用説明会へのエントリーはこちら <span class="arrow">➔</span></a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <div class="wrap">
-      <div class="footer-inner">
-        <span class="brand">Stage Link</span>
-        <span class="meta">Meet / Connect / Create</span>
-      </div>
-    </div>
-  </footer>
-
+  
 <script>
-  // Supabase 接続情報の設定
-  const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  document.addEventListener("DOMContentLoaded", function () {
+    // projects.json から追加企画データを取得して動的挿入
+    fetch('projects.json')
+      .then(response => response.json())
+      .then(projects => {
+        const container = document.getElementById('fanCardsContainer');
+        const hint = container ? container.querySelector('.fan-hint') : null;
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Supabaseから最新の企画一覧を取得
-    const { data: projects, error } = await db
-      .from('projects')
-      .select('*')
-      .order('sort_order', { ascending: true });
+        if (!container) return;
 
-    if (error) {
-      console.error('データ取得失敗:', error);
-      return;
-    }
+        // 既存で固定配置されているカードの枚数を取得（BBQや慶劇祭など）
+        const existingCards = container.querySelectorAll('.fan-item');
+        const baseIndex = existingCards.length;
 
-    // 2. カードの描画
-    renderProjects(projects || []);
+        projects.forEach((proj, index) => {
+          const item = document.createElement('div');
+          item.className = 'fan-item';
 
-    // 3. ファンデッキアニメーションの初期化
-    initFanDeck();
+          // メディア部分の生成
+          let mediaHtml = '';
+          if (proj.mediaType === 'icon') {
+            mediaHtml = `<div class="card-media"><span class="glyph">${proj.icon || '✨'}</span></div>`;
+          } else if (proj.mediaType === 'layered') {
+            mediaHtml = `
+              <div class="card-media layered" style="background-image: url('${proj.bgImage}');">
+                <span class="poster-tag">${proj.posterTag || ''}</span>
+                <img class="poster" src="${proj.posterImage}" alt="">
+              </div>`;
+          } else {
+            mediaHtml = `<div class="card-media" style="background-image: url('${proj.bgImage}'); background-size: cover; background-position: center;"></div>`;
+          }
+
+          // タグ部分の生成
+          const tagsHtml = (proj.tags || []).map(tag => `<span class="card-tag">${tag}</span>`).join('');
+
+          // リンクのターゲット設定
+          const targetAttr = proj.targetBlank ? 'target="_blank" rel="noopener"' : '';
+
+          // 連番インデックス番号（既存カードの続きからカウント）
+          const idxStr = String(baseIndex + index + 1).padStart(2, '0');
+
+          item.innerHTML = `
+            <article class="card">
+              <div class="card-glow"></div>
+              ${mediaHtml}
+              <div class="card-body">
+                <span class="card-index">${idxStr}</span>
+                <h3 class="card-title">${proj.title}</h3>
+                <p class="card-subtitle">${proj.subtitle}</p>
+                <p class="card-desc">${proj.desc}</p>
+                <div class="card-tags">${tagsHtml}</div>
+                <a href="${proj.link}" class="card-btn" ${targetAttr}>詳しく見る <span class="arrow">➔</span></a>
+              </div>
+            </article>
+          `;
+
+          // BBQや慶劇祭などの固定カードの後ろ（.fan-hint の手前）に挿入
+          if (hint) {
+            container.insertBefore(item, hint);
+          } else {
+            container.appendChild(item);
+          }
+        });
+
+        // カード全件の配置が完了してからファンアニメーションを起動
+        initFanDeck();
+      })
+      .catch(err => {
+        console.error("企画データの読み込みに失敗しました（固定カードのみでアニメーションを初期化します）:", err);
+        initFanDeck();
+      });
   });
-
-  // カードを描画する関数
-  function renderProjects(projects) {
-    const container = document.getElementById('fanCardsContainer');
-    if (!container) return;
-
-    container.innerHTML = '';
-
-    projects.forEach((proj, index) => {
-      const item = document.createElement('div');
-      item.className = 'fan-item';
-
-      const idxStr = String(index + 1).padStart(2, '0');
-      const targetAttr = proj.target_blank ? 'target="_blank" rel="noopener"' : '';
-      const tagsHtml = (proj.tags || []).map(tag => `<span class="card-tag">${escapeHtml(tag)}</span>`).join('');
-
-      let mediaHtml = '';
-      if (proj.media_type === 'icon') {
-        mediaHtml = `<div class="card-media"><span class="glyph">${escapeHtml(proj.icon || '✨')}</span></div>`;
-      } else if (proj.media_type === 'layered') {
-        mediaHtml = `
-          <div class="card-media layered" style="background-image: url('${escapeHtml(proj.bg_image || '')}');">
-            ${proj.poster_tag ? `<span class="poster-tag">${escapeHtml(proj.poster_tag)}</span>` : ''}
-            <img class="poster" src="${escapeHtml(proj.poster_image || '')}" alt="">
-          </div>`;
-      } else {
-        mediaHtml = `<div class="card-media" style="background-image: url('${escapeHtml(proj.bg_image || '')}'); background-size: cover; background-position: center;"></div>`;
-      }
-
-      item.innerHTML = `
-        <article class="card">
-          <div class="card-glow"></div>
-          ${mediaHtml}
-          <div class="card-body">
-            <span class="card-index">${idxStr}</span>
-            <h3 class="card-title">${escapeHtml(proj.title || '')}</h3>
-            <p class="card-subtitle">${escapeHtml(proj.subtitle || '')}</p>
-            <p class="card-desc">${escapeHtml(proj.desc || '')}</p>
-            <div class="card-tags">${tagsHtml}</div>
-            <a href="${escapeHtml(proj.link || '#')}" class="card-btn" ${targetAttr}>詳しく見る <span class="arrow">➔</span></a>
-          </div>
-        </article>
-      `;
-
-      container.appendChild(item);
-    });
-
-    // スクロールヒント要素を末尾に追加
-    const hint = document.createElement('p');
-    hint.className = 'fan-hint';
-    hint.textContent = 'Scroll to open ↓';
-    container.appendChild(hint);
-  }
 
   // ファンデッキ展開アニメーション処理
   function initFanDeck() {
@@ -1245,6 +1328,7 @@ header {
     var fannedTx = 380;
     var ticking = false;
 
+    // 枚数に応じてスタック位置や傾きを自動計算
     function getStackedStyle(i, total) {
       var mid = (total - 1) / 2;
       var rot = (i - mid) * 6;
@@ -1304,8 +1388,208 @@ header {
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', function() { recalc(); update(); });
   }
+</script>
 
-  // ロゴアニメーション
+  <section class="faq">
+    <div class="wrap">
+      <div class="faq-heading reveal">
+        <p class="intro-eyebrow">FAQ</p>
+        <h2 class="intro-title">よくある質問</h2>
+        <div class="intro-title-rule"></div>
+        <p class="faq-lead">疑問を解消し、次のステップへ。</p>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-item reveal">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q-label"><span class="faq-q-mark">Q</span>9月開催の「交流会＆WS」は、どんなイベントですか？</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer-wrap">
+            <div class="faq-answer-inner">
+              <div class="faq-answer">
+                <p>所属団体の枠を飛び越え、異なる劇団の仲間と「出会い、語り、遊ぶ」1日完結の夏限定プログラムです。「他の劇団の稽古って何してる？」「もっと他団体の役者・スタッフと話してみたい！」そんな声に応えるため、気軽に参加できるワークショップと、夏の終わりを詰め込んだフランクな交流会を用意しています。手ぶらで飛び込める、いちばん熱い1日をお届けします。</p>
+                <div class="faq-note">
+                  <p><strong>9月開催分に関する重要なお知らせ</strong><br>9月開催分、Stage Linkと協力関係にある慶應義塾大学内の劇団員メンバーのみを対象とした限定募集となります。他大学の劇団員の方、および一般の方の参加は承っておりませんので、あらかじめご了承ください。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q-label"><span class="faq-q-mark">Q</span>ビラネットワークの利用に費用はかかりますか？</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer-wrap">
+            <div class="faq-answer-inner">
+              <div class="faq-answer">
+                <p>劇団の皆様の基本的なシステム利用、公演カレンダーへの掲載、および折り込み（挟み込み）依頼の送信はすべて完全無料でご利用いただけます。Stage Linkは学生演劇の持続可能なインフラとして、合理的なプロモーションを全面的にサポートします。</p>
+                <div class="faq-note faq-note--muted">
+                  <p>※演劇団体以外のイベントでのご利用や、特別なタイアップ運営等につきましては、個別で最適なお手伝いをいたしますので、👉 <a href="#">Contact</a> よりお気軽にご相談ください。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q-label"><span class="faq-q-mark">Q</span>慶應（SFCや三田・日吉）以外の他大学の劇団ですが、企画に参加できますか？</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer-wrap">
+            <div class="faq-answer-inner">
+              <div class="faq-answer">
+                <p>企画の特性に合わせて、以下のように窓口を開放しています。</p>
+                <ul class="faq-sublist">
+                  <li><strong>交流会・WS ＆ 慶劇祭：</strong>原則として、慶應義塾大学を拠点に活動するサークル・団体・メンバーを対象としています。</li>
+                  <li><strong>ビラネットワーク：</strong>大学やサークルの垣根、さらには慶應の内外さえも問わず、日本全国すべての劇団・表現者が完全無料でご利用いただけます。他大学の劇団や、プロ・アマ問わず大歓迎ですので、ぜひ宣伝力のシェアリングにご参加ください。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q-label"><span class="faq-q-mark">Q</span>折り込み（ビラ配布）の依頼ルールや流れを教えてください。</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer-wrap">
+            <div class="faq-answer-inner">
+              <div class="faq-answer">
+                <p>驚くほどシンプルです。ビラネットワーク内の「公演カレンダー」から折り込みを依頼したい公演を選び、画面のガイドに沿って必要事項を入力・申請するだけで完了します。</p>
+                <p>「何度もメールを往復させる」「フォーマットを気にして連絡する」といった煩雑なコミュニケーションコストを極限までゼロにデザインしています。詳しい画面操作や使い方のコツは、定期開催している「利用説明会」にてデモを交えてご紹介しています。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q-label"><span class="faq-q-mark">Q</span>ビラネットワークに参加したい！どうしたらいい？</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer-wrap">
+            <div class="faq-answer-inner">
+              <div class="faq-answer">
+                <p>まずは、定期開催している<strong>「ビラネットワーク オンライン利用説明会」</strong>へご参加ください！ 劇団の制作担当者様向けに、システムの概要やメリットを30分程度でスッキリ解説します。説明会への参加完了後、その場ですぐにアカウントが発行され、サービスをご利用いただけます。</p>
+                <p>「まずは話だけ聞いてみたい」「登録するか迷っている」という段階でのご参加も大歓迎です。ご不明な点があれば、いつでも公式Instagram / XのDMやメール窓口にて受け付けております。</p>
+                <a href="#" class="cta-link faq-cta">利用説明会へのエントリーはこちら <span class="arrow">➔</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-inner">
+        <span class="brand">Stage Link</span>
+        <span class="meta">Meet / Connect / Create</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    targets.forEach(function (el, i) {
+      el.style.transitionDelay = (0.06 * (i % 6)) + 's';
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  })();
+
+  (function () {
+    var driver = document.querySelector('.fan-driver');
+    var stage = document.querySelector('.fan-stage');
+    var cardsBox = document.querySelector('.fan-cards');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.fan-item'));
+    if (!driver || !items.length) return;
+
+    var GAP = 26;
+    var fannedTx = 380;
+    var ticking = false;
+
+    var stacked = [
+      { tx: -16, ty: 10, rot: -7, sc: 0.93, z: 1 },
+      { tx: 0,   ty: 0,  rot: -1, sc: 1,    z: 3 },
+      { tx: 16,  ty: 14, rot: 7,  sc: 0.94, z: 2 }
+    ];
+
+    function fanned(i) {
+      var d = i - 1;
+      return { tx: d * fannedTx, ty: (i === 1 ? -16 : 14), rot: d * 4, sc: 1, z: stacked[i].z };
+    }
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+    function recalc() {
+      var w = cardsBox.clientWidth;
+      var cardW = (w - GAP * 2) / 3;
+      cardW = Math.max(260, Math.min(cardW, 460));
+      fannedTx = cardW + GAP;
+      items.forEach(function (el) { el.style.setProperty('--w', cardW + 'px'); });
+    }
+
+    function isActive() { return window.innerWidth > 900; }
+
+    function update() {
+      ticking = false;
+      if (!isActive()) return;
+      var rect = driver.getBoundingClientRect();
+      var scrollable = rect.height - window.innerHeight;
+      var p = scrollable > 0 ? clamp01(-rect.top / scrollable) : 0;
+      stage.style.setProperty('--p', p.toFixed(4));
+
+      items.forEach(function (el, i) {
+        var s = stacked[i];
+        var f = fanned(i);
+        var tx = lerp(s.tx, f.tx, p);
+        var ty = lerp(s.ty, f.ty, p);
+        var rot = lerp(s.rot, f.rot, p);
+        var sc = lerp(s.sc, f.sc, p);
+        el.style.setProperty('--tx', tx.toFixed(1) + 'px');
+        el.style.setProperty('--ty', ty.toFixed(1) + 'px');
+        el.style.setProperty('--rot', rot.toFixed(2) + 'deg');
+        el.style.setProperty('--sc', sc.toFixed(3));
+        el.style.zIndex = s.z;
+      });
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }
+
+    function onResize() {
+      recalc();
+      update();
+    }
+
+    recalc();
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+  })();
+
   (function () {
     var block = document.getElementById('logoBlock');
     if (!block) return;
@@ -1368,7 +1652,6 @@ header {
     window.addEventListener('scroll', onFirstScroll, { passive: true });
   })();
 
-  // FAQのアコーディオン処理
   (function () {
     var items = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
     if (!items.length) return;
@@ -1391,26 +1674,85 @@ header {
     });
   })();
 
-  // スクロール時の要素フェードイン（reveal）処理
-  (function () {
-    var targets = document.querySelectorAll('.reveal');
-    targets.forEach(function (el, i) {
-      el.style.transitionDelay = (0.06 * (i % 6)) + 's';
-    });
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-in');
-          io.unobserve(entry.target);
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. projects.json から最新データを取得
+    fetch('projects.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('JSONの読み込みに失敗しました');
         }
+        return response.json();
+      })
+      .then(projectsData => {
+        // 2. カードを生成して画面に追加
+        renderProjects(projectsData);
+        
+        // 3. アニメーションやカード開閉などの初期化関数を実行（定義されている場合）
+        if (typeof initFanDeck === 'function') {
+          initFanDeck();
+        }
+      })
+      .catch(error => {
+        console.error('エラー:', error);
       });
-    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
-    targets.forEach(function (el) { io.observe(el); });
-  })();
+  });
 
-  // エスケープ関数
+  // カードを描画する関数
+  function renderProjects(projects) {
+  const container = document.getElementById('fanCardsContainer');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  projects.forEach((proj, index) => {
+    const item = document.createElement('div');
+    item.className = 'fan-item';
+
+    const idxStr = String(index + 1).padStart(2, '0');
+    const targetAttr = proj.target_blank ? 'target="_blank" rel="noopener"' : '';
+    const tagsHtml = (proj.tags || []).map(tag => `<span class="card-tag">${escapeHtml(tag)}</span>`).join('');
+
+    let mediaHtml = '';
+    if (proj.media_type === 'icon') {
+      mediaHtml = `<div class="card-media"><span class="glyph">${escapeHtml(proj.icon || '✨')}</span></div>`;
+    } else if (proj.media_type === 'layered') {
+      mediaHtml = `
+        <div class="card-media layered" style="background-image: url('${escapeHtml(proj.bg_image || '')}');">
+          ${proj.poster_tag ? `<span class="poster-tag">${escapeHtml(proj.poster_tag)}</span>` : ''}
+          <img class="poster" src="${escapeHtml(proj.poster_image || '')}" alt="">
+        </div>`;
+    } else {
+      mediaHtml = `<div class="card-media" style="background-image: url('${escapeHtml(proj.bg_image || '')}'); background-size: cover; background-position: center;"></div>`;
+    }
+
+    item.innerHTML = `
+      <article class="card">
+        <div class="card-glow"></div>
+        ${mediaHtml}
+        <div class="card-body">
+          <span class="card-index">${idxStr}</span>
+          <h3 class="card-title">${escapeHtml(proj.title || '')}</h3>
+          <p class="card-subtitle">${escapeHtml(proj.subtitle || '')}</p>
+          <p class="card-desc">${escapeHtml(proj.desc || '')}</p>
+          <div class="card-tags">${tagsHtml}</div>
+          <a href="${escapeHtml(proj.link || '#')}" class="card-btn" ${targetAttr}>詳しく見る <span class="arrow">➔</span></a>
+        </div>
+      </article>
+    `;
+
+    container.appendChild(item);
+  });
+
+  // カード設置後にヒント要素を再追加
+  const hint = document.createElement('p');
+  hint.className = 'fan-hint';
+  hint.textContent = 'Scroll to open ↓';
+  container.appendChild(hint);
+}
+
+  // HTMLエスケープ処理（セキュリティ対策）
   function escapeHtml(str) {
-    return String(str || '')
+    return String(str)
       .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;')

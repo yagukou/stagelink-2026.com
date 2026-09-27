@@ -38,9 +38,9 @@
 </div>
 
 <script>
-  // ★ご自身の Supabase 情報を設定してください★
-  const SUPABASE_URL = 'https://YOUR-PROJECT-ID.supabase.co';
-  const SUPABASE_KEY = 'YOUR-ANON-KEY';
+  // Supabase 接続情報の設定
+  const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let projectsData = [];
@@ -137,7 +137,7 @@
   }
 
   function escapeHtml(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   document.getElementById('btnAdd').addEventListener('click', () => {
