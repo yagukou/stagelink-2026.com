@@ -977,6 +977,92 @@ header {
   }
 </style>
 </head>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // ★ご自身の Supabase 情報を設定してください★
+  const SUPABASE_URL = 'sb_publishable_Maty8Athv2jAshtOo8CtLA_RotZGWe5';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Supabaseから最新の企画一覧を取得
+    const { data: projects, error } = await db
+      .from('projects')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error('データ取得失敗:', error);
+      return;
+    }
+
+    renderProjects(projects);
+
+    if (typeof initFanDeck === 'function') {
+      initFanDeck();
+    }
+  });
+
+  function renderProjects(projects) {
+    const container = document.getElementById('fanCardsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    projects.forEach(proj => {
+      const cardA = document.createElement('a');
+      cardA.className = 'fan-card';
+      cardA.href = proj.link || '#';
+      
+      if (proj.target_blank) {
+        cardA.target = '_blank';
+        cardA.rel = 'noopener noreferrer';
+      }
+
+      const tagsHtml = (proj.tags || []).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('');
+
+      let mediaHtml = '';
+      if (proj.media_type === 'icon') {
+        mediaHtml = `<div class="card-icon-wrap"><span class="card-emoji">${escapeHtml(proj.icon || '✨')}</span></div>`;
+      } else if (proj.media_type === 'layered') {
+        mediaHtml = `
+          <div class="card-media layered">
+            <img src="${escapeHtml(proj.bg_image || '')}" class="bg-img" alt="">
+            <div class="poster-wrap">
+              <img src="${escapeHtml(proj.poster_image || '')}" class="poster-img" alt="">
+              ${proj.poster_tag ? `<span class="poster-tag">${escapeHtml(proj.poster_tag)}</span>` : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        mediaHtml = `
+          <div class="card-media">
+            <img src="${escapeHtml(proj.bg_image || '')}" alt="">
+          </div>
+        `;
+      }
+
+      cardA.innerHTML = `
+        ${mediaHtml}
+        <div class="card-content">
+          <div class="card-tags">${tagsHtml}</div>
+          <h3 class="card-title">${escapeHtml(proj.title || '')}</h3>
+          <p class="card-subtitle">${escapeHtml(proj.subtitle || '')}</p>
+          <p class="card-desc">${escapeHtml(proj.desc || '')}</p>
+        </div>
+      `;
+
+      container.appendChild(cardA);
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+</script>
 <body>
 
 <div id="menu-overlay"></div>
@@ -1587,6 +1673,97 @@ header {
       });
     });
   })();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. projects.json から最新データを取得
+    fetch('projects.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('JSONの読み込みに失敗しました');
+        }
+        return response.json();
+      })
+      .then(projectsData => {
+        // 2. カードを生成して画面に追加
+        renderProjects(projectsData);
+        
+        // 3. アニメーションやカード開閉などの初期化関数を実行（定義されている場合）
+        if (typeof initFanDeck === 'function') {
+          initFanDeck();
+        }
+      })
+      .catch(error => {
+        console.error('エラー:', error);
+      });
+  });
+
+  // カードを描画する関数
+  function renderProjects(projects) {
+    const container = document.getElementById('fanCardsContainer');
+    if (!container) return;
+
+    container.innerHTML = ''; // 既存の要素をクリア
+
+    projects.forEach((proj, index) => {
+      const cardA = document.createElement('a');
+      cardA.className = 'fan-card';
+      cardA.href = proj.link || '#';
+      
+      // 新しいタブで開く設定の場合
+      if (proj.targetBlank) {
+        cardA.target = '_blank';
+        cardA.rel = 'noopener noreferrer';
+      }
+
+      // タグのHTML生成
+      const tagsHtml = (proj.tags || []).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('');
+
+      // メディア（画像・アイコン）表示の条件分岐
+      let mediaHtml = '';
+      if (proj.mediaType === 'icon') {
+        mediaHtml = `<div class="card-icon-wrap"><span class="card-emoji">${escapeHtml(proj.icon || '✨')}</span></div>`;
+      } else if (proj.mediaType === 'layered') {
+        mediaHtml = `
+          <div class="card-media layered">
+            <img src="${escapeHtml(proj.bgImage || '')}" class="bg-img" alt="">
+            <div class="poster-wrap">
+              <img src="${escapeHtml(proj.posterImage || '')}" class="poster-img" alt="">
+              ${proj.posterTag ? `<span class="poster-tag">${escapeHtml(proj.posterTag)}</span>` : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        mediaHtml = `
+          <div class="card-media">
+            <img src="${escapeHtml(proj.bgImage || '')}" alt="">
+          </div>
+        `;
+      }
+
+      // カード全体の構造を組み立て
+      cardA.innerHTML = `
+        ${mediaHtml}
+        <div class="card-content">
+          <div class="card-tags">${tagsHtml}</div>
+          <h3 class="card-title">${escapeHtml(proj.title || '')}</h3>
+          <p class="card-subtitle">${escapeHtml(proj.subtitle || '')}</p>
+          <p class="card-desc">${escapeHtml(proj.desc || '')}</p>
+        </div>
+      `;
+
+      container.appendChild(cardA);
+    });
+  }
+
+  // HTMLエスケープ処理（セキュリティ対策）
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 </script>
 
 </body>
