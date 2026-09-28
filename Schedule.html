@@ -164,11 +164,10 @@
 </div>
 
 <script>
-  // Supabase設定
+  // ① ビラネ用 Supabase 設定
   const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
 
-  // ブラウザのTracking Preventionエラー回避設定
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       persistSession: false,
@@ -177,23 +176,30 @@
     }
   });
 
-const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
+  // ② 企画用 Supabase 設定
+  const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    auth: { 
+      persistSession: false, 
+      autoRefreshToken: false, 
+      detectSessionInUrl: false 
+    }
   });
 
+  // 画面の準備完了時に安全に呼び出す（必須）
   document.addEventListener('DOMContentLoaded', () => {
     fetchEvents();
     fetchRequests();
   });
 
-  // ①【企画スケジュール】events テーブルから取得
+  // ①【企画スケジュール】dbEvents から取得するよう修正
   async function fetchEvents() {
     const container = document.getElementById('events-container');
 
-    const { data, error } = await db
+    // ★ db ではなく dbEvents に変更
+    const { data, error } = await dbEvents
       .from('events')
       .select('*');
 
@@ -211,7 +217,6 @@ const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
     container.innerHTML = '';
 
     data.forEach(item => {
-      // HTMLタグを含むdescriptionからテキストのみ抽出
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = item.description || '';
       const plainText = tempDiv.textContent || tempDiv.innerText || '';
@@ -236,7 +241,7 @@ const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
     });
   }
 
-  // ②【ビラ折込スケジュール】requests（ビラネ）テーブルから取得
+  // ②【ビラ折込スケジュール】db から取得
   async function fetchRequests() {
     const container = document.getElementById('requests-container');
 
@@ -257,7 +262,6 @@ const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
 
     container.innerHTML = '';
 
-    // JavaScript側で並べ替え
     requests.sort((a, b) => {
       const dateA = a.foldingDate || a.folding_date || '';
       const dateB = b.foldingDate || b.folding_date || '';
@@ -293,7 +297,6 @@ const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
     });
   }
 
-  // エスケープ処理
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
