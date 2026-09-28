@@ -1210,209 +1210,119 @@ header {
   </footer>
 
 <script>
-// project-manager.html で設定されていたSupabase接続情報
+// Supabase接続情報
 const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  (function () {
-    var targets = document.querySelectorAll('.reveal');
-    targets.forEach(function (el, i) {
-      el.style.transitionDelay = (0.06 * (i % 6)) + 's';
+// 1. フェードイン表示（reveal）のアニメーション
+(function () {
+  var targets = document.querySelectorAll('.reveal');
+  targets.forEach(function (el, i) {
+    el.style.transitionDelay = (0.06 * (i % 6)) + 's';
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
+      }
     });
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-in');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
-    targets.forEach(function (el) { io.observe(el); });
-  })();
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  targets.forEach(function (el) { io.observe(el); });
+})();
 
-  (function () {
-    var driver = document.querySelector('.fan-driver');
-    var stage = document.querySelector('.fan-stage');
-    var cardsBox = document.querySelector('.fan-cards');
-    var items = Array.prototype.slice.call(document.querySelectorAll('.fan-item'));
-    if (!driver || !items.length) return;
+// 2. ロゴアニメーション
+(function () {
+  var block = document.getElementById('logoBlock');
+  if (!block) return;
+  var sPath = document.getElementById('sPath');
+  var dotEnd = block.querySelector('.dot-end');
+  var DRAW_DELAY = 0;
+  var DRAW_DURATION = 3500;
+  var len = 0;
 
-    var GAP = 26;
-    var fannedTx = 340;
-    var ticking = false;
+  if (sPath) {
+    len = sPath.getTotalLength();
+    sPath.style.strokeDasharray = len;
+    sPath.style.strokeDashoffset = len;
+  }
 
-    // 枚数に応じてスタック時・広がり時の基準を計算
-    function getStacked(i, count) {
-      var centerIndex = (count - 1) / 2;
-      var offset = i - centerIndex;
-      return {
-        tx: offset * 12,
-        ty: Math.abs(offset) * 6,
-        rot: offset * -3,
-        sc: 1 - Math.abs(offset) * 0.03,
-        z: count - Math.abs(Math.round(offset))
-      };
+  function playAnimation() {
+    if (sPath && sPath.animate) {
+      sPath.animate(
+        [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+        { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
+      );
+    } else if (sPath) {
+      sPath.style.strokeDashoffset = 0;
     }
-
-    function fanned(i, count) {
-      var centerIndex = (count - 1) / 2;
-      var offset = i - centerIndex;
-      return {
-        tx: offset * fannedTx,
-        ty: Math.abs(offset) * 8,
-        rot: offset * 3,
-        sc: 1,
-        z: count - i
-      };
+    if (dotEnd && dotEnd.animate) {
+      dotEnd.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 300, delay: DRAW_DELAY + DRAW_DURATION - 100, easing: 'ease-out', fill: 'forwards' }
+      );
+    } else if (dotEnd) {
+      dotEnd.style.opacity = 1;
     }
+  }
 
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+  var triggered = false;
+  var isIntersecting = false;
+  var hasScrolled = false;
 
-    function recalc() {
-      var w = cardsBox.clientWidth;
-      var count = items.length;
-      var cardW = (w - GAP * (count - 1)) / count;
-      cardW = Math.max(260, Math.min(cardW, 380));
-      fannedTx = cardW + GAP;
-      items.forEach(function (el) { el.style.setProperty('--w', cardW + 'px'); });
-    }
+  function tryTrigger() {
+    if (triggered || !isIntersecting || !hasScrolled) return;
+    triggered = true;
+    block.classList.add('in-view');
+    playAnimation();
+    io.unobserve(block);
+    window.removeEventListener('scroll', onFirstScroll);
+  }
 
-    function isActive() { return window.innerWidth > 900; }
-
-    function update() {
-      ticking = false;
-      if (!isActive()) return;
-      var rect = driver.getBoundingClientRect();
-      var scrollable = rect.height - window.innerHeight;
-      var p = scrollable > 0 ? clamp01(-rect.top / scrollable) : 0;
-      stage.style.setProperty('--p', p.toFixed(4));
-
-      var count = items.length;
-      items.forEach(function (el, i) {
-        var s = getStacked(i, count);
-        var f = fanned(i, count);
-        var tx = lerp(s.tx, f.tx, p);
-        var ty = lerp(s.ty, f.ty, p);
-        var rot = lerp(s.rot, f.rot, p);
-        var sc = lerp(s.sc, f.sc, p);
-        el.style.setProperty('--tx', tx.toFixed(1) + 'px');
-        el.style.setProperty('--ty', ty.toFixed(1) + 'px');
-        el.style.setProperty('--rot', rot.toFixed(2) + 'deg');
-        el.style.setProperty('--sc', sc.toFixed(3));
-        el.style.zIndex = s.z;
-      });
-    }
-
-    function onScroll() {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    }
-
-    function onResize() {
-      recalc();
-      update();
-    }
-
-    recalc();
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-  })();
-
-  (function () {
-    var block = document.getElementById('logoBlock');
-    if (!block) return;
-    var sPath = document.getElementById('sPath');
-    var dotEnd = block.querySelector('.dot-end');
-    var DRAW_DELAY = 0;
-    var DRAW_DURATION = 3500;
-    var len = 0;
-
-    if (sPath) {
-      len = sPath.getTotalLength();
-      sPath.style.strokeDasharray = len;
-      sPath.style.strokeDashoffset = len;
-    }
-
-    function playAnimation() {
-      if (sPath && sPath.animate) {
-        sPath.animate(
-          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
-          { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
-        );
-      } else if (sPath) {
-        sPath.style.strokeDashoffset = 0;
-      }
-      if (dotEnd && dotEnd.animate) {
-        dotEnd.animate(
-          [{ opacity: 0 }, { opacity: 1 }],
-          { duration: 300, delay: DRAW_DELAY + DRAW_DURATION - 100, easing: 'ease-out', fill: 'forwards' }
-        );
-      } else if (dotEnd) {
-        dotEnd.style.opacity = 1;
-      }
-    }
-
-    var triggered = false;
-    var isIntersecting = false;
-    var hasScrolled = false;
-
-    function tryTrigger() {
-      if (triggered || !isIntersecting || !hasScrolled) return;
-      triggered = true;
-      block.classList.add('in-view');
-      playAnimation();
-      io.unobserve(block);
-      window.removeEventListener('scroll', onFirstScroll);
-    }
-
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        isIntersecting = entry.isIntersecting;
-        tryTrigger();
-      });
-    }, { threshold: 0.35, rootMargin: '0px 0px -60px 0px' });
-    io.observe(block);
-
-    function onFirstScroll() {
-      hasScrolled = true;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      isIntersecting = entry.isIntersecting;
       tryTrigger();
-    }
-    window.addEventListener('scroll', onFirstScroll, { passive: true });
-  })();
-
-  (function () {
-    var items = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
-    if (!items.length) return;
-
-    items.forEach(function (item) {
-      var btn = item.querySelector('.faq-q');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        var wasOpen = item.classList.contains('is-open');
-        items.forEach(function (other) {
-          other.classList.remove('is-open');
-          var otherBtn = other.querySelector('.faq-q');
-          if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
-        });
-        if (!wasOpen) {
-          item.classList.add('is-open');
-          btn.setAttribute('aria-expanded', 'true');
-        }
-      });
     });
-  })();
+  }, { threshold: 0.35, rootMargin: '0px 0px -60px 0px' });
+  io.observe(block);
 
-  // ====== 1. Supabaseから動的にカードデータを読み込んで描画する関数 ======
+  function onFirstScroll() {
+    hasScrolled = true;
+    tryTrigger();
+  }
+  window.addEventListener('scroll', onFirstScroll, { passive: true });
+})();
+
+// 3. FAQのアコーディオン動作
+(function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
+  if (!items.length) return;
+
+  items.forEach(function (item) {
+    var btn = item.querySelector('.faq-q');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var wasOpen = item.classList.contains('is-open');
+      items.forEach(function (other) {
+        other.classList.remove('is-open');
+        var otherBtn = other.querySelector('.faq-q');
+        if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) {
+        item.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+})();
+
+// 4. Supabaseから動的にカードデータを読み込んで描画する関数
 async function loadProjectsFromSupabase() {
   const cardsContainer = document.getElementById('fan-cards-container');
   if (!cardsContainer) return;
 
-  // Supabase からプロジェクト一覧を取得
   const { data: projects, error } = await supabase
     .from('projects')
     .select('*')
@@ -1424,12 +1334,9 @@ async function loadProjectsFromSupabase() {
     return;
   }
 
-  // コンテナ内を一度空にする
   cardsContainer.innerHTML = '';
-
   if (!projects || projects.length === 0) return;
 
-  // 取得したデータからカードを1枚ずつ動的生成
   projects.forEach((item, index) => {
     const cardIndex = String(index + 1).padStart(2, '0');
     const tagsHtml = item.tags ? item.tags.map(t => `<span class="card-tag">${t}</span>`).join('') : '';
@@ -1454,22 +1361,20 @@ async function loadProjectsFromSupabase() {
     cardsContainer.appendChild(cardEl);
   });
 
-  // ヒントテキストを最後に追加
   const hintEl = document.createElement('p');
   hintEl.className = 'fan-hint';
   hintEl.textContent = 'Scroll to open ↓';
   cardsContainer.appendChild(hintEl);
 
-  // ★ カード要素が出揃った後に、アニメーションの計算・バインドを呼び出す
+  // カード生成後にカード配置用アニメーションを初期化
   initFanAnimation();
 }
 
-// ====== 2. スクロールファンデッキアニメーション関数 ======
+// 5. スクロールファンデッキアニメーション関数
 function initFanAnimation() {
   var driver = document.querySelector('.fan-driver');
   var stage = document.querySelector('.fan-stage');
   var cardsBox = document.querySelector('.fan-cards');
-  // 動的追加された fan-item を最新の状態で取得
   var items = Array.prototype.slice.call(document.querySelectorAll('.fan-item'));
   if (!driver || !items.length) return;
 
@@ -1557,7 +1462,7 @@ function initFanAnimation() {
   window.addEventListener('resize', onResize);
 }
 
-// ページ読み込み時に実行
+// ページ読み込み時にSupabaseからデータをロード
 document.addEventListener('DOMContentLoaded', () => {
   loadProjectsFromSupabase();
 });
