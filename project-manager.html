@@ -9,18 +9,6 @@
   
   <!-- TinyMCE (リッチテキストエディタ) -->
   <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      tinymce.init({
-        selector: '#description',
-        height: 300,
-        menubar: false,
-        plugins: 'lists link code table',
-        toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright | bullist numlist | table link code',
-        content_style: 'body { font-family: "Noto Sans JP", sans-serif; font-size: 14px; }'
-      });
-    });
-  </script>
 
   <style>
     :root {
@@ -110,9 +98,7 @@
   <div class="card">
     <h2 id="form-title">新規企画・イベントを追加</h2>
     <form id="event-form">
-      <!-- 編集用の隠しIDフィールド -->
       <input type="hidden" id="event_id" value="">
-      <!-- 現在設定されている画像のURLを保持 -->
       <input type="hidden" id="current_image_url" value="">
 
       <div class="form-group">
@@ -186,9 +172,17 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // キャッシュ用のイベントデータ配列
   let fetchedEvents = [];
+
+  // TinyMCEの初期化
+  tinymce.init({
+    selector: '#description',
+    height: 300,
+    menubar: false,
+    plugins: 'lists link code table',
+    toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright | bullist numlist | table link code',
+    content_style: 'body { font-family: "Noto Sans JP", sans-serif; font-size: 14px; }'
+  });
 
   function toggleCustomUrlInput() {
     const type = document.getElementById('link_type').value;
@@ -232,17 +226,24 @@
         <td>${isCurrentBadge}</td>
         <td><strong>${item.title}</strong></td>
         <td>
-          <button class="btn btn-edit" onclick="startEdit('${item.id}')">編集</button>
-          <button class="btn btn-danger" onclick="deleteEvent('${item.id}')">削除</button>
+          <button type="button" class="btn btn-edit" data-id="${item.id}">編集</button>
+          <button type="button" class="btn btn-danger" onclick="deleteEvent('${item.id}')">削除</button>
         </td>
       `;
       listContainer.appendChild(tr);
     });
+
+    // 編集ボタンへのイベント割り当て（onclick記述による不具合を防止）
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        startEdit(id);
+      });
+    });
   }
 
-  // 編集モードへのセットアップ
   function startEdit(id) {
-    const item = fetchedEvents.find(e => e.id === id);
+    const item = fetchedEvents.find(e => String(e.id) === String(id));
     if (!item) return;
 
     document.getElementById('form-title').innerText = '企画・イベント情報を編集';
@@ -250,9 +251,12 @@
     document.getElementById('title').value = item.title || '';
     document.getElementById('event_date').value = item.event_date || '';
     
-    // TinyMCEエディタに説明文をセット
-    if (tinymce.get('description')) {
-      tinymce.get('description').setContent(item.description || '');
+    // TinyMCEへテキストを安全にセット
+    const editor = tinymce.get('description');
+    if (editor) {
+      editor.setContent(item.description || '');
+    } else {
+      document.getElementById('description').value = item.description || '';
     }
 
     document.getElementById('is_current').checked = item.is_current || false;
@@ -264,8 +268,7 @@
       document.getElementById('image_info').innerText = '';
     }
 
-    // リンク先の判定とセット
-    if (item.link_url && item.link_url.startsWith('event-detail.html?id=')) {
+    if (item.link_url && item.link_url.includes('event-detail.html')) {
       document.getElementById('link_type').value = 'auto';
       document.getElementById('link_url').value = '';
     } else {
@@ -277,11 +280,9 @@
     document.getElementById('submit-btn').innerText = '変更を更新・保存する';
     document.getElementById('cancel-btn').style.display = 'inline-block';
 
-    // フォームまでスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // フォームのリセット（新規登録状態に戻す）
   function resetForm() {
     document.getElementById('form-title').innerText = '新規企画・イベントを追加';
     document.getElementById('event-form').reset();
@@ -289,8 +290,9 @@
     document.getElementById('current_image_url').value = '';
     document.getElementById('image_info').innerText = '';
     
-    if (tinymce.get('description')) {
-      tinymce.get('description').setContent('');
+    const editor = tinymce.get('description');
+    if (editor) {
+      editor.setContent('');
     }
 
     toggleCustomUrlInput();
@@ -329,12 +331,14 @@
       const editId = document.getElementById('event_id').value;
       const title = document.getElementById('title').value;
       const event_date = document.getElementById('event_date').value;
-      const description = tinymce.get('description').getContent();
+      
+      const editor = tinymce.get('description');
+      const description = editor ? editor.getContent() : document.getElementById('description').value;
+
       const is_current = document.getElementById('is_current').checked;
       const link_type = document.getElementById('link_type').value;
       const fileInput = document.getElementById('image_file');
 
-      // 画像のハンドリング（新ファイル選択があれば変更、なければ既存URL維持）
       let image_url = document.getElementById('current_image_url').value;
       if (fileInput.files.length > 0) {
         image_url = await uploadImage(fileInput.files[0]);
@@ -346,7 +350,6 @@
       }
 
       if (editId) {
-        // --- 編集（UPDATE）の処理 ---
         if (link_type === 'auto') {
           finalLinkUrl = `event-detail.html?id=${editId}`;
         }
@@ -360,7 +363,6 @@
         alert('企画情報を更新しました！');
 
       } else {
-        // --- 新規登録（INSERT）の処理 ---
         const { data, error } = await supabaseClient
           .from('events')
           .insert([{ title, event_date, description, image_url, link_url: finalLinkUrl, is_current }])
