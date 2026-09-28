@@ -51,7 +51,6 @@
       border-radius: 3px;
     }
 
-    /* スケジュールリストの表示スタイル */
     .schedule-list {
       display: flex;
       flex-direction: column;
@@ -73,7 +72,6 @@
       box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     }
     
-    /* 日付バッジ */
     .date-badge {
       background: var(--wine);
       color: white;
@@ -83,20 +81,9 @@
       min-width: 110px;
       flex-shrink: 0;
     }
-    .date-badge .year { font-size: 11px; opacity: 0.9; }
-    .date-badge .date { font-size: 16px; font-weight: bold; }
-    .date-badge .label { font-size: 10px; opacity: 0.85; }
+    .date-badge .label { font-size: 11px; opacity: 0.9; }
+    .date-badge .date { font-size: 15px; font-weight: bold; }
 
-    /* サムネイル画像 */
-    .schedule-img {
-      width: 70px;
-      height: 70px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
-
-    /* コンテンツ部分 */
     .schedule-content {
       flex-grow: 1;
       overflow-wrap: anywhere;
@@ -108,6 +95,12 @@
       color: var(--text);
       margin-bottom: 6px;
     }
+    .schedule-subtitle {
+      font-size: 13px;
+      color: var(--wine);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
     .schedule-desc {
       font-size: 13px;
       color: #666;
@@ -116,24 +109,6 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       line-height: 1.5;
-    }
-
-    /* 詳細ボタン・メタ情報 */
-    .btn-detail {
-      color: var(--wine);
-      font-weight: bold;
-      text-decoration: none;
-      font-size: 14px;
-      white-space: nowrap;
-      border: 1px solid var(--wine);
-      padding: 8px 16px;
-      border-radius: 4px;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .btn-detail:hover {
-      background: var(--wine);
-      color: white;
     }
 
     .schedule-meta {
@@ -163,10 +138,7 @@
         flex-direction: column;
         align-items: flex-start;
       }
-      .date-badge {
-        width: 100%;
-      }
-      .btn-detail, .schedule-meta {
+      .date-badge, .schedule-meta {
         width: 100%;
         text-align: center;
       }
@@ -196,9 +168,15 @@
   const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
 
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // ブラウザのTracking Preventionエラー回避設定
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    }
+  });
 
-  // 画面読み込み時にデータ取得を開始
   document.addEventListener('DOMContentLoaded', () => {
     fetchEvents();
     fetchRequests();
@@ -208,18 +186,13 @@
   async function fetchEvents() {
     const container = document.getElementById('events-container');
 
-    // orderを指定せず安全に取得
     const { data, error } = await db
       .from('events')
       .select('*');
 
     if (error) {
-      // 404等のエラー時はテーブルがない旨を案内
-      if (error.code === 'PGRST301' || error.message.includes('404')) {
-        container.innerHTML = '<div class="empty">企画スケジュール（events）テーブルが未作成のため表示できません。</div>';
-      } else {
-        container.innerHTML = `<div class="empty" style="color:red;">取得エラー: ${error.message}</div>`;
-      }
+      console.error('Events取得エラー:', error);
+      container.innerHTML = `<div class="empty" style="color:red;">取得エラー: ${escapeHtml(error.message)}</div>`;
       return;
     }
 
@@ -231,33 +204,24 @@
     container.innerHTML = '';
 
     data.forEach(item => {
-      const dateVal = item.event_date || item.date || '日付未定';
-      const dateObj = new Date(dateVal);
-      const year = dateObj.getFullYear() ? `${dateObj.getFullYear()}年` : '';
-      const monthDay = (!isNaN(dateObj.getMonth())) 
-        ? `${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`
-        : dateVal;
-
+      // HTMLタグを含むdescriptionからテキストのみ抽出
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = item.description || '';
       const plainText = tempDiv.textContent || tempDiv.innerText || '';
 
-      const imgHtml = item.image_url 
-        ? `<img src="${item.image_url}" class="schedule-img" alt="${item.title}">` 
-        : '';
+      const subtitleHtml = item.subtitle ? `<div class="schedule-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
 
       const itemHtml = `
         <div class="schedule-item">
           <div class="date-badge">
-            <div class="year">${year}</div>
-            <div class="date">${monthDay}</div>
+            <div class="label">ID</div>
+            <div class="date">#${item.id}</div>
           </div>
-          ${imgHtml}
           <div class="schedule-content">
             <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
+            ${subtitleHtml}
             <div class="schedule-desc">${escapeHtml(plainText)}</div>
           </div>
-          <a href="${item.link_url || '#'}" class="btn-detail">詳細をみる ➔</a>
         </div>
       `;
 
@@ -269,14 +233,13 @@
   async function fetchRequests() {
     const container = document.getElementById('requests-container');
 
-    // エラー防止のため created_at の並べ替え指定を外し全件取得
     const { data: requests, error } = await db
       .from('requests')
       .select('*');
 
     if (error) {
       console.error('Requests取得エラー:', error);
-      container.innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${error.message}</div>`;
+      container.innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(error.message)}</div>`;
       return;
     }
 
@@ -287,7 +250,7 @@
 
     container.innerHTML = '';
 
-    // JavaScript側で並べ替え（折り込み日またはID順）
+    // JavaScript側で並べ替え
     requests.sort((a, b) => {
       const dateA = a.foldingDate || a.folding_date || '';
       const dateB = b.foldingDate || b.folding_date || '';
@@ -333,3 +296,6 @@
       .replace(/"/g, '&quot;');
   }
 </script>
+
+</body>
+</html>
