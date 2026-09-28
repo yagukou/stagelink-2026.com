@@ -803,6 +803,57 @@ header {
     .monthly-fan-wrap { flex-direction: column; align-items: center; }
     .fan-card { transform: none !important; width: 100%; }
   }
+
+  /* カード一覧（親要素）のグリッド設定 */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: stretch; /* カードの高さを揃える */
+}
+
+/* 一つ一つのカードの高さ統一・折り返し設定 */
+.event-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* カードの高さを統一 */
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  /* 文字はみ出し防止 */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* カード内の本文概要テキスト（3行で省略表示して高さを揃える） */
+.event-card .description-preview {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 16px;
+  
+  /* 3行を超えたら ... で省略する設定 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* 複数行の高さコントロール */
+  line-height: 1.6;
+  max-height: calc(1.6em * 3);
+}
+
+/* 画像の高さを固定して綺麗にトリミング */
+.event-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
 </style>
 </head>
 <body>
@@ -1273,6 +1324,16 @@ header {
       });
     });
   })();
+
+  // 例：カードのHTML生成部分
+card.innerHTML = `
+  ${item.image_url ? `<img src="${item.image_url}" alt="">` : ''}
+  <div class="event-date">${item.event_date || ''}</div>
+  <h3>${item.title}</h3>
+  <!-- description-preview クラスを付けることで3行で「...」と省略されます -->
+  <div class="description-preview">${item.description || ''}</div>
+  <a href="${item.link_url}" class="btn-detail">詳細 ➔</a>
+`;
 </script>
 
 </body>
