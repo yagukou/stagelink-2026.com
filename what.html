@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* ====== サイト共通ヘッダー（元設定を維持） ====== */
+/* ====== サイト共通ヘッダー ====== */
 header {
   display: flex;
   justify-content: space-between;
@@ -443,37 +443,80 @@ header {
   .cta-link .arrow { transition: transform 0.25s ease; }
   .cta-link:hover .arrow { transform: translateX(5px); }
 
-  /* ====== 今月の企画（扇状・画像イメージ通り） ====== */
+  /* ====== 今月の企画（扇状スライダー ＋ 矢印ナビ） ====== */
   .monthly-section {
     padding: 80px 0 40px;
   }
 
+  .fan-slider-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+    gap: 15px;
+  }
+
+  .fan-arrow {
+    background: var(--wine-deep);
+    color: #fff;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .fan-arrow:hover:not(:disabled) {
+    background: var(--wine);
+    transform: scale(1.1);
+  }
+
+  .fan-arrow:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+
   .monthly-fan-wrap {
-  display: flex;
-  justify-content: flex-start; /* 左詰めで並べる */
-  align-items: stretch;
-  gap: 20px;
-  padding: 30px 10px;
-  overflow-x: auto; /* 4枚以上は横スクロールできるようにする */
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 40px 10px;
+    width: 100%;
+    min-height: 440px;
+  }
 
   .fan-card {
-  flex: 0 0 280px; /* カード幅を固定 */
-  scroll-snap-align: start;
-  transform: none !important; /* 扇状の回転をリセット */
-}
+    flex: 0 0 280px;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 6px 18px 6px 18px;
+    box-shadow: 0 10px 24px rgba(31,26,22,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
 
-  /* 画像（ラフスケッチ）通りのファン状配置 */
+  /* 扇状配置の回転角度設定 */
   .fan-card:nth-child(1) { transform: rotate(-7deg) translateY(15px); }
   .fan-card:nth-child(2) { transform: rotate(0deg) translateY(-15px) scale(1.05); z-index: 2; }
   .fan-card:nth-child(3) { transform: rotate(7deg) translateY(15px); }
 
   .fan-card:hover {
-  transform: translateY(-8px) !important;
-  box-shadow: 0 16px 32px rgba(31,26,22,0.18);
-}
+    box-shadow: 0 16px 32px rgba(31,26,22,0.2);
+  }
 
   .fan-card-media {
     height: 180px;
@@ -521,6 +564,10 @@ header {
     opacity: 0.85;
     margin-bottom: 20px;
     flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   /* ====== アーカイブ（Supabase連動・下段横並び） ====== */
@@ -607,7 +654,7 @@ header {
   .card-btn .arrow { transition: transform 0.25s ease; }
   .card-btn:hover .arrow { transform: translateX(3px); }
 
-  /* ====== FAQ（元設定そのまま維持） ====== */
+  /* ====== FAQ ====== */
   .faq {
     padding: 40px 0 130px;
     position: relative;
@@ -795,90 +842,9 @@ header {
   @media (max-width: 560px) {
     .faq-answer { padding-left: 26px; }
     .faq-q { padding: 18px 18px; }
-    .monthly-fan-wrap { flex-direction: column; align-items: center; }
+    .monthly-fan-wrap { flex-direction: column; align-items: center; min-height: auto; }
     .fan-card { transform: none !important; width: 100%; }
   }
-
-/* グリッドレイアウト（カードの高さを揃えて並べる） */
-.event-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  align-items: stretch; /* すべてのカードの高さを一番大きいものに揃える */
-}
-
-/* カード共通設定（今月表示・アーカイブ共通） */
-.event-card {
-  display: flex;
-  flex-direction: column; /* 上から下に要素を並べる */
-  justify-content: space-between; /* 上部コンテンツと底面ボタンを上下に分散 */
-  height: 100%; /* 高さを完全に統一 */
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-
-  /* 文字はみ出し防止 */
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-/* 今月の企画（メイン表示）のカード固有調整 */
-.current-event-card {
-  border: 2px solid #7c2946; /* メイン企画用のワンポイント枠線 */
-}
-
-/* カード内の画像エリア（高さ固定でトリミング） */
-.event-card-img {
-  width: 100%;
-  height: 180px; /* 画像の高さを固定 */
-  object-fit: cover; /* 縦横比を崩さず綺麗に収める */
-  border-radius: 6px;
-  margin-bottom: 12px;
-}
-
-/* カード内のタイトル */
-.event-card h3 {
-  font-size: 18px;
-  color: #1f1a16;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-
-/* カード内の詳細テキスト（最大3行で「...」と自動省略） */
-.description-preview {
-  font-size: 14px;
-  color: #555555;
-  line-height: 1.6;
-  margin-bottom: 16px;
-  
-  /* 3行を超えたら自動で省略（...） */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  /* 高さのブレを防ぐ固定設定 */
-  max-height: calc(1.6em * 3);
-}
-
-/* カード上部のコンテンツグループ */
-.event-card-body {
-  flex-grow: 1; /* 余白を自動埋め */
-}
-
-/* 一番下の「詳細 ➔」リンク・ボタン */
-.btn-detail {
-  display: inline-block;
-  margin-top: auto; /* カードの一番下に自動で押し下げる */
-  color: #7c2946;
-  font-weight: bold;
-  text-decoration: none;
-  border-bottom: 1px solid #7c2946;
-  padding-bottom: 2px;
-  align-self: flex-start;
-}
 </style>
 </head>
 <body>
@@ -987,7 +953,7 @@ header {
     </div>
   </section>
 
-  <!-- 上段：今月の企画（イメージ画像の上段・扇状レイアウト） -->
+  <!-- 上段：今月の企画（扇状スライダー ＋ 左右矢印ボタン） -->
   <section class="monthly-section">
     <div class="wrap">
       <div class="reveal">
@@ -996,49 +962,20 @@ header {
         <div class="intro-title-rule"></div>
       </div>
 
-      <!-- 今月企画の動的取得コンテナ（Supabaseまたは初期表示データ） -->
-      <div class="monthly-fan-wrap" id="monthly-container">
-        <!-- JSでSupabaseから取得して動的生成、読み込み前のフォールバック表示 -->
-        <article class="fan-card">
-          <div class="fan-card-media">
-            <img src="images/bbq-sample.jpg" alt="夏の交流WS＋BBQ" onerror="this.style.display='none'">
-          </div>
-          <div class="fan-card-body">
-            <span class="fan-card-badge">今月の注目</span>
-            <h3 class="fan-card-title">夏の交流WS＋BBQ</h3>
-            <p class="fan-card-desc">劇団の垣根を越えて、新たな表現技法と仲間に出会うワークショップ。</p>
-            <a href="BBQ.html" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-          </div>
-        </article>
+      <!-- 扇状スライダーの全体囲み -->
+      <div class="fan-slider-wrapper">
+        <button class="fan-arrow" id="fanPrevBtn" aria-label="前へ">‹</button>
 
-        <article class="fan-card">
-          <div class="fan-card-media">
-            <img src="images/hiyoshi-kinenkan.jpg" alt="慶劇祭" onerror="this.style.display='none'">
-          </div>
-          <div class="fan-card-body">
-            <span class="fan-card-badge">今月のピックアップ</span>
-            <h3 class="fan-card-title">慶劇祭（慶應義塾大学演劇祭）</h3>
-            <p class="fan-card-desc">異なる特色を持つ劇団が1つの舞台に集う、Stage Link最大のフェスティバル！</p>
-            <a href="#" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-          </div>
-        </article>
+        <div class="monthly-fan-wrap" id="monthly-container">
+          <!-- JSでSupabaseから取得または初期データが描画されます -->
+        </div>
 
-        <article class="fan-card">
-          <div class="fan-card-media">
-            <img src="images/flyer-sample.png" alt="ビラネットワーク" onerror="this.style.display='none'">
-          </div>
-          <div class="fan-card-body">
-            <span class="fan-card-badge">利用劇団募集中</span>
-            <h3 class="fan-card-title">ビラネットワーク</h3>
-            <p class="fan-card-desc">折り込みをもっとシンプルに。公演カレンダーからすぐに依頼可能！</p>
-            <a href="Participant.html" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-          </div>
-        </article>
+        <button class="fan-arrow" id="fanNextBtn" aria-label="次へ">›</button>
       </div>
     </div>
   </section>
 
-  <!-- 下段：アーカイブ（Supabase連携で随時追加表示・横スクロール） -->
+  <!-- 下段：アーカイブ -->
   <section class="archive-section">
     <div class="wrap">
       <div class="reveal">
@@ -1047,22 +984,13 @@ header {
         <div class="intro-title-rule"></div>
       </div>
 
-      <!-- Supabaseからの取得データがここに横スクロール表示されます -->
       <div class="archive-scroll-container" id="archive-container">
-        <!-- デフォルト表示サンプル -->
-        <article class="archive-card">
-          <div>
-            <div class="archive-date">2026.08</div>
-            <h3 class="archive-title">過去のワークショップ</h3>
-            <p class="archive-desc">過去に実施された交流表現ワークショップの記録です。</p>
-          </div>
-          <a href="#" class="card-btn">詳細 <span class="arrow">➔</span></a>
-        </article>
+        <!-- JSで動的に取得・生成されます -->
       </div>
     </div>
   </section>
   
-  <!-- FAQ（元のよくある質問設定をそのまま維持） -->
+  <!-- FAQ -->
   <section class="faq">
     <div class="wrap">
       <div class="faq-heading reveal">
@@ -1172,20 +1100,112 @@ header {
 
 <script>
   // ====== Supabase 連携スクリプト ======
-  // プロジェクトのURLとAnon Keyを入力して連携を有効にしてください
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6IZA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   let supabaseClient = null;
-  if (SUPABASE_URL.indexOf("YOUR_SUPABASE") === -1 && typeof supabase !== 'undefined') {
+  if (typeof supabase !== 'undefined') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 
+  // 1. 「今月の企画」用スライダーデータとインデックス管理
+  let currentMonthlyItems = [
+    // 初期表示用データ（管理画面から登録があればSupabaseのデータで上書きされます）
+    {
+      image_url: 'images/bbq-sample.jpg',
+      badge: '今月の注目',
+      title: '夏の交流WS＋BBQ',
+      description: '劇団の垣根を越えて、新たな表現技法と仲間に出会うワークショップ。',
+      link_url: 'BBQ.html'
+    },
+    {
+      image_url: 'images/hiyoshi-kinenkan.jpg',
+      badge: '今月のピックアップ',
+      title: '慶劇祭（慶應義塾大学演劇祭）',
+      description: '異なる特色を持つ劇団が1つの舞台に集う、Stage Link最大のフェスティバル！',
+      link_url: '#'
+    },
+    {
+      image_url: 'images/flyer-sample.png',
+      badge: '利用劇団募集中',
+      title: 'ビラネットワーク',
+      description: '折り込みをもっとシンプルに。公演カレンダーからすぐに依頼可能！',
+      link_url: 'Participant.html'
+    }
+  ];
+
+  let monthlyStartIndex = 0; // 現在表示している先頭位置
+
+  // 扇状カードの描画関数
+  function renderMonthlyCards() {
+    const container = document.getElementById('monthly-container');
+    const prevBtn = document.getElementById('fanPrevBtn');
+    const nextBtn = document.getElementById('fanNextBtn');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // 現在の位置から最大3枚を取得して表示
+    const visibleItems = currentMonthlyItems.slice(monthlyStartIndex, monthlyStartIndex + 3);
+
+    visibleItems.forEach((item) => {
+      // タグ除去
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = item.description || '';
+      const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+      const card = document.createElement('article');
+      card.className = 'fan-card';
+      card.innerHTML = `
+        <div class="fan-card-media">
+          <img src="${item.image_url || 'images/default.jpg'}" alt="${item.title}" onerror="this.style.display='none'">
+        </div>
+        <div class="fan-card-body">
+          <span class="fan-card-badge">${item.badge || '今月の注目'}</span>
+          <h3 class="fan-card-title">${item.title}</h3>
+          <p class="fan-card-desc">${plainText}</p>
+          <a href="${item.link_url || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    // 端に達したら矢印ボタンを無効化
+    if (prevBtn) prevBtn.disabled = (monthlyStartIndex === 0);
+    if (nextBtn) nextBtn.disabled = (monthlyStartIndex + 3 >= currentMonthlyItems.length);
+  }
+
+  // 矢印ボタンのクリックイベント設定
+  document.addEventListener('DOMContentLoaded', () => {
+    const prevBtn = document.getElementById('fanPrevBtn');
+    const nextBtn = document.getElementById('fanNextBtn');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (monthlyStartIndex > 0) {
+          monthlyStartIndex--;
+          renderMonthlyCards();
+        }
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (monthlyStartIndex + 3 < currentMonthlyItems.length) {
+          monthlyStartIndex++;
+          renderMonthlyCards();
+        }
+      });
+    }
+
+    renderMonthlyCards();
+  });
+
+  // Supabaseからのデータ自動取得処理
   async function loadSupabaseData() {
     if (!supabaseClient) return;
 
     try {
-      // Supabaseの `events` テーブルから取得
       const { data, error } = await supabaseClient
         .from('events')
         .select('*')
@@ -1193,38 +1213,23 @@ header {
 
       if (error || !data) return;
 
-      // 「今月の企画（is_current: true または 当月日付）」と「アーカイブ」に分類
       const now = new Date();
       const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
+      // 今月のデータと過去のアーカイブに自動振り分け
       const monthlyList = data.filter(item => item.is_current || (item.event_date && item.event_date.startsWith(currentYM)));
       const archiveList = data.filter(item => !monthlyList.includes(item));
 
-      // 1. 今月の企画を描画（データが存在する場合）
+      // 今月の企画データがあれば更新して再描画
       if (monthlyList.length > 0) {
-        const monthlyContainer = document.getElementById('monthly-container');
-        monthlyContainer.innerHTML = '';
-        monthlyList.slice(0, 3).forEach(item => {
-          const card = document.createElement('article');
-          card.className = 'fan-card';
-          card.innerHTML = `
-            <div class="fan-card-media">
-              <img src="${item.image_url || 'images/default.jpg'}" alt="${item.title}">
-            </div>
-            <div class="fan-card-body">
-              <span class="fan-card-badge">今月の注目</span>
-              <h3 class="fan-card-title">${item.title}</h3>
-              <p class="fan-card-desc">${item.description || ''}</p>
-              <a href="${item.link_url || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-            </div>
-          `;
-          monthlyContainer.appendChild(card);
-        });
+        currentMonthlyItems = monthlyList;
+        monthlyStartIndex = 0;
+        renderMonthlyCards();
       }
 
-      // 2. アーカイブを描画
-      if (archiveList.length > 0) {
-        const archiveContainer = document.getElementById('archive-container');
+      // アーカイブ領域の描画
+      const archiveContainer = document.getElementById('archive-container');
+      if (archiveContainer) {
         archiveContainer.innerHTML = '';
         archiveList.forEach(item => {
           const card = document.createElement('article');
@@ -1241,7 +1246,7 @@ header {
         });
       }
     } catch (e) {
-      console.log("Supabaseからのデータ取得に失敗したため、初期表示設定を使用します。", e);
+      console.log("Supabaseからのデータ取得処理スキップ", e);
     }
   }
 
@@ -1327,7 +1332,7 @@ header {
     window.addEventListener('scroll', onFirstScroll, { passive: true });
   })();
 
-  // FAQのアコーディオン動作スクリプト（元設定を維持）
+  // FAQのアコーディオン動作
   (function () {
     var items = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
     if (!items.length) return;
@@ -1349,53 +1354,6 @@ header {
       });
     });
   })();
-
-  // 例：カードのHTML生成部分
-card.innerHTML = `
-  ${item.image_url ? `<img src="${item.image_url}" alt="">` : ''}
-  <div class="event-date">${item.event_date || ''}</div>
-  <h3>${item.title}</h3>
-  <!-- description-preview クラスを付けることで3行で「...」と省略されます -->
-  <div class="description-preview">${item.description || ''}</div>
-  <a href="${item.link_url}" class="btn-detail">詳細 ➔</a>
-`;
-
-// カード作成処理の例（今月の企画・アーカイブ共通）
-function createCardHtml(item, isCurrent = false) {
-  // 画像がある場合のHTML（ない場合は空文字）
-  const imageHtml = item.image_url 
-    ? `<img src="${item.image_url}" class="event-card-img" alt="${item.title}">` 
-    : '';
-
-  // タグ除去（リッチテキストのHTMLタグを消してプレーンテキストにする）
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = item.description || '';
-  const plainText = tempDiv.textContent || tempDiv.innerText || '';
-
-  return `
-    <div class="event-card ${isCurrent ? 'current-event-card' : ''}">
-      <div class="event-card-body">
-        ${imageHtml}
-        <div style="font-size:12px; color:#888; margin-bottom:6px;">
-          ${item.event_date || ''}
-        </div>
-        <h3>${item.title}</h3>
-        <div class="description-preview">${plainText}</div>
-      </div>
-      
-      <a href="${item.link_url || '#'}" class="btn-detail">詳細 ➔</a>
-    </div>
-  `;
-}
-
-// monthlyList の先頭3件だけを「今月の企画」に表示
-monthlyList.slice(0, 3).forEach(item => {
-  // カード描画処理...
-});
-
-// 4枚目以降（余った分）を自動的に archiveList に合流させる
-const extraMonthly = monthlyList.slice(3);
-const finalArchiveList = [...extraMonthly, ...archiveList];
 </script>
 
 </body>
