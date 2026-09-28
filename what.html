@@ -6,6 +6,8 @@
 <title>公演紹介｜早慶演劇祭</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 /* ====== サイト共通ヘッダー（index.htmlの実装をそのまま流用） ====== */
@@ -1208,6 +1210,11 @@ header {
   </footer>
 
 <script>
+// project-manager.html で設定されていたSupabase接続情報
+const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   (function () {
     var targets = document.querySelectorAll('.reveal');
     targets.forEach(function (el, i) {
