@@ -449,25 +449,21 @@ header {
   }
 
   .monthly-fan-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 20px;
-    padding: 40px 10px;
-    overflow-x: auto;
-  }
+  display: flex;
+  justify-content: flex-start; /* 左詰めで並べる */
+  align-items: stretch;
+  gap: 20px;
+  padding: 30px 10px;
+  overflow-x: auto; /* 4枚以上は横スクロールできるようにする */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
 
   .fan-card {
-    flex: 0 0 310px;
-    background: var(--card-bg);
-    border-radius: 8px 20px 8px 20px;
-    border: 1px solid var(--line);
-    box-shadow: 0 12px 30px rgba(31,26,22,0.12);
-    overflow: hidden;
-    transition: transform 0.35s cubic-bezier(.22,.85,.3,1), box-shadow 0.35s ease;
-    display: flex;
-    flex-direction: column;
-  }
+  flex: 0 0 280px; /* カード幅を固定 */
+  scroll-snap-align: start;
+  transform: none !important; /* 扇状の回転をリセット */
+}
 
   /* 画像（ラフスケッチ）通りのファン状配置 */
   .fan-card:nth-child(1) { transform: rotate(-7deg) translateY(15px); }
@@ -475,10 +471,9 @@ header {
   .fan-card:nth-child(3) { transform: rotate(7deg) translateY(15px); }
 
   .fan-card:hover {
-    transform: translateY(-20px) scale(1.08) rotate(0deg) !important;
-    z-index: 10;
-    box-shadow: 0 25px 45px rgba(31,26,22,0.22);
-  }
+  transform: translateY(-8px) !important;
+  box-shadow: 0 16px 32px rgba(31,26,22,0.18);
+}
 
   .fan-card-media {
     height: 180px;
@@ -1392,6 +1387,15 @@ function createCardHtml(item, isCurrent = false) {
     </div>
   `;
 }
+
+// monthlyList の先頭3件だけを「今月の企画」に表示
+monthlyList.slice(0, 3).forEach(item => {
+  // カード描画処理...
+});
+
+// 4枚目以降（余った分）を自動的に archiveList に合流させる
+const extraMonthly = monthlyList.slice(3);
+const finalArchiveList = [...extraMonthly, ...archiveList];
 </script>
 
 </body>
