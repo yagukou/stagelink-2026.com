@@ -4,179 +4,226 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>企画管理パネル | Stage Link</title>
-<!-- Supabase SDK の読み込み -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root { --wine: #7c2946; --wine-deep: #4a1428; --gold: #b8863f; --bg: #f3ecdf; --card-bg: #fffcf5; --line: #e0d3bd; --ink: #1f1a16; }
-  body { font-family: sans-serif; background-color: var(--bg); color: var(--ink); margin: 0; padding: 40px 20px; }
-  .wrap { max-width: 860px; margin: 0 auto; }
-  h1 { font-size: 24px; color: var(--wine-deep); border-bottom: 3px solid var(--gold); padding-bottom: 10px; }
-  .card-item { background: var(--card-bg); border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
-  .btn-delete { background: #c0392b; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-  .form-group { display: flex; flex-direction: column; }
-  .form-group.full { grid-column: span 2; }
-  .checkbox-group { flex-direction: row; align-items: center; gap: 8px; margin-top: 10px; }
-  label { font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-  input, textarea, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-  .actions { display: flex; gap: 12px; margin-top: 30px; position: sticky; bottom: 20px; background: rgba(243, 236, 223, 0.9); padding: 15px; border-radius: 8px; }
-  .btn-add { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; }
-  .btn-save { background: var(--wine-deep); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; flex: 2; font-weight: bold; }
+  :root {
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --primary: #7c2946;
+    --text: #1f1a16;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans JP", sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 24px; color: var(--primary); margin-bottom: 24px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+  
+  .card { background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); padding: 24px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; }
+  input, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; font-family: inherit; font-size: 14px; }
+  textarea { resize: vertical; height: 80px; }
+  
+  .btn-group { margin-top: 16px; display: flex; gap: 10px; }
+  button { padding: 10px 20px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; transition: 0.2s; }
+  .btn-submit { background: var(--primary); color: #fff; }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-reset { background: #e2e8f0; color: #475569; }
+  
+  .project-list { display: flex; flex-direction: column; gap: 12px; }
+  .project-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 16px 20px; border-radius: 6px; border: 1px solid var(--border); }
+  .project-info h3 { font-size: 16px; margin-bottom: 4px; }
+  .project-info p { font-size: 12px; color: #64748b; }
+  .action-btns { display: flex; gap: 8px; }
+  .btn-edit { background: #3b82f6; color: #fff; padding: 6px 12px; font-size: 12px; }
+  .btn-delete { background: #ef4444; color: #fff; padding: 6px 12px; font-size: 12px; }
+  .loading { text-align: center; padding: 20px; color: #64748b; }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <h1>Stage Link 企画管理（Supabase連携版）</h1>
-  <div id="projectList">データ読み込み中...</div>
+<div class="container">
+  <h1>Stage Link 企画管理パネル (Supabase連携)</h1>
 
-  <div class="actions">
-    <button type="button" class="btn-add" id="btnAdd">＋ 新しい企画を追加</button>
-    <button type="button" class="btn-save" id="btnSave">🚀 データベースに即時反映</button>
+  <div class="card">
+    <h2 id="form-title" style="font-size:18px; margin-bottom:16px;">新規企画の追加</h2>
+    <form id="project-form">
+      <input type="hidden" id="edit-id">
+      <div class="form-grid">
+        <div>
+          <label>タイトル</label>
+          <input type="text" id="title" required placeholder="例：夏の交流WS＋BBQ">
+        </div>
+        <div>
+          <label>サブタイトル</label>
+          <input type="text" id="subtitle" required placeholder="例：劇団の垣根を越えて...">
+        </div>
+        <div>
+          <label>絵文字 / アイコン（1つ）</label>
+          <input type="text" id="glyph" placeholder="例：🛠️">
+        </div>
+        <div>
+          <label>詳細ページURL (任意)</label>
+          <input type="text" id="link" value="#" placeholder="例：BBQ.html">
+        </div>
+        <div>
+          <label>表示順序（数字が小さい順に上に並びます）</label>
+          <input type="number" id="display_order" value="0">
+        </div>
+        <div class="full">
+          <label>タグ（カンマ区切りで複数設定可能）</label>
+          <input type="text" id="tags" placeholder="例：2026年9月開催決定！, 舞台・公演">
+        </div>
+        <div class="full">
+          <label>説明文</label>
+          <textarea id="desc" required placeholder="企画の概要・詳細説明を入力してください"></textarea>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button type="submit" class="btn-submit" id="submit-btn">企画を保存する</button>
+        <button type="button" class="btn-reset" id="reset-btn" onclick="resetForm()">リセット</button>
+      </div>
+    </form>
+  </div>
+
+  <h2>登録中の企画一覧</h2>
+  <div style="margin-top: 16px;" class="project-list" id="project-list">
+    <div class="loading">データを読み込み中...</div>
   </div>
 </div>
 
 <script>
-  // Supabase 接続情報の設定
-  const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // ★ ここにSupabaseのURLとAnon Keyを設定してください
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let projectsData = [];
+  let currentProjects = [];
 
-  // 初回データ取得
-  async function loadData() {
-    const { data, error } = await db.from('projects').select('*').order('sort_order', { ascending: true });
+  // 企画一覧を取得して表示
+  async function fetchProjects() {
+    const listEl = document.getElementById('project-list');
+    listEl.innerHTML = '<div class="loading">データを読み込み中...</div>';
+
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('display_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
     if (error) {
-      alert('データ取得エラー: ' + error.message);
+      alert('エラーが発生しました: ' + error.message);
       return;
     }
-    projectsData = data || [];
-    renderList();
+
+    currentProjects = data;
+    renderList(data);
   }
 
-  function renderList() {
-    const listEl = document.getElementById('projectList');
+  function renderList(projects) {
+    const listEl = document.getElementById('project-list');
     listEl.innerHTML = '';
 
-    projectsData.forEach((item, index) => {
-      const card = document.createElement('div');
-      card.className = 'card-item';
-      card.innerHTML = `
-        <div class="card-header">
-          <strong>企画 #${String(index + 1).padStart(2, '0')}</strong>
-          <button class="btn-delete" onclick="removeProject(${index})">削除</button>
+    if (projects.length === 0) {
+      listEl.innerHTML = '<div class="loading">登録されている企画はありません。</div>';
+      return;
+    }
+
+    projects.forEach((item, index) => {
+      const el = document.createElement('div');
+      el.className = 'project-item';
+      el.innerHTML = `
+        <div class="project-info">
+          <h3>${item.glyph ? item.glyph + ' ' : ''}${item.title} <small style="color:#94a3b8;">(順序: ${item.display_order})</small></h3>
+          <p>${item.subtitle}</p>
         </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>タイトル</label>
-            <input type="text" value="${escapeHtml(item.title || '')}" oninput="updateData(${index}, 'title', this.value)">
-          </div>
-          <div class="form-group">
-            <label>サブタイトル</label>
-            <input type="text" value="${escapeHtml(item.subtitle || '')}" oninput="updateData(${index}, 'subtitle', this.value)">
-          </div>
-          <div class="form-group full">
-            <label>説明文</label>
-            <textarea rows="2" oninput="updateData(${index}, 'desc', this.value)">${escapeHtml(item.desc || '')}</textarea>
-          </div>
-          <div class="form-group">
-            <label>タグ（カンマ区切り）</label>
-            <input type="text" value="${escapeHtml((item.tags || []).join(', '))}" onchange="updateTags(${index}, this.value)">
-          </div>
-          <div class="form-group">
-            <label>リンクURL</label>
-            <input type="text" value="${escapeHtml(item.link || '#')}" oninput="updateData(${index}, 'link', this.value)">
-            <div class="form-group checkbox-group">
-              <input type="checkbox" id="tb_${index}" ${item.target_blank ? 'checked' : ''} onchange="updateData(${index}, 'target_blank', this.checked)">
-              <label for="tb_${index}">新しいタブで開く</label>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>表示タイプ</label>
-            <select onchange="updateData(${index}, 'media_type', this.value); renderList();">
-              <option value="icon" ${item.media_type === 'icon' ? 'selected' : ''}>アイコン</option>
-              <option value="image" ${item.media_type === 'image' ? 'selected' : ''}>背景画像</option>
-              <option value="layered" ${item.media_type === 'layered' ? 'selected' : ''}>レイヤー</option>
-            </select>
-          </div>
-          ${renderMediaFields(item, index)}
+        <div class="action-btns">
+          <button class="btn-edit" onclick="editProject('${item.id}')">編集</button>
+          <button class="btn-delete" onclick="deleteProject('${item.id}')">削除</button>
         </div>
       `;
-      listEl.appendChild(card);
+      listEl.appendChild(el);
     });
   }
 
-  function renderMediaFields(item, index) {
-    if (item.media_type === 'icon') {
-      return `<div class="form-group"><label>アイコン/絵文字</label><input type="text" value="${escapeHtml(item.icon || '✨')}" oninput="updateData(${index}, 'icon', this.value)"></div>`;
-    } else if (item.media_type === 'layered') {
-      return `
-        <div class="form-group"><label>背景画像URL</label><input type="text" value="${escapeHtml(item.bg_image || '')}" oninput="updateData(${index}, 'bg_image', this.value)"></div>
-        <div class="form-group"><label>前面ポスターURL</label><input type="text" value="${escapeHtml(item.poster_image || '')}" oninput="updateData(${index}, 'poster_image', this.value)"></div>
-        <div class="form-group"><label>ポスタータグ</label><input type="text" value="${escapeHtml(item.poster_tag || '')}" oninput="updateData(${index}, 'poster_tag', this.value)"></div>
-      `;
+  // 保存（追加・更新）処理
+  document.getElementById('project-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = '保存中...';
+
+    const id = document.getElementById('edit-id').value;
+    const title = document.getElementById('title').value;
+    const subtitle = document.getElementById('subtitle').value;
+    const glyph = document.getElementById('glyph').value || '💡';
+    const link = document.getElementById('link').value || '#';
+    const display_order = parseInt(document.getElementById('display_order').value) || 0;
+    const tags = document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t);
+    const description = document.getElementById('desc').value;
+
+    const payload = { title, subtitle, glyph, link, display_order, tags, description };
+
+    let error;
+    if (id) {
+      // 更新
+      const res = await supabase.from('projects').update(payload).eq('id', id);
+      error = res.error;
     } else {
-      return `<div class="form-group"><label>背景画像URL</label><input type="text" value="${escapeHtml(item.bg_image || '')}" oninput="updateData(${index}, 'bg_image', this.value)"></div>`;
+      // 新規登録
+      const res = await supabase.from('projects').insert([payload]);
+      error = res.error;
     }
-  }
 
-  function updateData(index, key, value) { projectsData[index][key] = value; }
-  function updateTags(index, value) { projectsData[index].tags = value.split(',').map(s => s.trim()).filter(Boolean); }
-
-  async function removeProject(index) {
-    const item = projectsData[index];
-    if (confirm('削除しますか？')) {
-      if (item.id) {
-        await db.from('projects').delete().eq('id', item.id);
-      }
-      projectsData.splice(index, 1);
-      renderList();
-    }
-  }
-
-  function escapeHtml(str) {
-    return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  document.getElementById('btnAdd').addEventListener('click', () => {
-    projectsData.push({
-      title: "新規企画",
-      subtitle: "",
-      desc: "",
-      tags: ["NEW"],
-      link: "#",
-      target_blank: false,
-      media_type: "icon",
-      icon: "🎉",
-      sort_order: projectsData.length + 1
-    });
-    renderList();
-  });
-
-  // データベースへの即時保存処理
-  document.getElementById('btnSave').addEventListener('click', async () => {
-    const btn = document.getElementById('btnSave');
-    btn.textContent = '保存中...';
-    btn.disabled = true;
-
-    // 一括アップサート（更新 & 新規保存）
-    const payload = projectsData.map((item, idx) => ({ ...item, sort_order: idx + 1 }));
-    const { error } = await db.from('projects').upsert(payload);
-
-    btn.disabled = false;
-    btn.textContent = '🚀 データベースに即時反映';
+    submitBtn.disabled = false;
+    submitBtn.innerText = '企画を保存する';
 
     if (error) {
-      alert('保存失敗: ' + error.message);
+      alert('保存エラー: ' + error.message);
     } else {
-      alert('what.html へ即時反映されました！');
-      loadData();
+      resetForm();
+      fetchProjects();
     }
-  });
+  };
 
-  loadData();
+  function editProject(id) {
+    const item = currentProjects.find(p => p.id === id);
+    if (!item) return;
+
+    document.getElementById('edit-id').value = item.id;
+    document.getElementById('title').value = item.title;
+    document.getElementById('subtitle').value = item.subtitle;
+    document.getElementById('glyph').value = item.glyph || '';
+    document.getElementById('link').value = item.link || '#';
+    document.getElementById('display_order').value = item.display_order || 0;
+    document.getElementById('tags').value = item.tags ? item.tags.join(', ') : '';
+    document.getElementById('desc').value = item.description;
+
+    document.getElementById('form-title').innerText = '企画の編集';
+    document.getElementById('submit-btn').innerText = '変更を保存する';
+  }
+
+  async function deleteProject(id) {
+    if (!confirm('本当に削除しますか？')) return;
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) {
+      alert('削除エラー: ' + error.message);
+    } else {
+      fetchProjects();
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('project-form').reset();
+    document.getElementById('edit-id').value = '';
+    document.getElementById('form-title').innerText = '新規企画の追加';
+    document.getElementById('submit-btn').innerText = '企画を保存する';
+  }
+
+  fetchProjects();
 </script>
 </body>
 </html>
