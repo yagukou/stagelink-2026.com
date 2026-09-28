@@ -1177,12 +1177,11 @@ header {
 
 <script>
   // ====== Supabase 連携スクリプト ======
-  // プロジェクトのURLとAnon Keyを入力して連携を有効にしてください
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   let supabaseClient = null;
-  if (SUPABASE_URL.indexOf("YOUR_SUPABASE") === -1 && typeof supabase !== 'undefined') {
+  if (typeof supabase !== 'undefined') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 
@@ -1190,37 +1189,57 @@ header {
     if (!supabaseClient) return;
 
     try {
-      // Supabaseの `events` テーブルから取得
       const { data, error } = await supabaseClient
         .from('events')
         .select('*')
-        .order('event_date', { ascending: false });
+        .order('id', { ascending: false });
 
       if (error || !data) return;
 
-      // 「今月の企画（is_current: true または 当月日付）」と「アーカイブ」に分類
       const now = new Date();
       const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
+      // 「今月の企画（is_current: true または 当月日付）」と「アーカイブ」に分類
       const monthlyList = data.filter(item => item.is_current || (item.event_date && item.event_date.startsWith(currentYM)));
       const archiveList = data.filter(item => !monthlyList.includes(item));
 
-      // 1. 今月の企画を描画（データが存在する場合）
+      // 1. 今月の企画を描画（全件取得するように slice(0, 3) を削除）
       if (monthlyList.length > 0) {
         const monthlyContainer = document.getElementById('monthly-container');
         monthlyContainer.innerHTML = '';
-        monthlyList.slice(0, 3).forEach(item => {
+
+        monthlyList.forEach(item => {
+          // HTMLタグ除去処理
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = item.description || '';
+          const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
           const card = document.createElement('article');
           card.className = 'fan-card';
+          
+          // 高さ統一スタイルをインラインで適用
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.justifySpaceBetween = 'space-between';
+
           card.innerHTML = `
-            <div class="fan-card-media">
-              <img src="${item.image_url || 'images/default.jpg'}" alt="${item.title}">
+            <div class="fan-card-media" style="height:180px; background:#e0d3bd; overflow:hidden; flex-shrink:0;">
+              ${item.image_url ? `<img src="${item.image_url}" alt="${escapeHtml(item.title)}" style="width:100%; height:100%; object-fit:cover;">` : '<div style="width:100%; height:100%; background:#d0c3ad;"></div>'}
             </div>
-            <div class="fan-card-body">
+            <div class="fan-card-body" style="padding:24px; display:flex; flex-direction:column; flex:1;">
               <span class="fan-card-badge">今月の注目</span>
-              <h3 class="fan-card-title">${item.title}</h3>
-              <p class="fan-card-desc">${item.description || ''}</p>
-              <a href="${item.link_url || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+              <h3 class="fan-card-title">${escapeHtml(item.title || 'タイトルなし')}</h3>
+              <p class="fan-card-desc" style="
+                font-size:13.5px; 
+                color:#1f1a16; 
+                margin-bottom:20px; 
+                display:-webkit-box; 
+                -webkit-line-clamp:4; 
+                -webkit-box-orient:vertical; 
+                overflow:hidden; 
+                height: 6em;
+              ">${escapeHtml(plainText)}</p>
+              <a href="${item.link_url || '#'}" class="card-btn" style="margin-top:auto;">詳しく見る <span class="arrow">➔</span></a>
             </div>
           `;
           monthlyContainer.appendChild(card);
@@ -1232,13 +1251,17 @@ header {
         const archiveContainer = document.getElementById('archive-container');
         archiveContainer.innerHTML = '';
         archiveList.forEach(item => {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = item.description || '';
+          const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
           const card = document.createElement('article');
           card.className = 'archive-card';
           card.innerHTML = `
             <div>
               <div class="archive-date">${item.event_date || 'ARCHIVE'}</div>
-              <h3 class="archive-title">${item.title}</h3>
-              <p class="archive-desc">${item.subtitle || item.description || ''}</p>
+              <h3 class="archive-title">${escapeHtml(item.title || 'タイトルなし')}</h3>
+              <p class="archive-desc">${escapeHtml(plainText)}</p>
             </div>
             <a href="${item.link_url || '#'}" class="card-btn">詳細 <span class="arrow">➔</span></a>
           `;
@@ -1246,8 +1269,18 @@ header {
         });
       }
     } catch (e) {
-      console.log("Supabaseからのデータ取得に失敗したため、初期表示設定を使用します。", e);
+      console.log("Supabaseからのデータ取得エラー:", e);
     }
+  }
+
+  // HTMLエスケープ関数
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   document.addEventListener('DOMContentLoaded', loadSupabaseData);
@@ -1332,7 +1365,7 @@ header {
     window.addEventListener('scroll', onFirstScroll, { passive: true });
   })();
 
-  // FAQのアコーディオン動作スクリプト（元設定を維持）
+  // FAQのアコーディオン動作
   (function () {
     var items = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
     if (!items.length) return;
@@ -1354,44 +1387,6 @@ header {
       });
     });
   })();
-
-  // 例：カードのHTML生成部分
-card.innerHTML = `
-  ${item.image_url ? `<img src="${item.image_url}" alt="">` : ''}
-  <div class="event-date">${item.event_date || ''}</div>
-  <h3>${item.title}</h3>
-  <!-- description-preview クラスを付けることで3行で「...」と省略されます -->
-  <div class="description-preview">${item.description || ''}</div>
-  <a href="${item.link_url}" class="btn-detail">詳細 ➔</a>
-`;
-
-// カード作成処理の例（今月の企画・アーカイブ共通）
-function createCardHtml(item, isCurrent = false) {
-  // 画像がある場合のHTML（ない場合は空文字）
-  const imageHtml = item.image_url 
-    ? `<img src="${item.image_url}" class="event-card-img" alt="${item.title}">` 
-    : '';
-
-  // タグ除去（リッチテキストのHTMLタグを消してプレーンテキストにする）
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = item.description || '';
-  const plainText = tempDiv.textContent || tempDiv.innerText || '';
-
-  return `
-    <div class="event-card ${isCurrent ? 'current-event-card' : ''}">
-      <div class="event-card-body">
-        ${imageHtml}
-        <div style="font-size:12px; color:#888; margin-bottom:6px;">
-          ${item.event_date || ''}
-        </div>
-        <h3>${item.title}</h3>
-        <div class="description-preview">${plainText}</div>
-      </div>
-      
-      <a href="${item.link_url || '#'}" class="btn-detail">詳細 ➔</a>
-    </div>
-  `;
-}
 </script>
 
 </body>
