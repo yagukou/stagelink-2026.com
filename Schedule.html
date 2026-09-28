@@ -177,6 +177,13 @@
     }
   });
 
+const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
+  const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
+
+  const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
     fetchEvents();
     fetchRequests();
