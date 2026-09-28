@@ -443,7 +443,7 @@ header {
   .cta-link .arrow { transition: transform 0.25s ease; }
   .cta-link:hover .arrow { transform: translateX(5px); }
 
-  /* ====== 今月の企画（扇状スライダー ＋ 矢印ナビ） ====== */
+  /* ====== 今月の企画（扇状スライダー ＋ 4枚目以上のうっすら重ね表示） ====== */
   .monthly-section {
     padding: 80px 0 40px;
   }
@@ -467,7 +467,7 @@ header {
     font-size: 26px;
     line-height: 1;
     cursor: pointer;
-    z-index: 20;
+    z-index: 30;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
     display: flex;
@@ -491,10 +491,10 @@ header {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 20px;
     padding: 40px 10px;
     width: 100%;
-    min-height: 440px;
+    min-height: 460px;
+    position: relative;
   }
 
   .fan-card {
@@ -506,15 +506,45 @@ header {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, box-shadow 0.35s ease;
+    margin: 0 -12px; /* カード同士を緩やかに重ねる */
+    z-index: 1;
   }
 
-  /* 扇状配置の回転角度設定 */
-  .fan-card:nth-child(1) { transform: rotate(-7deg) translateY(15px); }
-  .fan-card:nth-child(2) { transform: rotate(0deg) translateY(-15px) scale(1.05); z-index: 2; }
-  .fan-card:nth-child(3) { transform: rotate(7deg) translateY(15px); }
+  /* 扇状配置＋外側カードの「うっすら」表示の設定 */
+  .fan-card.pos-ghost-left {
+    transform: rotate(-12deg) translateY(30px) scale(0.85);
+    opacity: 0.35;
+    z-index: 1;
+    pointer-events: none;
+  }
 
-  .fan-card:hover {
+  .fan-card.pos-left {
+    transform: rotate(-7deg) translateY(15px);
+    opacity: 1;
+    z-index: 10;
+  }
+
+  .fan-card.pos-center {
+    transform: rotate(0deg) translateY(-15px) scale(1.05);
+    opacity: 1;
+    z-index: 20;
+  }
+
+  .fan-card.pos-right {
+    transform: rotate(7deg) translateY(15px);
+    opacity: 1;
+    z-index: 10;
+  }
+
+  .fan-card.pos-ghost-right {
+    transform: rotate(12deg) translateY(30px) scale(0.85);
+    opacity: 0.35;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .fan-card:hover:not(.pos-ghost-left):not(.pos-ghost-right) {
     box-shadow: 0 16px 32px rgba(31,26,22,0.2);
   }
 
@@ -632,6 +662,10 @@ header {
     color: var(--sub-ink);
     margin-bottom: 16px;
     line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .card-btn {
@@ -839,11 +873,11 @@ header {
     letter-spacing: 0.06em;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 680px) {
     .faq-answer { padding-left: 26px; }
     .faq-q { padding: 18px 18px; }
     .monthly-fan-wrap { flex-direction: column; align-items: center; min-height: auto; }
-    .fan-card { transform: none !important; width: 100%; }
+    .fan-card { transform: none !important; opacity: 1 !important; margin: 10px 0; width: 100%; }
   }
 </style>
 </head>
@@ -1101,16 +1135,15 @@ header {
 <script>
   // ====== Supabase 連携スクリプト ======
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6IZA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6IJA9ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   let supabaseClient = null;
   if (typeof supabase !== 'undefined') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 
-  // 1. 「今月の企画」用スライダーデータとインデックス管理
+  // デフォルト用データ（データ登録がない場合のバックアップ）
   let currentMonthlyItems = [
-    // 初期表示用データ（管理画面から登録があればSupabaseのデータで上書きされます）
     {
       image_url: 'images/bbq-sample.jpg',
       badge: '今月の注目',
@@ -1134,9 +1167,9 @@ header {
     }
   ];
 
-  let monthlyStartIndex = 0; // 現在表示している先頭位置
+  let centerIndex = 0; // 現在中央（メイン）に表示するデータのインデックス
 
-  // 扇状カードの描画関数
+  // 扇状カードの描画関数（4枚以上で左右にうっすら表示）
   function renderMonthlyCards() {
     const container = document.getElementById('monthly-container');
     const prevBtn = document.getElementById('fanPrevBtn');
@@ -1144,35 +1177,56 @@ header {
     if (!container) return;
 
     container.innerHTML = '';
+    const total = currentMonthlyItems.length;
 
-    // 現在の位置から最大3枚を取得して表示
-    const visibleItems = currentMonthlyItems.slice(monthlyStartIndex, monthlyStartIndex + 3);
+    // 表示するスロットを定義 (-2: 左うっすら, -1: 左扇, 0: 中央扇, 1: 右扇, 2: 右うっすら)
+    let slots = [];
+    if (total <= 3) {
+      // 3枚以下の場合は左右のうっすら表示はなしで、中央扇（3枚）のみ固定表示
+      if (total === 1) slots = [{ offset: 0, posClass: 'pos-center' }];
+      else if (total === 2) slots = [{ offset: 0, posClass: 'pos-center' }, { offset: 1, posClass: 'pos-right' }];
+      else slots = [{ offset: -1, posClass: 'pos-left' }, { offset: 0, posClass: 'pos-center' }, { offset: 1, posClass: 'pos-right' }];
+    } else {
+      // 4枚以上の場合：メイン3枚の左右にうっすら表示用の2枚を追加
+      slots = [
+        { offset: -2, posClass: 'pos-ghost-left' },
+        { offset: -1, posClass: 'pos-left' },
+        { offset: 0, posClass: 'pos-center' },
+        { offset: 1, posClass: 'pos-right' },
+        { offset: 2, posClass: 'pos-ghost-right' }
+      ];
+    }
 
-    visibleItems.forEach((item) => {
-      // タグ除去
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.description || '';
-      const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    slots.forEach(slot => {
+      const itemIdx = centerIndex + slot.offset;
+      if (itemIdx >= 0 && itemIdx < total) {
+        const item = currentMonthlyItems[itemIdx];
 
-      const card = document.createElement('article');
-      card.className = 'fan-card';
-      card.innerHTML = `
-        <div class="fan-card-media">
-          <img src="${item.image_url || 'images/default.jpg'}" alt="${item.title}" onerror="this.style.display='none'">
-        </div>
-        <div class="fan-card-body">
-          <span class="fan-card-badge">${item.badge || '今月の注目'}</span>
-          <h3 class="fan-card-title">${item.title}</h3>
-          <p class="fan-card-desc">${plainText}</p>
-          <a href="${item.link_url || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-        </div>
-      `;
-      container.appendChild(card);
+        // TinyMCE等で挿入されたHTMLタグを除去してテキストのみ取得
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = item.description || '';
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+        const card = document.createElement('article');
+        card.className = `fan-card ${slot.posClass}`;
+        card.innerHTML = `
+          <div class="fan-card-media">
+            <img src="${item.image_url || 'images/default.jpg'}" alt="${item.title}" onerror="this.style.display='none'">
+          </div>
+          <div class="fan-card-body">
+            <span class="fan-card-badge">${item.badge || '今月の注目'}</span>
+            <h3 class="fan-card-title">${item.title}</h3>
+            <p class="fan-card-desc">${plainText}</p>
+            <a href="${item.link_url || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+          </div>
+        `;
+        container.appendChild(card);
+      }
     });
 
-    // 端に達したら矢印ボタンを無効化
-    if (prevBtn) prevBtn.disabled = (monthlyStartIndex === 0);
-    if (nextBtn) nextBtn.disabled = (monthlyStartIndex + 3 >= currentMonthlyItems.length);
+    // 矢印ボタンの有効化/無効化制御
+    if (prevBtn) prevBtn.disabled = (centerIndex === 0);
+    if (nextBtn) nextBtn.disabled = (centerIndex >= total - 1);
   }
 
   // 矢印ボタンのクリックイベント設定
@@ -1182,8 +1236,8 @@ header {
 
     if (prevBtn) {
       prevBtn.addEventListener('click', () => {
-        if (monthlyStartIndex > 0) {
-          monthlyStartIndex--;
+        if (centerIndex > 0) {
+          centerIndex--;
           renderMonthlyCards();
         }
       });
@@ -1191,8 +1245,8 @@ header {
 
     if (nextBtn) {
       nextBtn.addEventListener('click', () => {
-        if (monthlyStartIndex + 3 < currentMonthlyItems.length) {
-          monthlyStartIndex++;
+        if (centerIndex < currentMonthlyItems.length - 1) {
+          centerIndex++;
           renderMonthlyCards();
         }
       });
@@ -1216,14 +1270,17 @@ header {
       const now = new Date();
       const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-      // 今月のデータと過去のアーカイブに自動振り分け
+      // 「今月の企画（is_currentがtrue または 当月の日付）」とアーカイブに分類
       const monthlyList = data.filter(item => item.is_current || (item.event_date && item.event_date.startsWith(currentYM)));
       const archiveList = data.filter(item => !monthlyList.includes(item));
 
-      // 今月の企画データがあれば更新して再描画
+      // 今月の企画データがあれば反映
       if (monthlyList.length > 0) {
-        currentMonthlyItems = monthlyList;
-        monthlyStartIndex = 0;
+        currentMonthlyItems = monthlyList.map(item => ({
+          ...item,
+          badge: item.is_current ? '今月の注目' : 'PICK UP'
+        }));
+        centerIndex = Math.min(1, currentMonthlyItems.length - 1); // 複数あれば中央寄りに初期設定
         renderMonthlyCards();
       }
 
@@ -1232,13 +1289,17 @@ header {
       if (archiveContainer) {
         archiveContainer.innerHTML = '';
         archiveList.forEach(item => {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = item.description || '';
+          const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
           const card = document.createElement('article');
           card.className = 'archive-card';
           card.innerHTML = `
             <div>
               <div class="archive-date">${item.event_date || 'ARCHIVE'}</div>
               <h3 class="archive-title">${item.title}</h3>
-              <p class="archive-desc">${item.subtitle || item.description || ''}</p>
+              <p class="archive-desc">${plainText}</p>
             </div>
             <a href="${item.link_url || '#'}" class="card-btn">詳細 <span class="arrow">➔</span></a>
           `;
