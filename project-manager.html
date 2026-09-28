@@ -55,13 +55,14 @@
       font-weight: 500;
       margin-bottom: 6px;
     }
-    input[type="text"], input[type="date"], textarea, select {
+    input[type="text"], input[type="date"], input[type="file"], textarea {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 14px;
       font-family: inherit;
+      background: #fff;
     }
     textarea { height: 80px; resize: vertical; }
     .checkbox-label {
@@ -84,6 +85,7 @@
       transition: background 0.2s;
     }
     .btn:hover { background: var(--wine-dark); }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
     .btn-danger {
       background: #e53e3e;
       padding: 6px 12px;
@@ -91,7 +93,6 @@
     }
     .btn-danger:hover { background: #c53030; }
     
-    /* 一覧テーブル */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -106,6 +107,12 @@
     th {
       background: #edf2f7;
       font-weight: 700;
+    }
+    .img-preview {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
     }
     .badge-current {
       background: #feebc8;
@@ -129,7 +136,6 @@
 <div class="container">
   <h1>Stage Link 企画・アーカイブ管理パネル</h1>
 
-  <!-- 新規投稿フォーム -->
   <div class="card">
     <h2>新規企画・イベントを追加</h2>
     <form id="event-form">
@@ -148,9 +154,10 @@
         <textarea id="description" placeholder="企画の概要を入力してください"></textarea>
       </div>
 
+      <!-- 画像ファイル選択エリア -->
       <div class="form-group">
-        <label for="image_url">画像URL</label>
-        <input type="text" id="image_url" placeholder="例: images/hiyoshi-kinenkan.jpg">
+        <label for="image_file">画像ファイルを選択</label>
+        <input type="file" id="image_file" accept="image/*">
       </div>
 
       <div class="form-group">
@@ -165,16 +172,16 @@
         </label>
       </div>
 
-      <button type="submit" class="btn">データを作成・更新する</button>
+      <button type="submit" id="submit-btn" class="btn">データを作成・保存する</button>
     </form>
   </div>
 
-  <!-- 登録済み一覧 -->
   <div class="card">
     <h2>登録中の企画一覧</h2>
     <table>
       <thead>
         <tr>
+          <th>画像</th>
           <th>日付</th>
           <th>区分</th>
           <th>タイトル</th>
@@ -182,16 +189,16 @@
         </tr>
       </thead>
       <tbody id="event-list">
-        <tr><td colspan="4">データを読み込んでいます...</td></tr>
+        <tr><td colspan="5">データを読み込んでいます...</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <script>
-  // ※ご自身のSupabaseプロジェクトURL・Keyに変更してください
-  const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
+  // ご自身の Supabase 情報に置き換えてください
+  const SUPABASE_URL = "https://YOUR_SUPABASE_PROJECT_ID.supabase.co";
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -205,12 +212,12 @@
       .order('event_date', { ascending: false });
 
     if (error) {
-      listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">取得エラー: ${error.message}</td></tr>`;
+      listContainer.innerHTML = `<tr><td colspan="5" style="color:red;">取得エラー: ${error.message}</td></tr>`;
       return;
     }
 
     if (!data || data.length === 0) {
-      listContainer.innerHTML = '<tr><td colspan="4">データがありません。</td></tr>';
+      listContainer.innerHTML = '<tr><td colspan="5">データがありません。</td></tr>';
       return;
     }
 
@@ -220,8 +227,13 @@
       const isCurrentBadge = item.is_current 
         ? '<span class="badge-current">今月表示</span>' 
         : '<span class="badge-archive">アーカイブ</span>';
+      
+      const imageTag = item.image_url 
+        ? `<img src="${item.image_url}" class="img-preview" alt="">`
+        : 'なし';
 
       tr.innerHTML = `
+        <td>${imageTag}</td>
         <td>${item.event_date || '-'}</td>
         <td>${isCurrentBadge}</td>
         <td><strong>${item.title}</strong></td>
@@ -233,33 +245,78 @@
     });
   }
 
-  // 2. 新規データ登録
+  // 2. 画像のアップロード処理
+  async function uploadImage(file) {
+    // 重複を防ぐためファイル名にタイムスタンプを付与
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `uploads/${fileName}`;
+
+    // Storageの 'event-images' バケットへアップロード
+    const { data, error } = await supabaseClient
+      .storage
+      .from('event-images')
+      .upload(filePath, file);
+
+    if (error) {
+      throw new Error('画像のアップロードに失敗しました: ' + error.message);
+    }
+
+    // 公開用URLを取得して返す
+    const { data: publicUrlData } = supabaseClient
+      .storage
+      .from('event-images')
+      .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+  }
+
+  // 3. 新規データ保存（画像処理含む）
   document.getElementById('event-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const title = document.getElementById('title').value;
-    const event_date = document.getElementById('event_date').value;
-    const description = document.getElementById('description').value;
-    const image_url = document.getElementById('image_url').value;
-    const link_url = document.getElementById('link_url').value;
-    const is_current = document.getElementById('is_current').checked;
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = '保存中...';
 
-    const { data, error } = await supabaseClient
-      .from('events')
-      .insert([
-        { title, event_date, description, image_url, link_url, is_current }
-      ]);
+    try {
+      const title = document.getElementById('title').value;
+      const event_date = document.getElementById('event_date').value;
+      const description = document.getElementById('description').value;
+      const link_url = document.getElementById('link_url').value;
+      const is_current = document.getElementById('is_current').checked;
+      const fileInput = document.getElementById('image_file');
 
-    if (error) {
-      alert('保存に失敗しました: ' + error.message);
-    } else {
+      let image_url = '';
+
+      // ファイルが選択されている場合はアップロードを実行
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        image_url = await uploadImage(file);
+      }
+
+      // データベース（eventsテーブル）に挿入
+      const { error } = await supabaseClient
+        .from('events')
+        .insert([
+          { title, event_date, description, image_url, link_url, is_current }
+        ]);
+
+      if (error) throw error;
+
       alert('正常に保存しました！');
       document.getElementById('event-form').reset();
       fetchEvents();
+
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'データを作成・保存する';
     }
   });
 
-  // 3. データ削除
+  // 4. データ削除
   async function deleteEvent(id) {
     if (!confirm('本当に削除しますか？')) return;
 
@@ -275,7 +332,6 @@
     }
   }
 
-  // 初期読み込み
   document.addEventListener('DOMContentLoaded', fetchEvents);
 </script>
 
