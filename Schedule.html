@@ -3,291 +3,214 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STAGELINK 2026 - Schedule</title>
+  <title>Schedule｜Stage Link</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root {
-      --bg-color: #0b0f19;
-      --card-bg: #161f33;
-      --accent-color: #00f2fe;
-      --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      --text-color: #ffffff;
-      --text-sub: #94a3b8;
-      --border-color: #2a364f;
-      --stage-a: #ff007f;
-      --stage-b: #00f2fe;
-      --stage-c: #7928ca;
+      --bg: #fcfbf9;
+      --card-bg: #ffffff;
+      --text: #1f1a16;
+      --wine: #7c2946;
+      --wine-dark: #4a1428;
+      --border: #e2e8f0;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      padding: 2rem 1rem;
-      display: flex;
-      justify-content: center;
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px 20px;
     }
-
     .container {
       max-width: 900px;
-      width: 100%;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--wine-dark);
+      margin-bottom: 30px;
+      border-bottom: 3px solid var(--wine);
+      padding-bottom: 8px;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.5rem;
-    }
-
-    /* フィルタータブ */
-    .filter-group {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      padding: 10px 20px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: bold;
-    }
-
-    .filter-btn.active, .filter-btn:hover {
-      background: var(--accent-gradient);
-      color: #000;
-      border-color: transparent;
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
-    }
-
-    /* タイムライン構造 */
+    /* スケジュールリストの表示スタイル */
     .schedule-list {
-      position: relative;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 16px;
     }
-
-    .schedule-list::before {
-      content: '';
-      position: absolute;
-      left: 85px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: var(--border-color);
-    }
-
-    @media (max-width: 600px) {
-      .schedule-list::before {
-        left: 20px;
-      }
-    }
-
-    /* アイテムカード */
     .schedule-item {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
       display: flex;
-      align-items: flex-start;
-      position: relative;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeIn 0.5s forwards ease-out;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-left: 5px solid var(--wine);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .schedule-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     }
-
-    .time-box {
-      width: 70px;
-      text-align: right;
-      padding-right: 15px;
-      font-weight: bold;
-      color: var(--accent-color);
-      font-size: 1.1rem;
+    
+    /* 日付バッジ */
+    .date-badge {
+      background: var(--wine);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      text-align: center;
+      min-width: 120px;
       flex-shrink: 0;
     }
+    .date-badge .label { font-size: 10px; opacity: 0.85; }
+    .date-badge .date { font-size: 15px; font-weight: bold; margin-top: 2px; }
 
-    @media (max-width: 600px) {
-      .time-box {
-        display: none;
-      }
-    }
-
-    .marker {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent-color);
-      border: 3px solid var(--bg-color);
-      position: absolute;
-      left: 79px;
-      top: 18px;
-      z-index: 2;
-      box-shadow: 0 0 10px var(--accent-color);
-    }
-
-    @media (max-width: 600px) {
-      .marker {
-        left: 14px;
-      }
-    }
-
-    .card {
-      margin-left: 30px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.2rem;
+    /* コンテンツ部分 */
+    .schedule-content {
       flex-grow: 1;
-      transition: transform 0.3s ease, border-color 0.3s ease;
-      cursor: pointer;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .schedule-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .schedule-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
     }
 
-    .card:hover {
-      transform: translateX(5px);
-      border-color: var(--accent-color);
+    /* 右側ステータス・部数表示 */
+    .schedule-meta {
+      text-align: right;
+      font-size: 13px;
+      color: #555;
+      flex-shrink: 0;
+    }
+    .schedule-copies {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--wine);
+      margin-bottom: 4px;
+    }
+
+    .loading, .empty {
+      text-align: center;
+      padding: 40px;
+      color: #777;
     }
 
     @media (max-width: 600px) {
-      .card {
-        margin-left: 45px;
+      .schedule-item {
+        flex-direction: column;
+        align-items: flex-start;
       }
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .mobile-time {
-      display: none;
-      font-size: 0.9rem;
-      color: var(--accent-color);
-      font-weight: bold;
-    }
-
-    @media (max-width: 600px) {
-      .mobile-time {
-        display: block;
+      .date-badge {
+        width: 100%;
       }
-    }
-
-    .stage-badge {
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    .stage-main { background: rgba(255, 0, 127, 0.2); color: #ff007f; border: 1px solid #ff007f; }
-    .stage-side { background: rgba(0, 242, 254, 0.2); color: #00f2fe; border: 1px solid #00f2fe; }
-    .stage-lab  { background: rgba(121, 40, 202, 0.2); color: #b871ff; border: 1px solid #7928ca; }
-
-    .card-title {
-      font-size: 1.25rem;
-      margin-bottom: 0.4rem;
-    }
-
-    .card-performer {
-      color: var(--text-sub);
-      font-size: 0.95rem;
+      .schedule-meta {
+        text-align: left;
+        width: 100%;
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
+        margin-top: 8px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header">
-      <h1>STAGE LINK 2026</h1>
-      <p style="color: var(--text-sub);">TIMETABLE & SCHEDULE</p>
-    </div>
+<div class="container">
+  <h1>ビラ折込スケジュール</h1>
 
-    <!-- ステージ切り替えフィルター -->
-    <div class="filter-group">
-      <button class="filter-btn active" onclick="filterSchedule('all')">ALL STAGES</button>
-      <button class="filter-btn" onclick="filterSchedule('main')">MAIN STAGE</button>
-      <button class="filter-btn" onclick="filterSchedule('side')">SIDE STAGE</button>
-      <button class="filter-btn" onclick="filterSchedule('lab')">CREATIVE LAB</button>
-    </div>
-
-    <!-- スケジュールリスト -->
-    <div class="schedule-list" id="scheduleContainer">
-      <!-- JavaScriptで動的生成 -->
-    </div>
+  <!-- スケジュールリストを表示するコンテナ -->
+  <div id="schedule-container" class="schedule-list">
+    <div class="loading">スケジュール情報を読み込んでいます...</div>
   </div>
+</div>
 
-  <script>
-    // スケジュールデータ
-    const scheduleData = [
-      { time: "11:00", stage: "main", stageName: "Main Stage", title: "Opening Keynote: The Future of Stage Technology", performer: "STAGELINK Project Team" },
-      { time: "12:30", stage: "side", stageName: "Side Stage", title: "Interactive Lighting Showcase", performer: "Lumina Studio" },
-      { time: "14:00", stage: "lab", stageName: "Creative Lab", title: "AI x Spatial Audio Live Session", performer: "SoundLab 2026" },
-      { time: "15:30", stage: "main", stageName: "Main Stage", title: "Special Guest Performance", performer: "Cyber Synergy Beats" },
-      { time: "17:00", stage: "side", stageName: "Side Stage", title: "Visual & Sensor Tech Panel", performer: "Guest Creators" },
-      { time: "18:30", stage: "main", stageName: "Main Stage", title: "Grand Finale Live Stream", performer: "STAGELINK All Stars" }
-    ];
+<script>
+  // Supabase設定（統合版）
+  const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
 
-    function renderSchedule(filter = 'all') {
-      const container = document.getElementById('scheduleContainer');
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ページ読み込み完了時にビラネ（requests）のデータを取得して表示
+  document.addEventListener('DOMContentLoaded', fetchAndRenderSchedule);
+
+  async function fetchAndRenderSchedule() {
+    const container = document.getElementById('schedule-container');
+    if (!container) return;
+
+    try {
+      // ビラネ側で登録された「requests（折込リクエスト）」を取得
+      const { data: requests, error } = await db
+        .from('requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!requests || requests.length === 0) {
+        container.innerHTML = '<div class="empty">現在登録されている折込予定はありません。</div>';
+        return;
+      }
+
       container.innerHTML = '';
 
-      const filtered = filter === 'all' ? scheduleData : scheduleData.filter(item => item.stage === filter);
+      requests.forEach(item => {
+        // 各種データの取り出し（カラム名のゆれに対応）
+        const foldingDate = item.foldingDate || item.folding_date || '日付未定';
+        const troupeName = item.fromName || item.troupe_name || '名称未設定';
+        const copies = item.copies ? `${item.copies}部` : '部数未設定';
+        const size = item.size ? `(${item.size})` : '';
+        const status = item.status === 'accepted' ? '承認済み' : (item.status === 'pending' ? '申請中' : item.status || '受付中');
 
-      filtered.forEach((item, index) => {
-        const itemEl = document.createElement('div');
-        itemEl.className = 'schedule-item';
-        itemEl.style.animationDelay = `${index * 0.1}s`;
-
-        itemEl.innerHTML = `
-          <div class="time-box">${item.time}</div>
-          <div class="marker"></div>
-          <div class="card">
-            <div class="card-header">
-              <span class="mobile-time">${item.time}</span>
-              <span class="stage-badge stage-${item.stage}">${item.stageName}</span>
+        const itemHtml = `
+          <div class="schedule-item">
+            <div class="date-badge">
+              <div class="label">折込予定日</div>
+              <div class="date">${escapeHtml(foldingDate)}</div>
             </div>
-            <h2 class="card-title">${item.title}</h2>
-            <p class="card-performer">${item.performer}</p>
+            <div class="schedule-content">
+              <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
+              <div class="schedule-desc">受け渡し方法: ${escapeHtml(item.deliveryMethod || item.delivery_method || '未定')}</div>
+            </div>
+            <div class="schedule-meta">
+              <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
+              <div>ステータス: <strong>${escapeHtml(status)}</strong></div>
+            </div>
           </div>
         `;
-        container.appendChild(itemEl);
+
+        container.insertAdjacentHTML('beforeend', itemHtml);
       });
-    }
 
-    function filterSchedule(stage) {
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      renderSchedule(stage);
+    } catch (err) {
+      console.error('データ取得エラー:', err);
+      container.innerHTML = `<div class="empty" style="color:red;">データの読み込みに失敗しました: ${err.message}</div>`;
     }
+  }
 
-    // 初回レンダリング
-    renderSchedule();
-  </script>
+  // エスケープ処理
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
 </body>
 </html>
