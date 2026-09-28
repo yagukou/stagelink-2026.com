@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>企画管理パネル｜Stage Link</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -23,10 +22,7 @@
       color: var(--text);
       padding: 30px 20px;
     }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .container { max-width: 900px; margin: 0 auto; }
     h1 {
       font-size: 24px;
       color: var(--wine-dark);
@@ -41,21 +37,10 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       margin-bottom: 30px;
     }
-    .card h2 {
-      font-size: 18px;
-      margin-bottom: 16px;
-      color: var(--wine);
-    }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-    input[type="text"], input[type="date"], input[type="file"], textarea {
+    .card h2 { font-size: 18px; margin-bottom: 16px; color: var(--wine); }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    input[type="text"], input[type="date"], input[type="file"], textarea, select {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--border);
@@ -64,7 +49,7 @@
       font-family: inherit;
       background: #fff;
     }
-    textarea { height: 80px; resize: vertical; }
+    textarea { height: 100px; resize: vertical; }
     .checkbox-label {
       display: flex;
       align-items: center;
@@ -86,49 +71,15 @@
     }
     .btn:hover { background: var(--wine-dark); }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-danger {
-      background: #e53e3e;
-      padding: 6px 12px;
-      font-size: 12px;
-    }
+    .btn-danger { background: #e53e3e; padding: 6px 12px; font-size: 12px; }
     .btn-danger:hover { background: #c53030; }
     
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
-    }
-    th {
-      background: #edf2f7;
-      font-weight: 700;
-    }
-    .img-preview {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-    .badge-current {
-      background: #feebc8;
-      color: #9c4221;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .badge-archive {
-      background: #e2e8f0;
-      color: #4a5568;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: #edf2f7; font-weight: 700; }
+    .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+    .badge-current { background: #feebc8; color: #9c4221; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .badge-archive { background: #e2e8f0; color: #4a5568; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -150,19 +101,27 @@
       </div>
 
       <div class="form-group">
-        <label for="description">概要・説明文</label>
-        <textarea id="description" placeholder="企画の概要を入力してください"></textarea>
+        <label for="description">企画の概要・詳細説明文</label>
+        <textarea id="description" placeholder="企画の概要や詳細文を入力してください。詳細ページにそのまま反映されます。"></textarea>
       </div>
 
-      <!-- 画像ファイル選択エリア -->
       <div class="form-group">
         <label for="image_file">画像ファイルを選択</label>
         <input type="file" id="image_file" accept="image/*">
       </div>
 
+      <!-- リンク先設定 -->
       <div class="form-group">
-        <label for="link_url">詳細リンクURL</label>
-        <input type="text" id="link_url" placeholder="例: BBQ.html または https://...">
+        <label for="link_type">「詳しくみる」のリンク先</label>
+        <select id="link_type" onchange="toggleCustomUrlInput()">
+          <option value="auto">専用の自動詳細ページを使う（推奨）</option>
+          <option value="custom">外部URL / 既存のHTMLファイル（BBQ.html など）を指定</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="custom_url_group" style="display: none;">
+        <label for="link_url">カスタムリンクURL</label>
+        <input type="text" id="link_url" placeholder="例: BBQ.html または https://example.com">
       </div>
 
       <div class="form-group">
@@ -196,16 +155,20 @@
 </div>
 
 <script>
-  // ご自身の Supabase 情報に置き換えてください
+  // ⚠️ ご自身の Supabase 情報に書き換えてください
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 1. データ一覧取得
+  function toggleCustomUrlInput() {
+    const type = document.getElementById('link_type').value;
+    const customGroup = document.getElementById('custom_url_group');
+    customGroup.style.display = (type === 'custom') ? 'block' : 'none';
+  }
+
   async function fetchEvents() {
     const listContainer = document.getElementById('event-list');
-    
     const { data, error } = await supabaseClient
       .from('events')
       .select('*')
@@ -245,24 +208,18 @@
     });
   }
 
-  // 2. 画像のアップロード処理
   async function uploadImage(file) {
-    // 重複を防ぐためファイル名にタイムスタンプを付与
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
-    // Storageの 'event-images' バケットへアップロード
     const { data, error } = await supabaseClient
       .storage
       .from('event-images')
       .upload(filePath, file);
 
-    if (error) {
-      throw new Error('画像のアップロードに失敗しました: ' + error.message);
-    }
+    if (error) throw new Error('画像のアップロードに失敗しました: ' + error.message);
 
-    // 公開用URLを取得して返す
     const { data: publicUrlData } = supabaseClient
       .storage
       .from('event-images')
@@ -271,7 +228,6 @@
     return publicUrlData.publicUrl;
   }
 
-  // 3. 新規データ保存（画像処理含む）
   document.getElementById('event-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -283,29 +239,42 @@
       const title = document.getElementById('title').value;
       const event_date = document.getElementById('event_date').value;
       const description = document.getElementById('description').value;
-      const link_url = document.getElementById('link_url').value;
       const is_current = document.getElementById('is_current').checked;
+      const link_type = document.getElementById('link_type').value;
       const fileInput = document.getElementById('image_file');
 
       let image_url = '';
-
-      // ファイルが選択されている場合はアップロードを実行
       if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        image_url = await uploadImage(file);
+        image_url = await uploadImage(fileInput.files[0]);
       }
 
-      // データベース（eventsテーブル）に挿入
-      const { error } = await supabaseClient
+      // 1. レコードの仮登録（link_url決定のためIDを取得する目的）
+      let finalLinkUrl = '';
+      if (link_type === 'custom') {
+        finalLinkUrl = document.getElementById('link_url').value;
+      }
+
+      const { data, error } = await supabaseClient
         .from('events')
-        .insert([
-          { title, event_date, description, image_url, link_url, is_current }
-        ]);
+        .insert([{ title, event_date, description, image_url, link_url: finalLinkUrl, is_current }])
+        .select();
 
       if (error) throw error;
 
+      // 2. 「自動詳細ページ」が選択されている場合は、生成されたIDを使って link_url を更新
+      if (link_type === 'auto' && data && data.length > 0) {
+        const generatedId = data[0].id;
+        const autoUrl = `event-detail.html?id=${generatedId}`;
+
+        await supabaseClient
+          .from('events')
+          .update({ link_url: autoUrl })
+          .eq('id', generatedId);
+      }
+
       alert('正常に保存しました！');
       document.getElementById('event-form').reset();
+      toggleCustomUrlInput();
       fetchEvents();
 
     } catch (err) {
@@ -316,20 +285,11 @@
     }
   });
 
-  // 4. データ削除
   async function deleteEvent(id) {
     if (!confirm('本当に削除しますか？')) return;
-
-    const { error } = await supabaseClient
-      .from('events')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      alert('削除エラー: ' + error.message);
-    } else {
-      fetchEvents();
-    }
+    const { error } = await supabaseClient.from('events').delete().eq('id', id);
+    if (error) alert('削除エラー: ' + error.message);
+    else fetchEvents();
   }
 
   document.addEventListener('DOMContentLoaded', fetchEvents);
