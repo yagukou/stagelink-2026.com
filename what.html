@@ -6,7 +6,6 @@
 <title>公演紹介｜早慶演劇祭</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 /* ====== サイト共通ヘッダー（index.htmlの実装をそのまま流用） ====== */
@@ -979,18 +978,6 @@ header {
     .faq-answer { padding-left: 26px; }
     .faq-q { padding: 18px 18px; }
   }
-
-/* カードを格納するコンテナの高さ（5枚以上になってもスクロールに余裕を持たせる） */
-.fan-driver {
-  height: 220vh; /* 元の 190vh から少し広げることでスクロールでの開き方にゆとりを持たせます */
-}
-
-/* 画面幅に応じてカードが狭くなりすぎるのを防ぐ */
-@media (min-width: 901px) {
-  .fan-cards {
-    width: min(1480px, 96vw); /* コンテナの最大幅を拡張 */
-  }
-}
 </style>
 </head>
 <body>
@@ -1107,112 +1094,8 @@ header {
           <h2 class="intro-title">Stage Link Originals</h2>
           <div class="intro-title-rule"></div>
         </div>
-        <div class="fan-cards" id="fan-cards-container">
-
-          <!-- 01: BBQ -->
-          <div class="fan-item">
-            <article class="card">
-              <div class="card-glow"></div>
-              <div class="card-media"><span class="glyph">🛠️</span></div>
-              <div class="card-body">
-                <span class="card-index">01</span>
-                <h3 class="card-title">夏の交流WS＋BBQ</h3>
-                <p class="card-subtitle">劇団の垣根を越えて、新たな表現技法と仲間に出会う</p>
-                <p class="card-desc">所属サークルを超えて、誰もがフラットに集まるワークショップです（慶應義塾の劇団所属メンバー限定）</p>
-                <div class="card-tags">
-                  <span class="card-tag">2026年9月開催決定！</span>
-                </div>
-                <a href="BBQ.html" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-              </div>
-            </article>
-          </div>
-
-          <!-- 02: 慶劇祭 -->
-          <div class="fan-item">
-            <article class="card">
-              <div class="card-glow"></div>
-              <div class="card-media"></div>
-              <div class="card-body">
-                <span class="card-index">02</span>
-                <h3 class="card-title">慶劇祭（慶應義塾大学演劇祭）</h3>
-                <p class="card-subtitle">個性が交わる特別な舞台。慶應義塾の舞台のすべてが集結</p>
-                <p class="card-desc">塾生注目～！異なる特色を持つ劇団が1つの舞台に集う、Stage Link最大のフェスティバルです！</p>
-                <div class="card-tags">
-                  <span class="card-tag">2027年開催予定</span>
-                  <span class="card-tag">舞台・公演</span>
-                </div>
-                <a href="#" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-              </div>
-            </article>
-          </div>
-
-          <!-- 03: ビラネットワーク -->
-          <div class="fan-item">
-            <article class="card">
-              <div class="card-glow"></div>
-              <div class="card-media layered">
-                <span class="poster-tag">ビラネットワーク画面</span>
-                <img class="poster" src="images/flyer-sample.png" alt="劇団EnTRoPy 七夕祭公演「借り物の星」のビラ">
-              </div>
-              <div class="card-body">
-                <span class="card-index">03</span>
-                <h3 class="card-title">ビラネットワーク</h3>
-                <p class="card-subtitle">どこの劇団でも利用可能！宣伝の力をシェアして、劇団のファンを増やそう</p>
-                <p class="card-desc">折り込みをもっとシンプルに。公演カレンダーからすぐに折り込み依頼が送れる！</p>
-                <div class="card-tags">
-                  <span class="card-tag">🎫 集客を強化したい</span>
-                  <span class="card-tag">🌐 慶應外部も利用可能</span>
-                  <span class="card-tag">📢 利用劇団募集中</span>
-                </div>
-                <a href="Participant.html" class="card-btn" target="_blank" rel="noopener">詳しく見る <span class="arrow">➔</span></a>
-              </div>
-            </article>
-          </div>
-
-          <!-- 04: 新規企画の枠組み（追加枠） -->
-          <div class="fan-item">
-            <article class="card">
-              <div class="card-glow"></div>
-              <div class="card-media">
-                <span class="glyph">💡</span>
-              </div>
-              <div class="card-body">
-                <span class="card-index">04</span>
-                <h3 class="card-title">新企画（順次公開予定）</h3>
-                <p class="card-subtitle">新たな共創プロジェクトを展開予定</p>
-                <p class="card-desc">※こちらの枠組みは後日更新・追加予定です。</p>
-                <div class="card-tags">
-                  <span class="card-tag">COMING SOON</span>
-                </div>
-                <a href="#" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-              </div>
-
-              <!-- 01 ~ 04 の fan-item に続けて以下を追加 -->
-
-<!-- 05: 新規企画フレームワーク（動的読み込み用枠組み） -->
-<div class="fan-item">
-  <article class="card">
-    <div class="card-glow"></div>
-    <div class="card-media">
-      <span class="glyph">📌</span>
-    </div>
-    <div class="card-body">
-      <span class="card-index">05</span>
-      <h3 class="card-title">新企画タイトル（準備中）</h3>
-      <p class="card-subtitle">サブタイトル・キャッチコピー枠</p>
-      <p class="card-desc">企画の詳細内容がここに入ります。後日データ連携により更新される予定です。</p>
-      <div class="card-tags">
-        <span class="card-tag">COMING SOON</span>
-      </div>
-      <a href="#" class="card-btn">詳細を見る <span class="arrow">➔</span></a>
-    </div>
-  </article>
-</div>
-            </article>
-          </div>
-
-          <p class="fan-hint">Scroll to open ↓</p>
-        </div>
+        
+        <div class="fan-cards" id="fan-cards-container"></div>
       </div>
     </div>
   </section>
@@ -1325,63 +1208,261 @@ header {
   </footer>
 
 <script>
- (function () {
-  // ★ ここにSupabaseのURLとAnon Keyを設定してください
-  const SUPABASE_URL = 'https://blviywoprvcatwwrrysi.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    targets.forEach(function (el, i) {
+      el.style.transitionDelay = (0.06 * (i % 6)) + 's';
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  })();
 
+  (function () {
+    var driver = document.querySelector('.fan-driver');
+    var stage = document.querySelector('.fan-stage');
+    var cardsBox = document.querySelector('.fan-cards');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.fan-item'));
+    if (!driver || !items.length) return;
+
+    var GAP = 26;
+    var fannedTx = 340;
+    var ticking = false;
+
+    // 枚数に応じてスタック時・広がり時の基準を計算
+    function getStacked(i, count) {
+      var centerIndex = (count - 1) / 2;
+      var offset = i - centerIndex;
+      return {
+        tx: offset * 12,
+        ty: Math.abs(offset) * 6,
+        rot: offset * -3,
+        sc: 1 - Math.abs(offset) * 0.03,
+        z: count - Math.abs(Math.round(offset))
+      };
+    }
+
+    function fanned(i, count) {
+      var centerIndex = (count - 1) / 2;
+      var offset = i - centerIndex;
+      return {
+        tx: offset * fannedTx,
+        ty: Math.abs(offset) * 8,
+        rot: offset * 3,
+        sc: 1,
+        z: count - i
+      };
+    }
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+    function recalc() {
+      var w = cardsBox.clientWidth;
+      var count = items.length;
+      var cardW = (w - GAP * (count - 1)) / count;
+      cardW = Math.max(260, Math.min(cardW, 380));
+      fannedTx = cardW + GAP;
+      items.forEach(function (el) { el.style.setProperty('--w', cardW + 'px'); });
+    }
+
+    function isActive() { return window.innerWidth > 900; }
+
+    function update() {
+      ticking = false;
+      if (!isActive()) return;
+      var rect = driver.getBoundingClientRect();
+      var scrollable = rect.height - window.innerHeight;
+      var p = scrollable > 0 ? clamp01(-rect.top / scrollable) : 0;
+      stage.style.setProperty('--p', p.toFixed(4));
+
+      var count = items.length;
+      items.forEach(function (el, i) {
+        var s = getStacked(i, count);
+        var f = fanned(i, count);
+        var tx = lerp(s.tx, f.tx, p);
+        var ty = lerp(s.ty, f.ty, p);
+        var rot = lerp(s.rot, f.rot, p);
+        var sc = lerp(s.sc, f.sc, p);
+        el.style.setProperty('--tx', tx.toFixed(1) + 'px');
+        el.style.setProperty('--ty', ty.toFixed(1) + 'px');
+        el.style.setProperty('--rot', rot.toFixed(2) + 'deg');
+        el.style.setProperty('--sc', sc.toFixed(3));
+        el.style.zIndex = s.z;
+      });
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }
+
+    function onResize() {
+      recalc();
+      update();
+    }
+
+    recalc();
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+  })();
+
+  (function () {
+    var block = document.getElementById('logoBlock');
+    if (!block) return;
+    var sPath = document.getElementById('sPath');
+    var dotEnd = block.querySelector('.dot-end');
+    var DRAW_DELAY = 0;
+    var DRAW_DURATION = 3500;
+    var len = 0;
+
+    if (sPath) {
+      len = sPath.getTotalLength();
+      sPath.style.strokeDasharray = len;
+      sPath.style.strokeDashoffset = len;
+    }
+
+    function playAnimation() {
+      if (sPath && sPath.animate) {
+        sPath.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration: DRAW_DURATION, delay: DRAW_DELAY, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
+        );
+      } else if (sPath) {
+        sPath.style.strokeDashoffset = 0;
+      }
+      if (dotEnd && dotEnd.animate) {
+        dotEnd.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 300, delay: DRAW_DELAY + DRAW_DURATION - 100, easing: 'ease-out', fill: 'forwards' }
+        );
+      } else if (dotEnd) {
+        dotEnd.style.opacity = 1;
+      }
+    }
+
+    var triggered = false;
+    var isIntersecting = false;
+    var hasScrolled = false;
+
+    function tryTrigger() {
+      if (triggered || !isIntersecting || !hasScrolled) return;
+      triggered = true;
+      block.classList.add('in-view');
+      playAnimation();
+      io.unobserve(block);
+      window.removeEventListener('scroll', onFirstScroll);
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        isIntersecting = entry.isIntersecting;
+        tryTrigger();
+      });
+    }, { threshold: 0.35, rootMargin: '0px 0px -60px 0px' });
+    io.observe(block);
+
+    function onFirstScroll() {
+      hasScrolled = true;
+      tryTrigger();
+    }
+    window.addEventListener('scroll', onFirstScroll, { passive: true });
+  })();
+
+  (function () {
+    var items = Array.prototype.slice.call(document.querySelectorAll('.faq-item'));
+    if (!items.length) return;
+
+    items.forEach(function (item) {
+      var btn = item.querySelector('.faq-q');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var wasOpen = item.classList.contains('is-open');
+        items.forEach(function (other) {
+          other.classList.remove('is-open');
+          var otherBtn = other.querySelector('.faq-q');
+          if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+        });
+        if (!wasOpen) {
+          item.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  })();
+
+  // ====== 1. Supabaseから動的にカードデータを読み込んで描画する関数 ======
+async function loadProjectsFromSupabase() {
   const cardsContainer = document.getElementById('fan-cards-container');
   if (!cardsContainer) return;
 
-  async function loadProjectsFromSupabase() {
-    const { data: projects, error } = await supabase
-      .from('projects')
-      .select('*')
-      .order('display_order', { ascending: true })
-      .order('created_at', { ascending: true });
+  // Supabase からプロジェクト一覧を取得
+  const { data: projects, error } = await supabase
+    .from('projects')
+    .select('*')
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: true });
 
-    if (error || !projects || projects.length === 0) {
-      console.error('企画データの取得失敗、またはデータが空です:', error);
-      return;
-    }
-
-    cardsContainer.innerHTML = '';
-    projects.forEach((item, index) => {
-      const cardIndex = String(index + 1).padStart(2, '0');
-      const tagsHtml = item.tags ? item.tags.map(t => `<span class="card-tag">${t}</span>`).join('') : '';
-      const glyphHtml = item.glyph ? `<span class="glyph">${item.glyph}</span>` : `<span class="glyph">💡</span>`;
-
-      const cardEl = document.createElement('div');
-      cardEl.className = 'fan-item';
-      cardEl.innerHTML = `
-        <article class="card">
-          <div class="card-glow"></div>
-          <div class="card-media">${glyphHtml}</div>
-          <div class="card-body">
-            <span class="card-index">${cardIndex}</span>
-            <h3 class="card-title">${item.title}</h3>
-            <p class="card-subtitle">${item.subtitle}</p>
-            <p class="card-desc">${item.description}</p>
-            <div class="card-tags">${tagsHtml}</div>
-            <a href="${item.link || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
-          </div>
-        </article>
-      `;
-      cardsContainer.appendChild(cardEl);
-    });
-
-    // データ読み込み完了後に扇状アニメーションを初期化
-    initFanAnimation();
+  if (error) {
+    console.error('データ取得エラー:', error);
+    return;
   }
 
-  loadProjectsFromSupabase();
-})();
+  // コンテナ内を一度空にする
+  cardsContainer.innerHTML = '';
 
+  if (!projects || projects.length === 0) return;
+
+  // 取得したデータからカードを1枚ずつ動的生成
+  projects.forEach((item, index) => {
+    const cardIndex = String(index + 1).padStart(2, '0');
+    const tagsHtml = item.tags ? item.tags.map(t => `<span class="card-tag">${t}</span>`).join('') : '';
+    const glyphHtml = item.glyph ? `<span class="glyph">${item.glyph}</span>` : `<span class="glyph">💡</span>`;
+
+    const cardEl = document.createElement('div');
+    cardEl.className = 'fan-item';
+    cardEl.innerHTML = `
+      <article class="card">
+        <div class="card-glow"></div>
+        <div class="card-media">${glyphHtml}</div>
+        <div class="card-body">
+          <span class="card-index">${cardIndex}</span>
+          <h3 class="card-title">${item.title}</h3>
+          <p class="card-subtitle">${item.subtitle || ''}</p>
+          <p class="card-desc">${item.description || ''}</p>
+          <div class="card-tags">${tagsHtml}</div>
+          <a href="${item.link || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+        </div>
+      </article>
+    `;
+    cardsContainer.appendChild(cardEl);
+  });
+
+  // ヒントテキストを最後に追加
+  const hintEl = document.createElement('p');
+  hintEl.className = 'fan-hint';
+  hintEl.textContent = 'Scroll to open ↓';
+  cardsContainer.appendChild(hintEl);
+
+  // ★ カード要素が出揃った後に、アニメーションの計算・バインドを呼び出す
+  initFanAnimation();
+}
+
+// ====== 2. スクロールファンデッキアニメーション関数 ======
 function initFanAnimation() {
   var driver = document.querySelector('.fan-driver');
   var stage = document.querySelector('.fan-stage');
   var cardsBox = document.querySelector('.fan-cards');
+  // 動的追加された fan-item を最新の状態で取得
   var items = Array.prototype.slice.call(document.querySelectorAll('.fan-item'));
   if (!driver || !items.length) return;
 
@@ -1458,11 +1539,21 @@ function initFanAnimation() {
     }
   }
 
+  function onResize() {
+    recalc();
+    update();
+  }
+
   recalc();
   update();
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', function() { recalc(); update(); });
-} 
+  window.addEventListener('resize', onResize);
+}
+
+// ページ読み込み時に実行
+document.addEventListener('DOMContentLoaded', () => {
+  loadProjectsFromSupabase();
+});
 </script>
 
 </body>
