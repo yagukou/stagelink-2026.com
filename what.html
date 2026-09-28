@@ -804,55 +804,85 @@ header {
     .fan-card { transform: none !important; width: 100%; }
   }
 
-  /* カード一覧（親要素）のグリッド設定 */
+/* グリッドレイアウト（カードの高さを揃えて並べる） */
 .event-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
-  align-items: stretch; /* カードの高さを揃える */
+  align-items: stretch; /* すべてのカードの高さを一番大きいものに揃える */
 }
 
-/* 一つ一つのカードの高さ統一・折り返し設定 */
+/* カード共通設定（今月表示・アーカイブ共通） */
 .event-card {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%; /* カードの高さを統一 */
-  background: #fff;
+  flex-direction: column; /* 上から下に要素を並べる */
+  justify-content: space-between; /* 上部コンテンツと底面ボタンを上下に分散 */
+  height: 100%; /* 高さを完全に統一 */
+  background: #ffffff;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 
   /* 文字はみ出し防止 */
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-/* カード内の本文概要テキスト（3行で省略表示して高さを揃える） */
-.event-card .description-preview {
+/* 今月の企画（メイン表示）のカード固有調整 */
+.current-event-card {
+  border: 2px solid #7c2946; /* メイン企画用のワンポイント枠線 */
+}
+
+/* カード内の画像エリア（高さ固定でトリミング） */
+.event-card-img {
+  width: 100%;
+  height: 180px; /* 画像の高さを固定 */
+  object-fit: cover; /* 縦横比を崩さず綺麗に収める */
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+/* カード内のタイトル */
+.event-card h3 {
+  font-size: 18px;
+  color: #1f1a16;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+/* カード内の詳細テキスト（最大3行で「...」と自動省略） */
+.description-preview {
   font-size: 14px;
-  color: #555;
+  color: #555555;
+  line-height: 1.6;
   margin-bottom: 16px;
   
-  /* 3行を超えたら ... で省略する設定 */
+  /* 3行を超えたら自動で省略（...） */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   
-  /* 複数行の高さコントロール */
-  line-height: 1.6;
+  /* 高さのブレを防ぐ固定設定 */
   max-height: calc(1.6em * 3);
 }
 
-/* 画像の高さを固定して綺麗にトリミング */
-.event-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 12px;
+/* カード上部のコンテンツグループ */
+.event-card-body {
+  flex-grow: 1; /* 余白を自動埋め */
+}
+
+/* 一番下の「詳細 ➔」リンク・ボタン */
+.btn-detail {
+  display: inline-block;
+  margin-top: auto; /* カードの一番下に自動で押し下げる */
+  color: #7c2946;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 1px solid #7c2946;
+  padding-bottom: 2px;
+  align-self: flex-start;
 }
 </style>
 </head>
@@ -1334,6 +1364,34 @@ card.innerHTML = `
   <div class="description-preview">${item.description || ''}</div>
   <a href="${item.link_url}" class="btn-detail">詳細 ➔</a>
 `;
+
+// カード作成処理の例（今月の企画・アーカイブ共通）
+function createCardHtml(item, isCurrent = false) {
+  // 画像がある場合のHTML（ない場合は空文字）
+  const imageHtml = item.image_url 
+    ? `<img src="${item.image_url}" class="event-card-img" alt="${item.title}">` 
+    : '';
+
+  // タグ除去（リッチテキストのHTMLタグを消してプレーンテキストにする）
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = item.description || '';
+  const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+  return `
+    <div class="event-card ${isCurrent ? 'current-event-card' : ''}">
+      <div class="event-card-body">
+        ${imageHtml}
+        <div style="font-size:12px; color:#888; margin-bottom:6px;">
+          ${item.event_date || ''}
+        </div>
+        <h3>${item.title}</h3>
+        <div class="description-preview">${plainText}</div>
+      </div>
+      
+      <a href="${item.link_url || '#'}" class="btn-detail">詳細 ➔</a>
+    </div>
+  `;
+}
 </script>
 
 </body>
