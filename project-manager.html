@@ -6,6 +6,22 @@
   <title>企画管理パネル｜Stage Link</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- TinyMCE (リッチテキストエディタ) の読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      tinymce.init({
+        selector: '#description',
+        height: 300,
+        menubar: false,
+        plugins: 'lists link code table',
+        toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright | bullist numlist | table link code',
+        content_style: 'body { font-family: "Noto Sans JP", sans-serif; font-size: 14px; }'
+      });
+    });
+  </script>
+
   <style>
     :root {
       --bg: #f4f5f7;
@@ -40,7 +56,7 @@
     .card h2 { font-size: 18px; margin-bottom: 16px; color: var(--wine); }
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-    input[type="text"], input[type="date"], input[type="file"], textarea, select {
+    input[type="text"], input[type="date"], input[type="file"], select {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--border);
@@ -49,7 +65,6 @@
       font-family: inherit;
       background: #fff;
     }
-    textarea { height: 100px; resize: vertical; }
     .checkbox-label {
       display: flex;
       align-items: center;
@@ -100,17 +115,17 @@
         <input type="date" id="event_date" required>
       </div>
 
+      <!-- 自由装飾可能なエディタエリア -->
       <div class="form-group">
-        <label for="description">企画の概要・詳細説明文</label>
-        <textarea id="description" placeholder="企画の概要や詳細文を入力してください。詳細ページにそのまま反映されます。"></textarea>
+        <label for="description">企画の概要・詳細説明文（文字装飾・見出し対応）</label>
+        <textarea id="description"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="image_file">画像ファイルを選択</label>
+        <label for="image_file">メイン画像ファイルを選択</label>
         <input type="file" id="image_file" accept="image/*">
       </div>
 
-      <!-- リンク先設定 -->
       <div class="form-group">
         <label for="link_type">「詳しくみる」のリンク先</label>
         <select id="link_type" onchange="toggleCustomUrlInput()">
@@ -238,7 +253,10 @@
     try {
       const title = document.getElementById('title').value;
       const event_date = document.getElementById('event_date').value;
-      const description = document.getElementById('description').value;
+      
+      // エディタ（TinyMCE）からHTML（装飾付きテキスト）を取得
+      const description = tinymce.get('description').getContent();
+      
       const is_current = document.getElementById('is_current').checked;
       const link_type = document.getElementById('link_type').value;
       const fileInput = document.getElementById('image_file');
@@ -248,7 +266,6 @@
         image_url = await uploadImage(fileInput.files[0]);
       }
 
-      // 1. レコードの仮登録（link_url決定のためIDを取得する目的）
       let finalLinkUrl = '';
       if (link_type === 'custom') {
         finalLinkUrl = document.getElementById('link_url').value;
@@ -261,7 +278,6 @@
 
       if (error) throw error;
 
-      // 2. 「自動詳細ページ」が選択されている場合は、生成されたIDを使って link_url を更新
       if (link_type === 'auto' && data && data.length > 0) {
         const generatedId = data[0].id;
         const autoUrl = `event-detail.html?id=${generatedId}`;
@@ -274,6 +290,7 @@
 
       alert('正常に保存しました！');
       document.getElementById('event-form').reset();
+      tinymce.get('description').setContent('');
       toggleCustomUrlInput();
       fetchEvents();
 
