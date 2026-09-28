@@ -198,23 +198,28 @@
 
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 画面読み込み時に両方のデータを取得
+  // 画面読み込み時にデータ取得を開始
   document.addEventListener('DOMContentLoaded', () => {
     fetchEvents();
     fetchRequests();
   });
 
-  // ①【企画スケジュール】events テーブルから取得する処理
+  // ①【企画スケジュール】events テーブルから取得
   async function fetchEvents() {
     const container = document.getElementById('events-container');
 
+    // orderを指定せず安全に取得
     const { data, error } = await db
       .from('events')
-      .select('*')
-      .order('event_date', { ascending: true });
+      .select('*');
 
     if (error) {
-      container.innerHTML = `<div class="empty" style="color:red;">取得エラー: ${error.message}</div>`;
+      // 404等のエラー時はテーブルがない旨を案内
+      if (error.code === 'PGRST301' || error.message.includes('404')) {
+        container.innerHTML = '<div class="empty">企画スケジュール（events）テーブルが未作成のため表示できません。</div>';
+      } else {
+        container.innerHTML = `<div class="empty" style="color:red;">取得エラー: ${error.message}</div>`;
+      }
       return;
     }
 
@@ -226,11 +231,12 @@
     container.innerHTML = '';
 
     data.forEach(item => {
-      const dateObj = new Date(item.event_date);
+      const dateVal = item.event_date || item.date || '日付未定';
+      const dateObj = new Date(dateVal);
       const year = dateObj.getFullYear() ? `${dateObj.getFullYear()}年` : '';
       const monthDay = (!isNaN(dateObj.getMonth())) 
         ? `${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`
-        : item.event_date;
+        : dateVal;
 
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = item.description || '';
@@ -248,7 +254,7 @@
           </div>
           ${imgHtml}
           <div class="schedule-content">
-            <div class="schedule-title">${escapeHtml(item.title)}</div>
+            <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
             <div class="schedule-desc">${escapeHtml(plainText)}</div>
           </div>
           <a href="${item.link_url || '#'}" class="btn-detail">詳細をみる ➔</a>
@@ -259,17 +265,18 @@
     });
   }
 
-  // ②【ビラ折込スケジュール】requests（ビラネ）テーブルから取得する処理
+  // ②【ビラ折込スケジュール】requests（ビラネ）テーブルから取得
   async function fetchRequests() {
     const container = document.getElementById('requests-container');
 
+    // エラー防止のため created_at の並べ替え指定を外し全件取得
     const { data: requests, error } = await db
       .from('requests')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*');
 
     if (error) {
-      container.innerHTML = `<div class="empty" style="color:red;">取得エラー: ${error.message}</div>`;
+      console.error('Requests取得エラー:', error);
+      container.innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${error.message}</div>`;
       return;
     }
 
@@ -280,12 +287,20 @@
 
     container.innerHTML = '';
 
+    // JavaScript側で並べ替え（折り込み日またはID順）
+    requests.sort((a, b) => {
+      const dateA = a.foldingDate || a.folding_date || '';
+      const dateB = b.foldingDate || b.folding_date || '';
+      return dateB.localeCompare(dateA);
+    });
+
     requests.forEach(item => {
       const foldingDate = item.foldingDate || item.folding_date || '日付未定';
-      const troupeName = item.fromName || item.troupe_name || '名称未設定';
+      const troupeName = item.fromName || item.troupe_name || item.from_name || '名称未設定';
       const copies = item.copies ? `${item.copies}部` : '部数未設定';
       const size = item.size ? `(${item.size})` : '';
       const status = item.status === 'accepted' ? '承認済み' : (item.status === 'pending' ? '申請中' : item.status || '受付中');
+      const delivery = item.deliveryMethod || item.delivery_method || '未定';
 
       const itemHtml = `
         <div class="schedule-item">
@@ -295,7 +310,7 @@
           </div>
           <div class="schedule-content">
             <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
-            <div class="schedule-desc">受け渡し方法: ${escapeHtml(item.deliveryMethod || item.delivery_method || '未定')}</div>
+            <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
           </div>
           <div class="schedule-meta">
             <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
@@ -318,6 +333,3 @@
       .replace(/"/g, '&quot;');
   }
 </script>
-
-</body>
-</html>
