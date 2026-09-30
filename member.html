@@ -13,14 +13,14 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
 
   <link rel="icon" href="https://blviywoprvcatwwrrysi.supabase.co/storage/v1/object/public/assets/Untitled%20folder/favicon.ico" type="image/x-icon" />
-  
+
   <style>
     /* --- 全体設定：index.html共通 --- */
     body {
       margin: 0;
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      background: #dbeef4;  
-      color: #ffffff; 
+      background: #dbeef4;
+      color: #ffffff;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -29,7 +29,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #b90e0e !important; 
+      background-color: #b90e0e !important;
       padding: 0 30px;
       height: 90px;
       position: relative;
@@ -49,7 +49,7 @@
        width: 30px;
        height: 30px;
        margin-bottom: 5px;
-       filter: brightness(0) invert(1); 
+       filter: brightness(0) invert(1);
     }
 
     .logo {
@@ -59,12 +59,12 @@
       text-align: center;
       line-height: 1.2;
       display: flex;
-      flex-direction: column;  
+      flex-direction: column;
       align-items: center;
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%); 
+      transform: translate(-50%, -50%);
       z-index: 1;
     }
 
@@ -98,12 +98,27 @@
     .section-head h2 { font-size: 32px; margin: 0; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; font-weight: 500; letter-spacing: 2px; color: #000000;}
     .section-head::after { content: ""; display: block; width: 40px; height: 1px; background: #c5a059; margin: 20px auto 0; }
 
-    /* --- 上部：2名の横並びレイアウト --- */
+    /* --- 役割グループごとのセクション --- */
+    .role-section { margin-bottom: 90px; }
+    .role-section:last-of-type { margin-bottom: 60px; }
+
+    /* グループ見出し（参考サイトの「技術事業部」のようなラベル） */
+    .group-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 34px;
+    }
+    .group-header .bar { display: inline-block; width: 6px; height: 26px; background: #c5a059; flex-shrink: 0; }
+    .group-header .group-title-ja { font-size: 22px; font-weight: bold; color: #1a1a1a; letter-spacing: 2px; }
+    .group-header .group-title-en { font-size: 12px; font-weight: bold; color: #c5a059; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; }
+    .group-header .group-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+
+    /* --- 上部：代表・副代表（横並び→縦積みの大きいカード） --- */
     .leader-container {
       display: flex;
       flex-direction: column;
       gap: 40px;
-      margin-bottom: 80px;
     }
     .leader-card {
       display: flex;
@@ -116,16 +131,15 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       border-radius: 8px;
     }
-.leader-img {
-  width: 160px;
-  height: 200px;
-  /* border-radius: 50%; を削除 */
-  border-radius: 0; /* これを追加してもOK */
-  object-fit: cover;
-  background: #222;
-  border: 2px solid #c5a059;
-  flex-shrink: 0;
-}
+    .leader-img {
+      width: 160px;
+      height: 200px;
+      border-radius: 0;
+      object-fit: cover;
+      background: #222;
+      border: 2px solid #c5a059;
+      flex-shrink: 0;
+    }
     .leader-info {
       display: flex;
       flex-direction: column;
@@ -133,39 +147,73 @@
     }
     .leader-info .line-1 { font-size: 18px; color: #c5a059; font-weight: bold; }
     .leader-info .line-2 { font-size: 25px; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; font-weight: bold; color: #1a1a1a; }
-    .leader-info .line-3 { font-size: 14px; color: #333333;; line-height: 1.6; }
+    .leader-info .line-3 { font-size: 14px; color: #333333; line-height: 1.6; white-space: pre-line; }
 
-    /* --- 中段：4列×2段のグリッドレイアウト --- */
+    /* --- SL Members / Advisors：4列グリッド（写真下部に名前ラベル） --- */
     .member-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 30px;
-      margin-bottom: 100px;
     }
     .member-card {
+      position: relative;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.65); /* 半透明の白 */
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      padding: 25px 15px;
       border-radius: 8px;
+      overflow: hidden;
+      background: #1a1a1a;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
     .member-img {
-  width: 110px;
-  height: 150px;
-  /* border-radius: 50%; を削除 */
-  border-radius: 0; /* これを追加してもOK */
-  object-fit: cover;
-  background: #222;
-  border: 2px solid #c5a059;
-  flex-shrink: 0;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      background: #222;
+      display: block;
     }
-    .member-name { font-size: 19px; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; font-weight: 500; color: #1a1a1a; margin-bottom: 5px; }
-    .member-role { font-size: 15px; color: #c5a059; }
+    .member-label {
+      padding: 14px 12px 16px;
+      background: #1a1a1a;
+      text-align: left;
+    }
+    .member-name { font-size: 17px; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
+    .member-role { font-size: 12.5px; color: #c5a059; letter-spacing: 0.3px; line-height: 1.5; }
+
+    /* --- スクロールで役割グループ順にポップインするアニメーション --- */
+    .reveal-group {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-group.visible { opacity: 1; transform: translateY(0); }
+
+    .reveal-group .leader-card,
+    .reveal-group .member-card {
+      opacity: 0;
+      transform: translateY(24px) scale(0.96);
+      transition: opacity 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .reveal-group.visible .leader-card,
+    .reveal-group.visible .member-card {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .reveal-group.visible .leader-card:nth-child(1) { transition-delay: 0.05s; }
+    .reveal-group.visible .leader-card:nth-child(2) { transition-delay: 0.18s; }
+    .reveal-group.visible .member-card:nth-child(1) { transition-delay: 0.05s; }
+    .reveal-group.visible .member-card:nth-child(2) { transition-delay: 0.11s; }
+    .reveal-group.visible .member-card:nth-child(3) { transition-delay: 0.17s; }
+    .reveal-group.visible .member-card:nth-child(4) { transition-delay: 0.23s; }
+    .reveal-group.visible .member-card:nth-child(5) { transition-delay: 0.29s; }
+    .reveal-group.visible .member-card:nth-child(6) { transition-delay: 0.35s; }
+    .reveal-group.visible .member-card:nth-child(7) { transition-delay: 0.41s; }
+    .reveal-group.visible .member-card:nth-child(8) { transition-delay: 0.47s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal-group, .reveal-group .leader-card, .reveal-group .member-card {
+        opacity: 1 !important; transform: none !important; transition: none !important;
+      }
+    }
 
     /* --- 下部：メンバー募集エリア --- */
     .recruitment-box {
@@ -200,7 +248,7 @@
       background: #111111;
       box-shadow: -5px 0 25px rgba(0,0,0,0.7);
       z-index: 9999;
-      display: flex; 
+      display: flex;
       flex-direction: column;
       padding-top: 60px;
       transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -218,7 +266,7 @@
       .logo-sub { font-size: 11px; }
       .menu-left, .menu-right { display: none !important; }
       .hamburger { display: block; position: absolute; top: 50%; right: 20px; transform: translateY(-50%); font-size: 28px; color: white; cursor: pointer; z-index: 9999; }
-      
+
       .leader-card { flex-direction: column; text-align: center; padding: 20px; }
       .member-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
     }
@@ -267,98 +315,155 @@
       <h2>運営メンバー</h2>
     </div>
 
-    <!-- 上部：2名（横並び） -->
-    <div class="leader-container">
-      <!-- 1人目 -->
-      <div class="leader-card">
-        <img src="member1.png" class="leader-img" alt="宮川久">
-        <div class="leader-info">
-          <div class="line-1">代表</div>
-          <div class="line-2">宮川&ensp;久</div>
-          <div class="line-3">&emsp;慶應義塾大学環境情報学部 在学中。中学2年のときに演劇に出会い、バスケットボール部から転部して活動を始めた。高校2年時には県代表として東京「シアター1010」の舞台に立ち、他県の強豪校の作品に触れたことで、表現の自由さや舞台のあり方の多用性に強く惹かれる。
-
-                              大学進学後もさまざまな舞台を観る中で、「この面白さに触れる入口を、もっと増やせたら」という想いが強くなり、Stage Link を立ち上げる。演劇の魅力が自然に伝わり、初めての人でも一歩踏み出しやすい場をつくることを目指して運営している。
-
-                              現在は主に劇団EnTRoPy 所属。第11回全国学生演劇祭実行委員。大学では演劇とは全く関係のない、航空データ解析・航空気象を研究している。</div>
+    <!-- ①代表・副代表 -->
+    <section class="role-section reveal-group">
+      <div class="group-header">
+        <span class="bar"></span>
+        <div class="group-title-wrap">
+          <span class="group-title-ja">代表・副代表</span>
+          <span class="group-title-en">Representative</span>
         </div>
       </div>
-      <!-- 2人目 -->
-      <div class="leader-card">
-        <img src="member2.png" class="leader-img" alt="役職2">
-        <div class="leader-info">
-          <div class="line-1">副代表</div>
-          <div class="line-2">柳町&ensp;聖和</div>
-          <div class="line-3">&emsp;慶應義塾大学経済学部 在学中。大学の最初の半年まで野球をしており、演劇などの創作物に触れる機会は希薄だった。
+      <div class="leader-container">
+        <div class="leader-card">
+          <img src="member1.png" class="leader-img" alt="宮川久">
+          <div class="leader-info">
+            <div class="line-1">代表</div>
+            <div class="line-2">宮川&ensp;久</div>
+            <div class="line-3">&emsp;慶應義塾大学環境情報学部 在学中。中学2年のときに演劇に出会い、バスケットボール部から転部して活動を始めた。高校2年時には県代表として東京「シアター1010」の舞台に立ち、他県の強豪校の作品に触れたことで、表現の自由さや舞台のあり方の多用性に強く惹かれる。
+
+大学進学後もさまざまな舞台を観る中で、「この面白さに触れる入口を、もっと増やせたら」という想いが強くなり、Stage Link を立ち上げる。演劇の魅力が自然に伝わり、初めての人でも一歩踏み出しやすい場をつくることを目指して運営している。
+
+現在は主に劇団EnTRoPy 所属。第11回全国学生演劇祭実行委員。大学では演劇とは全く関係のない、航空データ解析・航空気象を研究している。</div>
+          </div>
+        </div>
+        <div class="leader-card">
+          <img src="member2.png" class="leader-img" alt="柳町聖和">
+          <div class="leader-info">
+            <div class="line-1">副代表</div>
+            <div class="line-2">柳町&ensp;聖和</div>
+            <div class="line-3">&emsp;慶應義塾大学経済学部 在学中。大学の最初の半年まで野球をしており、演劇などの創作物に触れる機会は希薄だった。
 怪我などで選手としてプレーし続けることに疑問を持っている中で、創像工房に出あい、演劇に触れるようになる。定性的なものをどのように面白さや美しさに繋げていくのか考えていく中で、演劇に熱中するようになり現在に至る。
 
 より多くの交流と技術交換が各々の演劇の幅を広げ、より演劇を楽しめるようになるという考えから、Stage linkに携わるようになる。
 現在は創像工房に属し役者をこなしながら、自身の目標に邁進している。</div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 中段：4列×2段のグリッド -->
-    <div class="member-grid">
-      <!-- 1段目（4人） -->
-      <div class="member-card">
-        <img src="member3.png" class="member-img" alt="メンバー1">
-        <div class="member-name">川島&ensp;帆乃花</div>
-        <div class="member-role">広報</div>
+    <!-- ②SL Members -->
+    <section class="role-section reveal-group">
+      <div class="group-header">
+        <span class="bar"></span>
+        <div class="group-title-wrap">
+          <span class="group-title-ja">SL Members</span>
+          <span class="group-title-en">Staff</span>
+        </div>
       </div>
-      <div class="member-card">
-        <img src="member4.png" class="member-img" alt="メンバー2">
-        <div class="member-name">オウ&ensp;カキ</div>
-        <div class="member-role">捗外</div>
+      <div class="member-grid">
+        <div class="member-card">
+          <img src="member3.png" class="member-img" alt="川島帆乃花">
+          <div class="member-label">
+            <div class="member-name">川島&ensp;帆乃花</div>
+            <div class="member-role">広報</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member4.png" class="member-img" alt="オウカキ">
+          <div class="member-label">
+            <div class="member-name">オウ&ensp;カキ</div>
+            <div class="member-role">渉外</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member5.png" class="member-img" alt="加治屋栞">
+          <div class="member-label">
+            <div class="member-name">加治屋&ensp;栞</div>
+            <div class="member-role">企画</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member6.png" class="member-img" alt="岡田奈和実">
+          <div class="member-label">
+            <div class="member-name">岡田&ensp;奈和実</div>
+            <div class="member-role">企画</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member8.png" class="member-img" alt="片桐野々香">
+          <div class="member-label">
+            <div class="member-name">片桐&ensp;野々香</div>
+            <div class="member-role">広報</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member9.png" class="member-img" alt="白鳥晃路">
+          <div class="member-label">
+            <div class="member-name">白鳥&ensp;晃路</div>
+            <div class="member-role">企画</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member10.png" class="member-img" alt="矢口航基">
+          <div class="member-label">
+            <div class="member-name">矢口&ensp;航基</div>
+            <div class="member-role">開発</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member13.png" class="member-img" alt="田中未来">
+          <div class="member-label">
+            <div class="member-name">田中&ensp;未来</div>
+            <div class="member-role">企画</div>
+          </div>
+        </div>
       </div>
-      <div class="member-card">
-        <img src="member5.png" class="member-img" alt="メンバー3">
-        <div class="member-name">加治屋&ensp;栞</div>
-        <div class="member-role">企画</div>
-      </div>
-      <div class="member-card">
-        <img src="member6.png" class="member-img" alt="メンバー4">
-        <div class="member-name">岡田&ensp;奈和実</div>
-        <div class="member-role">企画</div>
-      </div>
+    </section>
 
-      <!-- 2段目（4人） -->
-      <div class="member-card">
-        <img src="member7.png" class="member-img" alt="メンバー5">
-        <div class="member-name">Air</div>
-        <div class="member-role">アドバイザー</div>
+    <!-- ③Advisors -->
+    <section class="role-section reveal-group">
+      <div class="group-header">
+        <span class="bar"></span>
+        <div class="group-title-wrap">
+          <span class="group-title-ja">Advisors</span>
+          <span class="group-title-en">Advisor</span>
+        </div>
       </div>
-      <div class="member-card">
-        <img src="member8.png" class="member-img" alt="メンバー6">
-        <div class="member-name">片桐&ensp;野々香</div>
-        <div class="member-role">広報</div>
+      <div class="member-grid">
+        <div class="member-card">
+          <img src="member7.png" class="member-img" alt="Air（加藤大地）">
+          <div class="member-label">
+            <div class="member-name">Air&ensp;（加藤大地）</div>
+            <div class="member-role">第11回全国学生演劇祭実行委員 / 鳥取大学演劇サークル「劇団あしあと」</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member11.png" class="member-img" alt="今浜田あおい">
+          <div class="member-label">
+            <div class="member-name">今浜田&ensp;あおい</div>
+            <div class="member-role">第15回名古屋学生演劇祭実行委員長 / 中京大学劇団いかづち</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member12.png" class="member-img" alt="星河（後藤綾介）">
+          <div class="member-label">
+            <div class="member-name">星河&ensp;（後藤綾介）</div>
+            <div class="member-role">浜松なつやすみ演劇祭実行委員長</div>
+          </div>
+        </div>
+        <div class="member-card">
+          <img src="member14.png" class="member-img" alt="平石結子">
+          <div class="member-label">
+            <div class="member-name">平石&ensp;結子</div>
+            <div class="member-role">第11回全国学生演劇祭実行委員</div>
+          </div>
+        </div>
       </div>
-      <div class="member-card">
-        <img src="member9.png" class="member-img" alt="メンバー7">
-        <div class="member-name">白鳥&ensp;晃路</div>
-        <div class="member-role">企画</div>
-      </div>
-      <div class="member-card">
-        <img src="member10.png" class="member-img" alt="メンバー8">
-        <div class="member-name">矢口&ensp;航基</div>
-        <div class="member-role">開発</div>
-      </div>
+    </section>
 
-      <div class="member-card">
-        <img src="member11.png" class="member-img" alt="メンバー9">
-        <div class="member-name">すわはる</div>
-        <div class="member-role">アドバイザー</div>
-      </div>
-
-      <div class="member-card">
-        <img src="member12.png" class="member-img" alt="メンバー10">
-        <div class="member-name">星河</div>
-        <div class="member-role">アドバイザー</div>
-      </div>
-
-    </div>
-    
     <!-- 下部：メンバー募集中 -->
-    <div class="recruitment-box">
+    <div class="recruitment-box reveal-group">
       <h3>メンバー募集中！！</h3>
     </div>
   </main>
@@ -396,6 +501,26 @@
         menuOverlay.classList.remove("open");
       };
     });
+  </script>
+
+  <!-- スクリプト（役割グループ順にスクロールでポップインさせる） -->
+  <script>
+    (function () {
+      const groups = document.querySelectorAll('.reveal-group');
+      if (!('IntersectionObserver' in window) || groups.length === 0) {
+        groups.forEach(g => g.classList.add('visible'));
+        return;
+      }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+      groups.forEach(g => observer.observe(g));
+    })();
   </script>
 </body>
 </html>
