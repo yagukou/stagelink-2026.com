@@ -227,9 +227,96 @@
       font-size: 28px;
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
       color: #000000;
-      margin: 0;
+      margin: 0 0 24px;
       letter-spacing: 4px;
     }
+    .apply-open-btn {
+      background: #c5a059;
+      color: #111;
+      border: none;
+      padding: 14px 36px;
+      border-radius: 30px;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: 0.25s;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.4);
+    }
+    .apply-open-btn:hover { background: #ae8a47; transform: translateY(-2px); }
+
+    /* --- SL Members応募ポップアップ --- */
+    .apply-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .apply-modal-overlay.open { display: flex; opacity: 1; }
+    .apply-modal {
+      background: #161616;
+      color: #fff;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      padding: 36px 30px 28px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(197, 160, 89, 0.35);
+    }
+    .apply-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .apply-modal-close:hover { color: #fff; }
+    .apply-modal-title { font-size: 21px; margin: 0 0 12px; color: #c5a059; letter-spacing: 1px; }
+    .apply-modal-desc { font-size: 13px; color: #ccc; line-height: 1.7; margin: 0 0 24px; }
+    .apply-field { margin-bottom: 16px; }
+    .apply-field label { display: block; font-size: 13px; color: #ddd; margin-bottom: 6px; }
+    .apply-field input, .apply-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    .apply-field input:focus, .apply-field textarea:focus { outline: none; border-color: #c5a059; }
+    .apply-modal-note { font-size: 12px; color: #999; line-height: 1.7; margin: 4px 0 22px; }
+    .apply-submit-btn {
+      width: 100%;
+      background: #b90e0e;
+      color: #fff;
+      border: none;
+      padding: 13px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+    .apply-submit-btn:hover { background: #d61515; }
+    .apply-fallback-note { font-size: 11px; color: #777; text-align: center; margin: 14px 0 0; line-height: 1.6; }
 
     /* --- フッター設定 --- */
     footer { background: #070707; border-top: 1px solid #1a1a1a; padding: 60px 5% 40px; text-align: center; }
@@ -465,8 +552,42 @@
     <!-- 下部：メンバー募集中 -->
     <div class="recruitment-box reveal-group">
       <h3>メンバー募集中！！</h3>
+      <button type="button" class="apply-open-btn" onclick="openApplyModal()">SL Membersの一員になる</button>
     </div>
   </main>
+
+  <!-- 応募ポップアップ -->
+  <div id="apply-modal-overlay" class="apply-modal-overlay" onclick="if (event.target === this) closeApplyModal();">
+    <div class="apply-modal">
+      <button type="button" class="apply-modal-close" onclick="closeApplyModal()" aria-label="閉じる">×</button>
+      <h3 class="apply-modal-title">SL Membersへの応募</h3>
+      <p class="apply-modal-desc">以下を入力して送信すると、お使いのメールソフトで応募メールの下書きが開きます。内容をご確認のうえ送信してください。</p>
+      <form id="apply-form" onsubmit="handleApplySubmit(event)">
+        <div class="apply-field">
+          <label for="apply-name">お名前 *</label>
+          <input type="text" id="apply-name" required>
+        </div>
+        <div class="apply-field">
+          <label for="apply-grade">学年 *</label>
+          <input type="text" id="apply-grade" required placeholder="例：大学2年">
+        </div>
+        <div class="apply-field">
+          <label for="apply-affiliation">所属 *</label>
+          <input type="text" id="apply-affiliation" required placeholder="例：〇〇大学 〇〇学部 / 所属している劇団など">
+        </div>
+        <div class="apply-field">
+          <label for="apply-wish">やりたいこと *</label>
+          <textarea id="apply-wish" rows="4" required placeholder="Stage Linkで挑戦したいことや興味のある役割など"></textarea>
+        </div>
+        <p class="apply-modal-note">
+          ※いただいた内容には通常3営業日以内にご返信いたします。<br>
+          ※今後、内容に応じてZoomなどでお話をお伺いする場合がございます。あらかじめご了承ください。
+        </p>
+        <button type="submit" class="apply-submit-btn">この内容でメールを作成する</button>
+        <p class="apply-fallback-note">※メールソフトが自動で開かない場合は、admin@stagelink-2026.com 宛に直接ご連絡ください。</p>
+      </form>
+    </div>
+  </div>
 
   <!-- フッター -->
   <footer>
@@ -521,6 +642,53 @@
       }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
       groups.forEach(g => observer.observe(g));
     })();
+  </script>
+
+  <!-- スクリプト（SL Members応募ポップアップ） -->
+  <script>
+    const applyModalOverlay = document.getElementById('apply-modal-overlay');
+
+    function openApplyModal() {
+      applyModalOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeApplyModal() {
+      applyModalOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && applyModalOverlay.classList.contains('open')) closeApplyModal();
+    });
+
+    function handleApplySubmit(event) {
+      event.preventDefault();
+      const name = document.getElementById('apply-name').value.trim();
+      const grade = document.getElementById('apply-grade').value.trim();
+      const affiliation = document.getElementById('apply-affiliation').value.trim();
+      const wish = document.getElementById('apply-wish').value.trim();
+
+      if (!name || !grade || !affiliation || !wish) {
+        alert('すべての項目を入力してください。');
+        return;
+      }
+
+      const subject = '【SL Membersへの応募】';
+      const body =
+        '以下の内容でSL Membersへの応募をお送りします。\n\n' +
+        '【お名前】\n' + name + '\n\n' +
+        '【学年】\n' + grade + '\n\n' +
+        '【所属】\n' + affiliation + '\n\n' +
+        '【やりたいこと】\n' + wish + '\n\n' +
+        '------------------------------\n' +
+        '※本メールは通常3営業日以内にご返信いたします。\n' +
+        '※今後の状況に応じて、Zoomなどでお話をお伺いする場合がございます。あらかじめご了承ください。';
+
+      const mailtoUrl = 'mailto:admin@stagelink-2026.com'
+        + '?subject=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(body);
+
+      window.location.href = mailtoUrl;
+    }
   </script>
 </body>
 </html>
