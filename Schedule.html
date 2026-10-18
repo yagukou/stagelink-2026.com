@@ -4,60 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>公演一覧｜Stage Link</title>
-  <!-- 高級感のある明朝体と欧文フォント（Playfair Display）を読み込み -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
     :root {
-      --bg: #121013;             /* 劇団の重厚感あるダーク背景 */
-      --card-bg: #1a171c;
-      --card-border: #2c252d;
-      --text: #f5f2eb;
-      --text-sub: #b3aca6;
-      --pink-bg: #4a1f2b;        /* 上演中などのワインレッドのアクセント背景 */
-      --red-text: #ff99b3;       /* 映える明るいピンク赤 */
-      --btn-bg: #282129;
-      --border: #382f3a;
-      --tab-active-bg: #7c2946;
+      --bg: #e6e6e6;             /* 劇団四季風のグレー背景 */
+      --card-outer: #e0e0e0;     /* カード外枠・ヘッダー背景 */
+      --card-bg: #ffffff;
+      --text: #000000;
+      --text-sub: #555555;
+      --pink-bg: #fde8ed;        /* 上演中！等のピンク背景 */
+      --red-text: #cc0000;       /* 上演中！の赤文字 */
+      --btn-gray: #dcdcdc;       /* 右側ボタンのグレー */
+      --border: #cccccc;
+      --tab-active-bg: #ffffff;
       --wine: #7c2946;           /* StageLinkのブランドカラー */
-      --gold: #d4af37;           /* 高級感のあるゴールド */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      /* AI感を消すため、游明朝・Noto Serif JPなどの美しい明朝体をベースに設定 */
-      font-family: "Yu Mincho", "游明朝", "Noto Serif JP", "Times New Roman", serif;
+      font-family: 'Noto Sans JP', sans-serif;
       background: var(--bg);
       color: var(--text);
       padding-bottom: 60px;
-      letter-spacing: 0.05em;
     }
 
     .container {
       max-width: 1100px;
-      margin: 30px auto 0;
+      margin: 20px auto 0;
       padding: 0 16px;
     }
 
-    /* 上部ナビゲーションタブ */
+    /* 上部ナビゲーションタブ（四季風） */
     .top-tabs {
       display: flex;
-      background: #181519;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-      margin-bottom: 24px;
+      background: #f0f0f0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
     }
     .top-tab {
       flex: 1;
       padding: 16px 10px;
       text-align: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-sub);
-      background: transparent;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      background: #e8e8e8;
       border: none;
       border-right: 1px solid var(--border);
       cursor: pointer;
@@ -65,33 +59,23 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: 0.3s;
-      font-family: inherit;
     }
     .top-tab:last-child { border-right: none; }
-    .top-tab:hover {
-      color: var(--text);
-      background: rgba(124, 41, 70, 0.2);
-    }
     .top-tab.active {
-      background: var(--wine);
-      color: #ffffff;
-      font-weight: 700;
+      background: var(--tab-active-bg);
+      border-top: 3px solid var(--wine);
     }
 
-    /* メインコンテンツエリア */
+    /* メインコンテンツエリア（白い枠線付き背景） */
     .content-box {
-      background: var(--card-bg);
-      padding: 40px;
-      border-radius: 8px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
     .section-header {
-      margin-bottom: 30px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 15px;
+      margin-bottom: 24px;
     }
     .section-title {
       font-size: 22px;
@@ -102,118 +86,99 @@
       justify-content: space-between;
     }
     .count-badge {
-      font-size: 13px;
-      color: var(--gold);
-      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: normal;
+      color: var(--text-sub);
     }
 
     /* 検索バー */
     .filter-bar {
-      margin-top: 15px;
+      margin-top: 12px;
       display: flex;
       gap: 10px;
     }
     .search-input {
-      padding: 10px 16px;
-      background: #121013;
-      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border: 1px solid #ccc;
       border-radius: 4px;
-      font-size: 14px;
-      color: var(--text);
+      font-size: 13px;
       width: 100%;
-      max-width: 320px;
-      font-family: inherit;
-      outline: none;
-      transition: 0.3s;
-    }
-    .search-input:focus {
-      border-color: var(--gold);
+      max-width: 300px;
     }
 
-    /* グリッドレイアウト（2列） */
+    /* 四季風 グリッドレイアウト（2列） */
     .shiki-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
+      gap: 20px;
     }
 
-    /* カードデザイン */
+    /* 四季風 カードデザイン */
     .shiki-card {
-      background: #211c23;
-      border-radius: 6px;
+      background: #ececec;
+      border-radius: 4px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid #d4d4d4;
       display: flex;
       flex-direction: column;
-      transition: 0.3s;
-    }
-    .shiki-card:hover {
-      border-color: var(--wine);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124, 41, 70, 0.2);
     }
 
     .card-top {
-      padding: 20px;
+      padding: 16px;
       display: flex;
-      gap: 16px;
-      background: #211c23;
-      min-height: 110px;
+      gap: 14px;
+      background: #ececec;
+      min-height: 100px;
     }
     .card-thumb {
-      width: 75px;
-      height: 75px;
-      background: linear-gradient(135deg, var(--wine), #3a111f);
-      color: var(--gold);
+      width: 70px;
+      height: 70px;
+      background: var(--wine);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
+      font-weight: bold;
+      font-size: 14px;
       border-radius: 4px;
       flex-shrink: 0;
       text-align: center;
       padding: 4px;
-      font-family: 'Playfair Display', serif;
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      line-height: 1.4;
     }
     .card-info {
       flex-grow: 1;
     }
     .card-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 6px;
-      line-height: 1.4;
+      margin-bottom: 4px;
+      line-height: 1.3;
     }
     .card-subtitle {
       font-size: 12px;
-      color: var(--gold);
-      margin-bottom: 6px;
+      color: #0056b3;
+      margin-bottom: 4px;
       display: inline-block;
-      letter-spacing: 0.08em;
     }
     .card-desc {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-sub);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      line-height: 1.6;
+      line-height: 1.4;
     }
 
     .card-bottom {
-      background: #181519;
-      padding: 14px;
+      background: #ffffff;
+      padding: 12px;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
-      margin: 0 14px 14px 14px;
+      margin: 0 12px 12px 12px;
       border-radius: 4px;
-      border: 1px solid var(--border);
     }
 
     .status-box {
@@ -226,18 +191,16 @@
       flex-direction: column;
       justify-content: center;
       min-height: 64px;
-      border: 1px solid rgba(255, 153, 179, 0.2);
     }
     .status-main {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--red-text);
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .status-sub {
       font-size: 11px;
       color: var(--text-sub);
-      font-family: 'Playfair Display', serif;
     }
 
     .action-btns {
@@ -248,43 +211,38 @@
       flex-shrink: 0;
     }
     .btn-shiki {
-      background: var(--btn-bg);
+      background: var(--btn-gray);
       color: var(--text);
       text-decoration: none;
-      padding: 8px 12px;
+      padding: 8px 10px;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 700;
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: flex-start;
       gap: 6px;
-      border: 1px solid var(--border);
+      border: 1px solid #c8c8c8;
       cursor: pointer;
-      font-family: inherit;
-      transition: 0.2s;
     }
     .btn-shiki:hover {
-      background: var(--wine);
-      color: #fff;
-      border-color: var(--wine);
+      background: #d0d0d0;
     }
     .btn-shiki::before {
       content: '›';
       font-size: 16px;
       font-weight: bold;
-      color: var(--gold);
+      color: #333;
     }
 
     .loading, .empty {
       grid-column: span 2;
       text-align: center;
-      padding: 50px;
+      padding: 40px;
       color: var(--text-sub);
-      background: #181519;
-      border-radius: 6px;
-      border: 1px dashed var(--border);
-      font-size: 14px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border: 1px dashed #ccc;
     }
 
     .hidden { display: none !important; }
@@ -298,7 +256,7 @@
       padding: 0 30px;
       height: 90px;
       position: relative;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       font-family: sans-serif;
     }
 
@@ -409,7 +367,6 @@
       text-decoration: none;
       font-size: 16px;
       border-bottom: 1px solid #222;
-      font-family: inherit;
     }
 
     /* 暗い背景レイヤー */
@@ -512,7 +469,7 @@
   
 <div class="container">
 
-  <!-- トップタブ -->
+  <!-- 四季風 トップタブ -->
   <div class="top-tabs">
     <button class="top-tab active" onclick="switchTab('all', this)">
       <span></span> スケジュール一覧
@@ -546,7 +503,7 @@
     </div>
 
     <!-- 2. ビラ折込スケジュールエリア -->
-    <div id="requests-section" style="margin-top: 50px;">
+    <div id="requests-section" style="margin-top: 40px;">
       <div class="section-header">
         <div class="section-title">
           <span>ビラ折込スケジュール</span>
@@ -569,12 +526,14 @@
   let allEvents = [];
   let allRequests = [];
 
+  // ① ビラネ用 Supabase 設定
   const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
   });
 
+  // ② 企画用 Supabase 設定
   const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
   const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
@@ -585,6 +544,7 @@
     fetchAllData();
   });
 
+  // タブ切り替え
   function switchTab(type, btnElement) {
     document.querySelectorAll('.top-tab').forEach(btn => btn.classList.remove('active'));
     btnElement.classList.add('active');
@@ -604,6 +564,7 @@
     }
   }
 
+  // データ取得
   async function fetchAllData() {
     const { data: eventsData, error: eventsError } = await dbEvents.from('events').select('*');
     if (eventsError) {
@@ -630,6 +591,7 @@
     renderRequests(allRequests);
   }
 
+  // 企画絞り込み
   function filterEvents() {
     const keyword = document.getElementById('events-search').value.toLowerCase();
     const filtered = allEvents.filter(item => {
@@ -641,6 +603,7 @@
     renderEvents(filtered);
   }
 
+  // 折込絞り込み
   function filterRequests() {
     const keyword = document.getElementById('requests-search').value.toLowerCase();
     const filtered = allRequests.filter(item => {
@@ -651,6 +614,7 @@
     renderRequests(filtered);
   }
 
+  // 企画描画（四季風2列カード）
   function renderEvents(events) {
     const container = document.getElementById('events-container');
     document.getElementById('events-count').textContent = `（${events.length}件）`;
@@ -679,7 +643,7 @@
           </div>
           <div class="card-bottom">
             <div class="status-box">
-              <div class="status-main">受付中</div>
+              <div class="status-main">受付中！</div>
               <div class="status-sub">ID: #${item.id}</div>
             </div>
             <div class="action-btns">
@@ -693,6 +657,7 @@
     });
   }
 
+  // ビラ折込描画（四季風2列カード）
   function renderRequests(requests) {
     const container = document.getElementById('requests-container');
     document.getElementById('requests-count').textContent = `（${requests.length}件）`;
@@ -709,7 +674,7 @@
       const copies = item.copies ? `${item.copies}部` : '部数未設定';
       const size = item.size ? `(${item.size})` : '';
       const statusCode = item.status || '';
-      const statusText = statusCode === 'accepted' ? '承認済み' : (statusCode === 'pending' ? '申請中' : '受付中');
+      const statusText = statusCode === 'accepted' ? '承認済み！' : (statusCode === 'pending' ? '申請中' : '受付中！');
       const delivery = item.deliveryMethod || item.delivery_method || '未定';
 
       const cardHtml = `
@@ -747,6 +712,7 @@
       .replace(/"/g, '&quot;');
   }
 
+  /* サイドメニューの開閉処理 */
   const hamburgerBtn = document.querySelector(".hamburger");
   const pcMenuBtn = document.querySelector(".pc-menu-btn");
   const globalDropdown = document.getElementById("global-dropdown");
