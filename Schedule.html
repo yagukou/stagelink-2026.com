@@ -9,101 +9,179 @@
   
   <style>
     :root {
-      --bg: #fcfbf9;
+      --bg: #f8fafc;
       --card-bg: #ffffff;
-      --text: #1f1a16;
+      --text: #1e293b;
+      --text-sub: #64748b;
       --wine: #7c2946;
+      --wine-light: #fdf2f4;
       --wine-dark: #4a1428;
       --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --transition: all 0.2s ease;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: 'Noto Sans JP', sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 40px 20px;
+      padding: 40px 16px;
+      line-height: 1.6;
     }
+
     .container {
       max-width: 900px;
       margin: 0 auto;
     }
-    h1 {
-      font-size: 28px;
-      color: var(--wine-dark);
-      margin-bottom: 24px;
-      border-bottom: 3px solid var(--wine);
-      padding-bottom: 8px;
+
+    /* ヘッダー */
+    .page-header {
+      margin-bottom: 32px;
     }
-    h2 {
-      font-size: 20px;
-      color: var(--wine-dark);
-      margin: 36px 0 16px 0;
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
-    h2::before {
+    h1::before {
       content: '';
-      display: inline-block;
-      width: 6px;
-      height: 20px;
+      width: 8px;
+      height: 28px;
       background: var(--wine);
-      border-radius: 3px;
+      border-radius: 4px;
     }
 
-    .schedule-list {
+    /* 検索・フィルターコントロールパネル */
+    .filter-panel {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 32px;
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
+    .filter-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 240px;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: var(--transition);
+      background: #fafafa;
+    }
+    .search-input:focus {
+      border-color: var(--wine);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(124, 41, 70, 0.1);
+    }
+    .filter-select {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      background: #fafafa;
+      cursor: pointer;
+      color: var(--text);
+      transition: var(--transition);
+    }
+    .filter-select:focus {
+      border-color: var(--wine);
+      background: #fff;
+    }
+
+    /* セクションタイトル */
+    h2 {
+      font-size: 18px;
+      color: var(--wine-dark);
+      margin: 32px 0 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .count-badge {
+      font-size: 12px;
+      background: var(--wine-light);
+      color: var(--wine);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    /* リスト＆カードデザイン */
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
     .schedule-item {
       background: var(--card-bg);
-      border-radius: 8px;
+      border-radius: var(--radius);
       padding: 20px;
       display: flex;
       align-items: center;
       gap: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      border-left: 5px solid var(--wine);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: var(--transition);
     }
     .schedule-item:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
+      border-color: #cbd5e1;
     }
     
+    /* 日付バッジ */
     .date-badge {
-      background: var(--wine);
-      color: white;
-      padding: 10px 16px;
-      border-radius: 6px;
+      background: var(--wine-light);
+      color: var(--wine-dark);
+      border: 1px solid rgba(124, 41, 70, 0.15);
+      padding: 10px 14px;
+      border-radius: 8px;
       text-align: center;
-      min-width: 110px;
+      min-width: 105px;
       flex-shrink: 0;
     }
-    .date-badge .label { font-size: 11px; opacity: 0.9; }
-    .date-badge .date { font-size: 15px; font-weight: bold; }
+    .date-badge .label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--wine); }
+    .date-badge .date { font-size: 14px; font-weight: 700; margin-top: 2px; }
 
+    /* メインコンテンツ */
     .schedule-content {
       flex-grow: 1;
       overflow-wrap: anywhere;
       word-break: break-word;
     }
     .schedule-title {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 16px;
+      font-weight: 700;
       color: var(--text);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .schedule-subtitle {
       font-size: 13px;
       color: var(--wine);
       font-weight: 500;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .schedule-desc {
       font-size: 13px;
-      color: #666;
+      color: var(--text-sub);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -111,36 +189,63 @@
       line-height: 1.5;
     }
 
+    /* メタ情報（部数やステータス） */
     .schedule-meta {
       text-align: right;
       font-size: 13px;
-      color: #555;
+      color: var(--text-sub);
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
     }
     .schedule-copies {
       font-size: 15px;
-      font-weight: bold;
-      color: var(--wine);
-      margin-bottom: 4px;
+      font-weight: 700;
+      color: var(--text);
     }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .status-accepted { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef9c3; color: #854d0e; }
+    .status-default { background: #f1f5f9; color: #475569; }
 
+    /* ローディング・空の状態 */
     .loading, .empty {
       text-align: center;
-      padding: 30px;
-      color: #777;
-      background: #fff;
-      border-radius: 8px;
+      padding: 40px;
+      color: var(--text-sub);
+      background: var(--card-bg);
+      border-radius: var(--radius);
       border: 1px dashed var(--border);
+      font-size: 14px;
     }
 
-    @media (max-width: 600px) {
+    /* レスポンシブ対応 */
+    @media (max-width: 680px) {
+      body { padding: 20px 12px; }
       .schedule-item {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
       }
       .date-badge, .schedule-meta {
         width: 100%;
-        text-align: center;
+        text-align: left;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .schedule-meta {
+        align-items: center;
+        border-top: 1px solid var(--border);
+        padding-top: 8px;
       }
     }
   </style>
@@ -148,153 +253,191 @@
 <body>
 
 <div class="container">
-  <h1>スケジュール一覧</h1>
+  <div class="page-header">
+    <h1>スケジュール一覧</h1>
+  </div>
+
+  <!-- 検索・絞り込みパネル -->
+  <div class="filter-panel">
+    <div class="filter-row">
+      <input type="text" id="search-input" class="search-input" placeholder="キーワードで検索（タイトル、劇団名、内容など）..." oninput="filterSchedules()">
+      <select id="status-filter" class="filter-select" onchange="filterSchedules()">
+        <option value="">すべてのステータス</option>
+        <option value="accepted">承認済み</option>
+        <option value="pending">申請中</option>
+      </select>
+    </div>
+  </div>
 
   <!-- 1. 公演・企画スケジュールエリア -->
-  <h2>公演・企画スケジュール</h2>
+  <h2>
+    <span>公演・企画スケジュール</span>
+    <span id="events-count" class="count-badge">0件</span>
+  </h2>
   <div id="events-container" class="schedule-list">
     <div class="loading">企画スケジュール情報を読み込んでいます...</div>
   </div>
 
-  <!-- 2. ビラ折込スケジュールエリア（ビラネ連動） -->
-  <h2>ビラ折込スケジュール</h2>
+  <!-- 2. ビラ折込スケジュールエリア -->
+  <h2>
+    <span>ビラ折込スケジュール</span>
+    <span id="requests-count" class="count-badge">0件</span>
+  </h2>
   <div id="requests-container" class="schedule-list">
     <div class="loading">折込スケジュール情報を読み込んでいます...</div>
   </div>
 </div>
 
 <script>
+  // グローバル変数として保持（フィルタリング用）
+  let allEvents = [];
+  let allRequests = [];
+
   // ① ビラネ用 Supabase 設定
   const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
-
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false
-    }
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
   });
 
   // ② 企画用 Supabase 設定
   const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
-
   const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
-    auth: { 
-      persistSession: false, 
-      autoRefreshToken: false, 
-      detectSessionInUrl: false 
-    }
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
   });
 
-  // 画面の準備完了時に安全に呼び出す（必須）
   document.addEventListener('DOMContentLoaded', () => {
-    fetchEvents();
-    fetchRequests();
+    fetchAllData();
   });
 
-  // ①【企画スケジュール】dbEvents から取得するよう修正
-  async function fetchEvents() {
-    const container = document.getElementById('events-container');
-
-    // ★ db ではなく dbEvents に変更
-    const { data, error } = await dbEvents
-      .from('events')
-      .select('*');
-
-    if (error) {
-      console.error('Events取得エラー:', error);
-      container.innerHTML = `<div class="empty" style="color:red;">取得エラー: ${escapeHtml(error.message)}</div>`;
-      return;
+  // データの一括取得
+  async function fetchAllData() {
+    // 企画データ取得
+    const { data: eventsData, error: eventsError } = await dbEvents.from('events').select('*');
+    if (eventsError) {
+      console.error('Events取得エラー:', eventsError);
+      document.getElementById('events-container').innerHTML = `<div class="empty" style="color:red;">取得エラー: ${escapeHtml(eventsError.message)}</div>`;
+    } else {
+      allEvents = eventsData || [];
     }
 
-    if (!data || data.length === 0) {
-      container.innerHTML = '<div class="empty">現在予定されている企画スケジュールはありません。</div>';
-      return;
+    // 折込データ取得
+    const { data: requestsData, error: requestsError } = await db.from('requests').select('*');
+    if (requestsError) {
+      console.error('Requests取得エラー:', requestsError);
+      document.getElementById('requests-container').innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(requestsError.message)}</div>`;
+    } else {
+      allRequests = requestsData || [];
+      // 日付順ソート
+      allRequests.sort((a, b) => {
+        const dateA = a.foldingDate || a.folding_date || '';
+        const dateB = b.foldingDate || b.folding_date || '';
+        return dateB.localeCompare(dateA);
+      });
     }
 
-    container.innerHTML = '';
-
-    data.forEach(item => {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.description || '';
-      const plainText = tempDiv.textContent || tempDiv.innerText || '';
-
-      const subtitleHtml = item.subtitle ? `<div class="schedule-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
-
-      const itemHtml = `
-        <div class="schedule-item">
-          <div class="date-badge">
-            <div class="label">ID</div>
-            <div class="date">#${item.id}</div>
-          </div>
-          <div class="schedule-content">
-            <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
-            ${subtitleHtml}
-            <div class="schedule-desc">${escapeHtml(plainText)}</div>
-          </div>
-        </div>
-      `;
-
-      container.insertAdjacentHTML('beforeend', itemHtml);
-    });
+    renderUI(allEvents, allRequests);
   }
 
-  // ②【ビラ折込スケジュール】db から取得
-  async function fetchRequests() {
-    const container = document.getElementById('requests-container');
+  // 検索・フィルタリング処理
+  function filterSchedules() {
+    const keyword = document.getElementById('search-input').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value;
 
-    const { data: requests, error } = await db
-      .from('requests')
-      .select('*');
-
-    if (error) {
-      console.error('Requests取得エラー:', error);
-      container.innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(error.message)}</div>`;
-      return;
-    }
-
-    if (!requests || requests.length === 0) {
-      container.innerHTML = '<div class="empty">現在登録されている折込予定はありません。</div>';
-      return;
-    }
-
-    container.innerHTML = '';
-
-    requests.sort((a, b) => {
-      const dateA = a.foldingDate || a.folding_date || '';
-      const dateB = b.foldingDate || b.folding_date || '';
-      return dateB.localeCompare(dateA);
+    // 企画データのフィルタ
+    const filteredEvents = allEvents.filter(item => {
+      const title = (item.title || '').toLowerCase();
+      const subtitle = (item.subtitle || '').toLowerCase();
+      const desc = (item.description || '').toLowerCase();
+      return title.includes(keyword) || subtitle.includes(keyword) || desc.includes(keyword);
     });
 
-    requests.forEach(item => {
-      const foldingDate = item.foldingDate || item.folding_date || '日付未定';
-      const troupeName = item.fromName || item.troupe_name || item.from_name || '名称未設定';
-      const copies = item.copies ? `${item.copies}部` : '部数未設定';
-      const size = item.size ? `(${item.size})` : '';
-      const status = item.status === 'accepted' ? '承認済み' : (item.status === 'pending' ? '申請中' : item.status || '受付中');
-      const delivery = item.deliveryMethod || item.delivery_method || '未定';
+    // 折込データのフィルタ
+    const filteredRequests = allRequests.filter(item => {
+      const troupeName = (item.fromName || item.troupe_name || item.from_name || '').toLowerCase();
+      const delivery = (item.deliveryMethod || item.delivery_method || '').toLowerCase();
+      const status = item.status || '';
+      
+      const matchKeyword = troupeName.includes(keyword) || delivery.includes(keyword);
+      const matchStatus = statusFilter === "" || status === statusFilter;
 
-      const itemHtml = `
-        <div class="schedule-item">
-          <div class="date-badge">
-            <div class="label">折込予定日</div>
-            <div class="date">${escapeHtml(foldingDate)}</div>
-          </div>
-          <div class="schedule-content">
-            <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
-            <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
-          </div>
-          <div class="schedule-meta">
-            <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
-            <div>ステータス: <strong>${escapeHtml(status)}</strong></div>
-          </div>
-        </div>
-      `;
-
-      container.insertAdjacentHTML('beforeend', itemHtml);
+      return matchKeyword && matchStatus;
     });
+
+    renderUI(filteredEvents, filteredRequests);
+  }
+
+  // UI描画関数
+  function renderUI(events, requests) {
+    const eventsContainer = document.getElementById('events-container');
+    const requestsContainer = document.getElementById('requests-container');
+    
+    document.getElementById('events-count').textContent = `${events.length}件`;
+    document.getElementById('requests-count').textContent = `${requests.length}件`;
+
+    // 1. 企画スケジュールの描画
+    if (events.length === 0) {
+      eventsContainer.innerHTML = '<div class="empty">該当する企画スケジュールはありません。</div>';
+    } else {
+      eventsContainer.innerHTML = '';
+      events.forEach(item => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = item.description || '';
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+        const subtitleHtml = item.subtitle ? `<div class="schedule-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
+
+        const itemHtml = `
+          <div class="schedule-item">
+            <div class="date-badge">
+              <div class="label">ID</div>
+              <div class="date">#${item.id}</div>
+            </div>
+            <div class="schedule-content">
+              <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
+              ${subtitleHtml}
+              <div class="schedule-desc">${escapeHtml(plainText)}</div>
+            </div>
+          </div>
+        `;
+        eventsContainer.insertAdjacentHTML('beforeend', itemHtml);
+      });
+    }
+
+    // 2. ビラ折込スケジュールの描画
+    if (requests.length === 0) {
+      requestsContainer.innerHTML = '<div class="empty">該当する折込予定はありません。</div>';
+    } else {
+      requestsContainer.innerHTML = '';
+      requests.forEach(item => {
+        const foldingDate = item.foldingDate || item.folding_date || '日付未定';
+        const troupeName = item.fromName || item.troupe_name || item.from_name || '名称未設定';
+        const copies = item.copies ? `${item.copies}部` : '部数未設定';
+        const size = item.size ? `(${item.size})` : '';
+        const statusCode = item.status || '';
+        const statusText = statusCode === 'accepted' ? '承認済み' : (statusCode === 'pending' ? '申請中' : statusCode || '受付中');
+        const statusClass = statusCode === 'accepted' ? 'status-accepted' : (statusCode === 'pending' ? 'status-pending' : 'status-default');
+        const delivery = item.deliveryMethod || item.delivery_method || '未定';
+
+        const itemHtml = `
+          <div class="schedule-item">
+            <div class="date-badge">
+              <div class="label">折込予定日</div>
+              <div class="date">${escapeHtml(foldingDate)}</div>
+            </div>
+            <div class="schedule-content">
+              <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
+              <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
+            </div>
+            <div class="schedule-meta">
+              <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
+              <div><span class="status-badge ${statusClass}">${escapeHtml(statusText)}</span></div>
+            </div>
+          </div>
+        `;
+        requestsContainer.insertAdjacentHTML('beforeend', itemHtml);
+      });
+    }
   }
 
   function escapeHtml(str) {
