@@ -269,6 +269,182 @@
 
     .hidden { display: none !important; }
 
+　　/* --- ヘッダー：赤背景・チケット配置 --- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #b90e0e !important; 
+      padding: 0 30px;
+      height: 90px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-family: sans-serif;
+    }
+
+    .menu-left, .menu-right {
+      display: flex;
+      gap: 15px;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .logo {
+      text-decoration: none;
+      font-family: "Times New Roman", serif;
+      letter-spacing: 3px;
+      text-align: center;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;  
+      align-items: center;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%); 
+      z-index: 1;
+      max-width: 40%;  
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .logo-main {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      color: #ffffff; 
+    }
+
+    .logo-sub {   
+      font-size: 13px;   
+      letter-spacing: 2px;
+      color: #d4af37; 
+      margin-top: 2px;
+    }
+
+    .menu-1 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent !important; 
+      box-shadow: none !important;
+      width: auto !important;   
+      height: auto !important;  
+      padding: 5px 10px;
+      transition: 0.3s;
+      text-decoration: none;
+    }
+
+    .menu-1 img {
+       width: 30px;
+       height: 30px;
+       margin-bottom: 5px;
+    }
+
+    .menu-1 span {
+      display: block;
+      width: 100%;
+      text-align: center;       
+      margin-top: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff !important; 
+    }
+
+    .menu-1:hover {
+      transform: translateY(-3px);
+    }
+
+    .hamburger { display: none; }
+
+    /* 🌐 右側からスライドインするメニュー */
+    #global-dropdown {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100vh;
+      background: #111111;
+      box-shadow: -5px 0 25px rgba(0,0,0,0.7);
+      z-index: 9999;
+      display: flex; 
+      flex-direction: column;
+      padding-top: 60px;
+      transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    #global-dropdown.open {
+      right: 0;
+    }
+
+    #global-dropdown a {
+      color: #fff;
+      padding: 20px 30px;
+      text-decoration: none;
+      font-size: 16px;
+      border-bottom: 1px solid #222;
+    }
+
+    /* 暗い背景レイヤー */
+    #menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 9998;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    #menu-overlay.open {
+      display: block;
+      opacity: 1;
+    }
+
+    /* スマホ対応 */
+    @media (max-width: 768px) {
+      header { 
+        height: 70px !important; 
+        padding: 0 20px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+      }
+
+      .logo { 
+        position: absolute; 
+        left: 50%; 
+        top: 50%; 
+        transform: translate(-50%, -50%); 
+        margin: 0; 
+        max-width: 55% !important; 
+      }
+      .logo-main { font-size: 20px; }
+      .logo-sub { font-size: 11px; }
+
+      .menu-left, .menu-right { display: none !important; }
+
+      .hamburger {
+        display: block !important;
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        font-size: 28px;
+        color: white !important; 
+        cursor: pointer;
+        z-index: 9999 !important;
+        font-family: sans-serif;
+        line-height: 1;
+      }
+    }
+
     /* レスポンシブ対応（スマホで1列） */
     @media (max-width: 768px) {
       body { padding: 10px; }
@@ -282,6 +458,42 @@
 </head>
 <body>
 
+  <!-- 背景オーバーレイ -->
+  <div id="menu-overlay"></div>
+
+  <!-- ヘッダー -->
+  <header>
+    <div class="menu-left">
+      <a href="what.html" class="menu-1"><img src="what3.png"><span>企画</span></a>
+      <a href="Participant.html" class="menu-1"><img src="Participant3.png"><span>ビラネット</span></a>
+      <a href="Schedule.html" class="menu-1"><img src="Schedule3.png"><span>スケジュール</span></a>
+    </div>
+
+    <a href="index.html" class="logo">
+      <div class="logo-main">StageLink</div>
+      <div class="logo-sub">Official Website</div>
+    </a>
+
+    <div class="menu-right">
+      <a href="news.html" class="menu-1"><img src="news3.png"><span>ニュース</span></a>
+      <a href="Inquiry.html" class="menu-1"><img src="Inquiry3.png"><span>お問い合わせ</span></a>
+      <a href="#" class="menu-1 pc-menu-btn"><img src="menu3.png"><span>メニュー</span></a>
+    </div>
+
+    <div class="hamburger">☰</div>
+  </header>
+
+  <!-- ハンバーガーメニューの中身 -->
+  <nav id="global-dropdown">
+    <a href="Philosophy.html">・私たちの思い ーPhilosophy</a>
+    <a href="what.html">・企画紹介</a>
+    <a href="Participant.html">・ビラネット</a>
+    <a href="Schedule.html">・スケジュール</a>
+    <a href="news.html">・ニュース</a>
+    <a href="member.html">・メンバー</a>
+    <a href="Inquiry.html">・お問い合わせ</a>
+  </nav>
+  
 <div class="container">
 
   <!-- 四季風 トップタブ -->
@@ -526,6 +738,32 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
   }
+
+  /* サイドメニューの開閉処理 */
+    const hamburgerBtn = document.querySelector(".hamburger");
+    const pcMenuBtn = document.querySelector(".pc-menu-btn");
+    const globalDropdown = document.getElementById("global-dropdown");
+    const menuOverlay = document.getElementById("menu-overlay");
+
+    function toggleMenu(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      globalDropdown.classList.toggle("open");
+      menuOverlay.classList.toggle("open");
+    }
+
+    if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
+    if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
+    if (menuOverlay) menuOverlay.onclick = toggleMenu;
+
+    document.querySelectorAll("#global-dropdown a").forEach(link => {
+      link.onclick = () => {
+        globalDropdown.classList.remove("open");
+        menuOverlay.classList.remove("open");
+      };
+    });
 </script>
 
 </body>
