@@ -39,7 +39,7 @@
 
     /* ヘッダー */
     .page-header {
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
     h1 {
       font-size: 26px;
@@ -57,12 +57,43 @@
       border-radius: 4px;
     }
 
+    /* タブ切り替えボタン（画像風デザイン） */
+    .tab-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .tab-btn {
+      background: #f1f5f9;
+      color: var(--text-sub);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    .tab-btn:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .tab-btn.active {
+      background: var(--text);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
     /* セクションごと個別のコントロールパネル */
     .section-header-area {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin: 36px 0 16px 0;
+      margin: 24px 0 16px 0;
       flex-wrap: wrap;
       gap: 12px;
     }
@@ -124,6 +155,13 @@
       flex-direction: column;
       gap: 12px;
     }
+    .schedule-section {
+      display: block;
+    }
+    .schedule-section.hidden {
+      display: none !important;
+    }
+
     .schedule-item {
       background: var(--card-bg);
       border-radius: var(--radius);
@@ -254,37 +292,48 @@
     <h1>スケジュール一覧</h1>
   </div>
 
-  <!-- 1. 公演・企画スケジュールセクション -->
-  <div class="section-header-area">
-    <h2>
-      <span>公演・企画スケジュール</span>
-      <span id="events-count" class="count-badge">0件</span>
-    </h2>
-    <div class="filter-controls">
-      <input type="text" id="events-search" class="search-input" placeholder="企画をキーワード検索..." oninput="filterEvents()">
-    </div>
+  <!-- ピル型切り替えタブ -->
+  <div class="tab-container">
+    <button class="tab-btn active" onclick="switchTab('all', this)">すべて</button>
+    <button class="tab-btn" onclick="switchTab('events', this)">公演・企画スケジュール</button>
+    <button class="tab-btn" onclick="switchTab('requests', this)">ビラ折込スケジュール</button>
   </div>
-  <div id="events-container" class="schedule-list">
-    <div class="loading">企画スケジュール情報を読み込んでいます...</div>
+
+  <!-- 1. 公演・企画スケジュールセクション -->
+  <div id="events-wrapper" class="schedule-section">
+    <div class="section-header-area">
+      <h2>
+        <span>公演・企画スケジュール</span>
+        <span id="events-count" class="count-badge">0件</span>
+      </h2>
+      <div class="filter-controls">
+        <input type="text" id="events-search" class="search-input" placeholder="企画をキーワード検索..." oninput="filterEvents()">
+      </div>
+    </div>
+    <div id="events-container" class="schedule-list">
+      <div class="loading">企画スケジュール情報を読み込んでいます...</div>
+    </div>
   </div>
 
   <!-- 2. ビラ折込スケジュールセクション -->
-  <div class="section-header-area">
-    <h2>
-      <span>ビラ折込スケジュール</span>
-      <span id="requests-count" class="count-badge">0件</span>
-    </h2>
-    <div class="filter-controls">
-      <input type="text" id="requests-search" class="search-input" placeholder="劇団名などを検索..." oninput="filterRequests()">
-      <select id="status-filter" class="filter-select" onchange="filterRequests()">
-        <option value="">すべてのステータス</option>
-        <option value="accepted">承認済み</option>
-        <option value="pending">申請中</option>
-      </select>
+  <div id="requests-wrapper" class="schedule-section">
+    <div class="section-header-area">
+      <h2>
+        <span>ビラ折込スケジュール</span>
+        <span id="requests-count" class="count-badge">0件</span>
+      </h2>
+      <div class="filter-controls">
+        <input type="text" id="requests-search" class="search-input" placeholder="劇団名などを検索..." oninput="filterRequests()">
+        <select id="status-filter" class="filter-select" onchange="filterRequests()">
+          <option value="">すべてのステータス</option>
+          <option value="accepted">承認済み</option>
+          <option value="pending">申請中</option>
+        </select>
+      </div>
     </div>
-  </div>
-  <div id="requests-container" class="schedule-list">
-    <div class="loading">折込スケジュール情報を読み込んでいます...</div>
+    <div id="requests-container" class="schedule-list">
+      <div class="loading">折込スケジュール情報を読み込んでいます...</div>
+    </div>
   </div>
 </div>
 
@@ -309,6 +358,27 @@
   document.addEventListener('DOMContentLoaded', () => {
     fetchAllData();
   });
+
+  // タブ切り替え機能
+  function switchTab(type, btnElement) {
+    // タブのアクティブ状態切り替え
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+
+    const eventsWrapper = document.getElementById('events-wrapper');
+    const requestsWrapper = document.getElementById('requests-wrapper');
+
+    if (type === 'all') {
+      eventsWrapper.classList.remove('hidden');
+      requestsWrapper.classList.remove('hidden');
+    } else if (type === 'events') {
+      eventsWrapper.classList.remove('hidden');
+      requestsWrapper.classList.add('hidden');
+    } else if (type === 'requests') {
+      eventsWrapper.classList.add('hidden');
+      requestsWrapper.classList.remove('hidden');
+    }
+  }
 
   // データの一括取得
   async function fetchAllData() {
@@ -429,7 +499,7 @@
             <div class="date">${escapeHtml(foldingDate)}</div>
           </div>
           <div class="schedule-content">
-            <div class="schedule-title">折り込み：${escapeHtml(troupeName)}</div>
+            <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
             <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
           </div>
           <div class="schedule-meta">
