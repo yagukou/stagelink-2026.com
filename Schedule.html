@@ -33,7 +33,8 @@
 
     .container {
       max-width: 1100px;
-      margin: 0 auto;
+      margin: 20px auto 0;
+      padding: 0 16px;
     }
 
     /* 上部ナビゲーションタブ（四季風） */
@@ -65,24 +66,6 @@
       border-top: 3px solid var(--wine);
     }
 
-    /* フィルター・カテゴリリンク風（地域ナビ） */
-    .sub-nav {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 15px 0;
-      font-size: 14px;
-      color: #0056b3;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .sub-nav a {
-      color: #0056b3;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .sub-nav a:hover { text-decoration: underline; }
-
     /* メインコンテンツエリア（白い枠線付き背景） */
     .content-box {
       background: #ffffff;
@@ -108,7 +91,7 @@
       color: var(--text-sub);
     }
 
-    /* 検索バー（実用性追加） */
+    /* 検索バー */
     .filter-bar {
       margin-top: 12px;
       display: flex;
@@ -130,7 +113,7 @@
       gap: 20px;
     }
 
-    /* 四季風 1カードデザイン */
+    /* 四季風 カードデザイン */
     .shiki-card {
       background: #ececec;
       border-radius: 4px;
@@ -140,7 +123,6 @@
       flex-direction: column;
     }
 
-    /* カード上部（タイトル＆アイコン/サムネイル） */
     .card-top {
       padding: 16px;
       display: flex;
@@ -189,7 +171,6 @@
       line-height: 1.4;
     }
 
-    /* カード下部（ピンク/グレーのアクションエリア） */
     .card-bottom {
       background: #ffffff;
       padding: 12px;
@@ -200,7 +181,6 @@
       border-radius: 4px;
     }
 
-    /* 左側：状態表示エリア（上演中風ピンク背景） */
     .status-box {
       flex: 1;
       background: var(--pink-bg);
@@ -223,7 +203,6 @@
       color: var(--text-sub);
     }
 
-    /* 右側：ボタンエリア */
     .action-btns {
       display: flex;
       flex-direction: column;
@@ -256,7 +235,6 @@
       color: #333;
     }
 
-    /* ローディング・空の状態 */
     .loading, .empty {
       grid-column: span 2;
       text-align: center;
@@ -269,7 +247,7 @@
 
     .hidden { display: none !important; }
 
-　　/* --- ヘッダー：赤背景・チケット配置 --- */
+    /* --- ヘッダー：赤背景・チケット配置 --- */
     header {
       display: flex;
       justify-content: space-between;
@@ -443,12 +421,7 @@
         font-family: sans-serif;
         line-height: 1;
       }
-    }
 
-    /* レスポンシブ対応（スマホで1列） */
-    @media (max-width: 768px) {
-      body { padding: 10px; }
-      .content-box { padding: 16px; }
       .shiki-grid { grid-template-columns: 1fr; }
       .card-bottom { flex-direction: column; }
       .action-btns { width: 100%; }
@@ -740,30 +713,30 @@
   }
 
   /* サイドメニューの開閉処理 */
-    const hamburgerBtn = document.querySelector(".hamburger");
-    const pcMenuBtn = document.querySelector(".pc-menu-btn");
-    const globalDropdown = document.getElementById("global-dropdown");
-    const menuOverlay = document.getElementById("menu-overlay");
+  const hamburgerBtn = document.querySelector(".hamburger");
+  const pcMenuBtn = document.querySelector(".pc-menu-btn");
+  const globalDropdown = document.getElementById("global-dropdown");
+  const menuOverlay = document.getElementById("menu-overlay");
 
-    function toggleMenu(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      globalDropdown.classList.toggle("open");
-      menuOverlay.classList.toggle("open");
+  function toggleMenu(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
+    globalDropdown.classList.toggle("open");
+    menuOverlay.classList.toggle("open");
+  }
 
-    if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
-    if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
-    if (menuOverlay) menuOverlay.onclick = toggleMenu;
+  if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
+  if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
+  if (menuOverlay) menuOverlay.onclick = toggleMenu;
 
-    document.querySelectorAll("#global-dropdown a").forEach(link => {
-      link.onclick = () => {
-        globalDropdown.classList.remove("open");
-        menuOverlay.classList.remove("open");
-      };
-    });
+  document.querySelectorAll("#global-dropdown a").forEach(link => {
+    link.onclick = () => {
+      globalDropdown.classList.remove("open");
+      menuOverlay.classList.remove("open");
+    };
+  });
 </script>
 
 </body>
