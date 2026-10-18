@@ -57,33 +57,45 @@
       border-radius: 4px;
     }
 
-    /* 検索・フィルターコントロールパネル */
-    .filter-panel {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      margin-bottom: 32px;
+    /* セクションごと個別のコントロールパネル */
+    .section-header-area {
       display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .filter-row {
-      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 36px 0 16px 0;
+      flex-wrap: wrap;
       gap: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--wine-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .count-badge {
+      font-size: 12px;
+      background: var(--wine-light);
+      color: var(--wine);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .search-input {
-      flex: 1;
-      min-width: 240px;
-      padding: 10px 16px;
+      padding: 8px 12px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
       transition: var(--transition);
       background: #fafafa;
+      width: 220px;
     }
     .search-input:focus {
       border-color: var(--wine);
@@ -91,10 +103,10 @@
       box-shadow: 0 0 0 3px rgba(124, 41, 70, 0.1);
     }
     .filter-select {
-      padding: 10px 16px;
+      padding: 8px 12px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
       background: #fafafa;
       cursor: pointer;
@@ -104,24 +116,6 @@
     .filter-select:focus {
       border-color: var(--wine);
       background: #fff;
-    }
-
-    /* セクションタイトル */
-    h2 {
-      font-size: 18px;
-      color: var(--wine-dark);
-      margin: 32px 0 16px 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .count-badge {
-      font-size: 12px;
-      background: var(--wine-light);
-      color: var(--wine);
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-weight: 500;
     }
 
     /* リスト＆カードデザイン */
@@ -230,6 +224,9 @@
     /* レスポンシブ対応 */
     @media (max-width: 680px) {
       body { padding: 20px 12px; }
+      .section-header-area { flex-direction: column; align-items: flex-start; }
+      .filter-controls { width: 100%; }
+      .search-input { flex: 1; width: auto; }
       .schedule-item {
         flex-direction: column;
         align-items: flex-start;
@@ -257,39 +254,41 @@
     <h1>スケジュール一覧</h1>
   </div>
 
-  <!-- 検索・絞り込みパネル -->
-  <div class="filter-panel">
-    <div class="filter-row">
-      <input type="text" id="search-input" class="search-input" placeholder="キーワードで検索（タイトル、劇団名、内容など）..." oninput="filterSchedules()">
-      <select id="status-filter" class="filter-select" onchange="filterSchedules()">
+  <!-- 1. 公演・企画スケジュールセクション -->
+  <div class="section-header-area">
+    <h2>
+      <span>公演・企画スケジュール</span>
+      <span id="events-count" class="count-badge">0件</span>
+    </h2>
+    <div class="filter-controls">
+      <input type="text" id="events-search" class="search-input" placeholder="企画をキーワード検索..." oninput="filterEvents()">
+    </div>
+  </div>
+  <div id="events-container" class="schedule-list">
+    <div class="loading">企画スケジュール情報を読み込んでいます...</div>
+  </div>
+
+  <!-- 2. ビラ折込スケジュールセクション -->
+  <div class="section-header-area">
+    <h2>
+      <span>ビラ折込スケジュール</span>
+      <span id="requests-count" class="count-badge">0件</span>
+    </h2>
+    <div class="filter-controls">
+      <input type="text" id="requests-search" class="search-input" placeholder="劇団名などを検索..." oninput="filterRequests()">
+      <select id="status-filter" class="filter-select" onchange="filterRequests()">
         <option value="">すべてのステータス</option>
         <option value="accepted">承認済み</option>
         <option value="pending">申請中</option>
       </select>
     </div>
   </div>
-
-  <!-- 1. 公演・企画スケジュールエリア -->
-  <h2>
-    <span>公演・企画スケジュール</span>
-    <span id="events-count" class="count-badge">0件</span>
-  </h2>
-  <div id="events-container" class="schedule-list">
-    <div class="loading">企画スケジュール情報を読み込んでいます...</div>
-  </div>
-
-  <!-- 2. ビラ折込スケジュールエリア -->
-  <h2>
-    <span>ビラ折込スケジュール</span>
-    <span id="requests-count" class="count-badge">0件</span>
-  </h2>
   <div id="requests-container" class="schedule-list">
     <div class="loading">折込スケジュール情報を読み込んでいます...</div>
   </div>
 </div>
 
 <script>
-  // グローバル変数として保持（フィルタリング用）
   let allEvents = [];
   let allRequests = [];
 
@@ -313,7 +312,6 @@
 
   // データの一括取得
   async function fetchAllData() {
-    // 企画データ取得
     const { data: eventsData, error: eventsError } = await dbEvents.from('events').select('*');
     if (eventsError) {
       console.error('Events取得エラー:', eventsError);
@@ -322,14 +320,12 @@
       allEvents = eventsData || [];
     }
 
-    // 折込データ取得
     const { data: requestsData, error: requestsError } = await db.from('requests').select('*');
     if (requestsError) {
       console.error('Requests取得エラー:', requestsError);
       document.getElementById('requests-container').innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(requestsError.message)}</div>`;
     } else {
       allRequests = requestsData || [];
-      // 日付順ソート
       allRequests.sort((a, b) => {
         const dateA = a.foldingDate || a.folding_date || '';
         const dateB = b.foldingDate || b.folding_date || '';
@@ -337,24 +333,28 @@
       });
     }
 
-    renderUI(allEvents, allRequests);
+    renderEvents(allEvents);
+    renderRequests(allRequests);
   }
 
-  // 検索・フィルタリング処理
-  function filterSchedules() {
-    const keyword = document.getElementById('search-input').value.toLowerCase();
-    const statusFilter = document.getElementById('status-filter').value;
-
-    // 企画データのフィルタ
-    const filteredEvents = allEvents.filter(item => {
+  // 1. 企画スケジュールの個別絞り込み
+  function filterEvents() {
+    const keyword = document.getElementById('events-search').value.toLowerCase();
+    const filtered = allEvents.filter(item => {
       const title = (item.title || '').toLowerCase();
       const subtitle = (item.subtitle || '').toLowerCase();
       const desc = (item.description || '').toLowerCase();
       return title.includes(keyword) || subtitle.includes(keyword) || desc.includes(keyword);
     });
+    renderEvents(filtered);
+  }
 
-    // 折込データのフィルタ
-    const filteredRequests = allRequests.filter(item => {
+  // 2. ビラ折込スケジュールの個別絞り込み
+  function filterRequests() {
+    const keyword = document.getElementById('requests-search').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value;
+
+    const filtered = allRequests.filter(item => {
       const troupeName = (item.fromName || item.troupe_name || item.from_name || '').toLowerCase();
       const delivery = (item.deliveryMethod || item.delivery_method || '').toLowerCase();
       const status = item.status || '';
@@ -364,80 +364,82 @@
 
       return matchKeyword && matchStatus;
     });
-
-    renderUI(filteredEvents, filteredRequests);
+    renderRequests(filtered);
   }
 
-  // UI描画関数
-  function renderUI(events, requests) {
-    const eventsContainer = document.getElementById('events-container');
-    const requestsContainer = document.getElementById('requests-container');
-    
+  // 企画リスト描画
+  function renderEvents(events) {
+    const container = document.getElementById('events-container');
     document.getElementById('events-count').textContent = `${events.length}件`;
+
+    if (events.length === 0) {
+      container.innerHTML = '<div class="empty">該当する企画スケジュールはありません。</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    events.forEach(item => {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = item.description || '';
+      const plainText = tempDiv.textContent || tempDiv.innerText || '';
+      const subtitleHtml = item.subtitle ? `<div class="schedule-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
+
+      const itemHtml = `
+        <div class="schedule-item">
+          <div class="date-badge">
+            <div class="label">ID</div>
+            <div class="date">#${item.id}</div>
+          </div>
+          <div class="schedule-content">
+            <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
+            ${subtitleHtml}
+            <div class="schedule-desc">${escapeHtml(plainText)}</div>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', itemHtml);
+    });
+  }
+
+  // ビラ折込リスト描画
+  function renderRequests(requests) {
+    const container = document.getElementById('requests-container');
     document.getElementById('requests-count').textContent = `${requests.length}件`;
 
-    // 1. 企画スケジュールの描画
-    if (events.length === 0) {
-      eventsContainer.innerHTML = '<div class="empty">該当する企画スケジュールはありません。</div>';
-    } else {
-      eventsContainer.innerHTML = '';
-      events.forEach(item => {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = item.description || '';
-        const plainText = tempDiv.textContent || tempDiv.innerText || '';
-        const subtitleHtml = item.subtitle ? `<div class="schedule-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
-
-        const itemHtml = `
-          <div class="schedule-item">
-            <div class="date-badge">
-              <div class="label">ID</div>
-              <div class="date">#${item.id}</div>
-            </div>
-            <div class="schedule-content">
-              <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
-              ${subtitleHtml}
-              <div class="schedule-desc">${escapeHtml(plainText)}</div>
-            </div>
-          </div>
-        `;
-        eventsContainer.insertAdjacentHTML('beforeend', itemHtml);
-      });
-    }
-
-    // 2. ビラ折込スケジュールの描画
     if (requests.length === 0) {
-      requestsContainer.innerHTML = '<div class="empty">該当する折込予定はありません。</div>';
-    } else {
-      requestsContainer.innerHTML = '';
-      requests.forEach(item => {
-        const foldingDate = item.foldingDate || item.folding_date || '日付未定';
-        const troupeName = item.fromName || item.troupe_name || item.from_name || '名称未設定';
-        const copies = item.copies ? `${item.copies}部` : '部数未設定';
-        const size = item.size ? `(${item.size})` : '';
-        const statusCode = item.status || '';
-        const statusText = statusCode === 'accepted' ? '承認済み' : (statusCode === 'pending' ? '申請中' : statusCode || '受付中');
-        const statusClass = statusCode === 'accepted' ? 'status-accepted' : (statusCode === 'pending' ? 'status-pending' : 'status-default');
-        const delivery = item.deliveryMethod || item.delivery_method || '未定';
-
-        const itemHtml = `
-          <div class="schedule-item">
-            <div class="date-badge">
-              <div class="label">折込予定日</div>
-              <div class="date">${escapeHtml(foldingDate)}</div>
-            </div>
-            <div class="schedule-content">
-              <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
-              <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
-            </div>
-            <div class="schedule-meta">
-              <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
-              <div><span class="status-badge ${statusClass}">${escapeHtml(statusText)}</span></div>
-            </div>
-          </div>
-        `;
-        requestsContainer.insertAdjacentHTML('beforeend', itemHtml);
-      });
+      container.innerHTML = '<div class="empty">該当する折込予定はありません。</div>';
+      return;
     }
+
+    container.innerHTML = '';
+    requests.forEach(item => {
+      const foldingDate = item.foldingDate || item.folding_date || '日付未定';
+      const troupeName = item.fromName || item.troupe_name || item.from_name || '名称未設定';
+      const copies = item.copies ? `${item.copies}部` : '部数未設定';
+      const size = item.size ? `(${item.size})` : '';
+      const statusCode = item.status || '';
+      const statusText = statusCode === 'accepted' ? '承認済み' : (statusCode === 'pending' ? '申請中' : statusCode || '受付中');
+      const statusClass = statusCode === 'accepted' ? 'status-accepted' : (statusCode === 'pending' ? 'status-pending' : 'status-default');
+      const delivery = item.deliveryMethod || item.delivery_method || '未定';
+
+      const itemHtml = `
+        <div class="schedule-item">
+          <div class="date-badge">
+            <div class="label">折込予定日</div>
+            <div class="date">${escapeHtml(foldingDate)}</div>
+          </div>
+          <div class="schedule-content">
+            <div class="schedule-title">折り込み：${escapeHtml(troupeName)}</div>
+            <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
+          </div>
+          <div class="schedule-meta">
+            <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
+            <div><span class="status-badge ${statusClass}">${escapeHtml(statusText)}</span></div>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', itemHtml);
+    });
   }
 
   function escapeHtml(str) {
