@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schedule｜Stage Link</title>
+  <title>スケジュール一覧｜Stage Link</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
     :root {
-      --bg: #f8fafc;
+      --bg: #f7f7f8;
       --card-bg: #ffffff;
-      --text: #1e293b;
-      --text-sub: #64748b;
-      --wine: #7c2946;
-      --wine-light: #fdf2f4;
-      --wine-dark: #4a1428;
-      --border: #e2e8f0;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      --transition: all 0.2s ease;
+      --text: #222222;
+      --text-sub: #666666;
+      --primary: #7c2946; /* StageLink ワインレッド */
+      --primary-light: #fdf2f4;
+      --border: #e5e5e5;
+      --border-light: #f0f0f0;
+      --radius: 8px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,254 +31,237 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
     }
 
-    /* ヘッダー */
+    /* ページタイトル */
     .page-header {
       margin-bottom: 24px;
+      border-bottom: 2px solid var(--text);
+      padding-bottom: 12px;
     }
     h1 {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    h1::before {
-      content: '';
-      width: 8px;
-      height: 28px;
-      background: var(--wine);
-      border-radius: 4px;
+      letter-spacing: 0.05em;
     }
 
-    /* タブ切り替えボタン（画像風デザイン） */
-    .tab-container {
+    /* タブ切り替え（四季風クリーンタブ） */
+    .shiki-tabs {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
       overflow-x: auto;
-      padding-bottom: 4px;
     }
     .tab-btn {
-      background: #f1f5f9;
+      background: #ffffff;
       color: var(--text-sub);
-      border: none;
-      padding: 10px 20px;
-      border-radius: 9999px;
+      border: 1px solid var(--border);
+      padding: 8px 20px;
+      border-radius: 4px;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s;
       white-space: nowrap;
       font-family: 'Noto Sans JP', sans-serif;
     }
     .tab-btn:hover {
-      background: #e2e8f0;
-      color: var(--text);
+      border-color: var(--primary);
+      color: var(--primary);
     }
     .tab-btn.active {
-      background: var(--text);
+      background: var(--primary);
       color: #ffffff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      border-color: var(--primary);
     }
 
-    /* セクションごと個別のコントロールパネル */
-    .section-header-area {
+    /* 検索・絞り込みバー */
+    .filter-bar {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 32px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 24px 0 16px 0;
-      flex-wrap: wrap;
       gap: 12px;
-    }
-    h2 {
-      font-size: 18px;
-      color: var(--wine-dark);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .count-badge {
-      font-size: 12px;
-      background: var(--wine-light);
-      color: var(--wine);
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-weight: 500;
-    }
-
-    .filter-controls {
-      display: flex;
-      gap: 8px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .search-input {
+      flex: 1;
+      min-width: 220px;
       padding: 8px 12px;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
+      border-radius: 4px;
+      font-size: 14px;
       outline: none;
-      transition: var(--transition);
       background: #fafafa;
-      width: 220px;
     }
     .search-input:focus {
-      border-color: var(--wine);
+      border-color: var(--primary);
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(124, 41, 70, 0.1);
     }
     .filter-select {
       padding: 8px 12px;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
+      border-radius: 4px;
+      font-size: 14px;
       outline: none;
       background: #fafafa;
       cursor: pointer;
-      color: var(--text);
-      transition: var(--transition);
-    }
-    .filter-select:focus {
-      border-color: var(--wine);
-      background: #fff;
     }
 
-    /* リスト＆カードデザイン */
-    .schedule-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    /* セクション */
     .schedule-section {
-      display: block;
+      margin-bottom: 48px;
     }
     .schedule-section.hidden {
       display: none !important;
     }
-
-    .schedule-item {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 20px;
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 20px;
-      box-shadow: var(--shadow);
+      justify-content: space-between;
+      border-left: 4px solid var(--primary);
+      padding-left: 10px;
+    }
+    .count-text {
+      font-size: 13px;
+      color: var(--text-sub);
+      font-weight: normal;
+    }
+
+    /* 四季風 リストテーブル形式 */
+    .schedule-table-wrap {
+      background: var(--card-bg);
       border: 1px solid var(--border);
-      transition: var(--transition);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
-    .schedule-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
-      border-color: #cbd5e1;
+
+    .schedule-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
+      transition: background 0.15s;
+      gap: 16px;
     }
-    
-    /* 日付バッジ */
-    .date-badge {
-      background: var(--wine-light);
-      color: var(--wine-dark);
-      border: 1px solid rgba(124, 41, 70, 0.15);
-      padding: 10px 14px;
-      border-radius: 8px;
-      text-align: center;
-      min-width: 105px;
+    .schedule-row:last-child {
+      border-bottom: none;
+    }
+    .schedule-row:hover {
+      background: #fafbfc;
+    }
+
+    /* 日付・ID部分 */
+    .col-date {
+      width: 130px;
       flex-shrink: 0;
     }
-    .date-badge .label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--wine); }
-    .date-badge .date { font-size: 14px; font-weight: 700; margin-top: 2px; }
+    .date-box {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .date-label {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
 
-    /* メインコンテンツ */
-    .schedule-content {
+    /* メイン情報部分 */
+    .col-main {
       flex-grow: 1;
       overflow-wrap: anywhere;
-      word-break: break-word;
     }
-    .schedule-title {
+    .item-title {
       font-size: 16px;
       font-weight: 700;
       color: var(--text);
+      margin-bottom: 2px;
+    }
+    .item-subtitle {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
       margin-bottom: 4px;
     }
-    .schedule-subtitle {
-      font-size: 13px;
-      color: var(--wine);
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-    .schedule-desc {
+    .item-desc {
       font-size: 13px;
       color: var(--text-sub);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      line-height: 1.5;
     }
 
-    /* メタ情報（部数やステータス） */
-    .schedule-meta {
-      text-align: right;
-      font-size: 13px;
-      color: var(--text-sub);
+    /* 右側メタ情報（部数・ステータス） */
+    .col-meta {
+      width: 160px;
       flex-shrink: 0;
+      text-align: right;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       gap: 4px;
     }
-    .schedule-copies {
+    .item-copies {
       font-size: 15px;
       font-weight: 700;
       color: var(--text);
     }
     .status-badge {
       display: inline-block;
-      padding: 2px 10px;
-      border-radius: 20px;
+      padding: 2px 8px;
+      border-radius: 3px;
       font-size: 11px;
       font-weight: 500;
     }
-    .status-accepted { background: #dcfce7; color: #166534; }
-    .status-pending { background: #fef9c3; color: #854d0e; }
-    .status-default { background: #f1f5f9; color: #475569; }
+    .status-accepted { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+    .status-pending { background: #fef7e0; color: #b06000; border: 1px solid #fef0c7; }
+    .status-default { background: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; }
 
     /* ローディング・空の状態 */
     .loading, .empty {
       text-align: center;
       padding: 40px;
       color: var(--text-sub);
-      background: var(--card-bg);
+      background: #ffffff;
       border-radius: var(--radius);
-      border: 1px dashed var(--border);
+      border: 1px solid var(--border);
       font-size: 14px;
     }
 
     /* レスポンシブ対応 */
-    @media (max-width: 680px) {
-      body { padding: 20px 12px; }
-      .section-header-area { flex-direction: column; align-items: flex-start; }
-      .filter-controls { width: 100%; }
-      .search-input { flex: 1; width: auto; }
-      .schedule-item {
+    @media (max-width: 768px) {
+      body { padding: 16px 8px; }
+      .schedule-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 8px;
+        padding: 14px;
       }
-      .date-badge, .schedule-meta {
+      .col-date, .col-meta {
         width: 100%;
         text-align: left;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
       }
-      .schedule-meta {
-        align-items: center;
-        border-top: 1px solid var(--border);
-        padding-top: 8px;
+      .col-meta {
+        border-top: 1px solid var(--border-light);
+        padding-top: 6px;
       }
     }
   </style>
@@ -289,50 +270,50 @@
 
 <div class="container">
   <div class="page-header">
-    <h1>スケジュール一覧</h1>
+    <h1>公演・スケジュール一覧</h1>
   </div>
 
-  <!-- ピル型切り替えタブ -->
-  <div class="tab-container">
-    <button class="tab-btn active" onclick="switchTab('all', this)">すべて</button>
+  <!-- 四風タブ切り替え -->
+  <div class="shiki-tabs">
+    <button class="tab-btn active" onclick="switchTab('all', this)">すべて表示</button>
     <button class="tab-btn" onclick="switchTab('events', this)">公演・企画スケジュール</button>
     <button class="tab-btn" onclick="switchTab('requests', this)">ビラ折込スケジュール</button>
   </div>
 
-  <!-- 1. 公演・企画スケジュールセクション -->
-  <div id="events-wrapper" class="schedule-section">
-    <div class="section-header-area">
-      <h2>
-        <span>公演・企画スケジュール</span>
-        <span id="events-count" class="count-badge">0件</span>
-      </h2>
-      <div class="filter-controls">
-        <input type="text" id="events-search" class="search-input" placeholder="企画をキーワード検索..." oninput="filterEvents()">
-      </div>
+  <!-- 1. 公演・企画スケジュール -->
+  <div id="events-section" class="schedule-section">
+    <div class="section-title">
+      <span>公演・企画スケジュール</span>
+      <span id="events-count" class="count-text">0件</span>
     </div>
-    <div id="events-container" class="schedule-list">
-      <div class="loading">企画スケジュール情報を読み込んでいます...</div>
+    <div class="filter-bar">
+      <input type="text" id="events-search" class="search-input" placeholder="企画名・キーワードで検索..." oninput="filterEvents()">
+    </div>
+    <div class="schedule-table-wrap">
+      <div id="events-container">
+        <div class="loading">情報を読み込んでいます...</div>
+      </div>
     </div>
   </div>
 
-  <!-- 2. ビラ折込スケジュールセクション -->
-  <div id="requests-wrapper" class="schedule-section">
-    <div class="section-header-area">
-      <h2>
-        <span>ビラ折込スケジュール</span>
-        <span id="requests-count" class="count-badge">0件</span>
-      </h2>
-      <div class="filter-controls">
-        <input type="text" id="requests-search" class="search-input" placeholder="劇団名などを検索..." oninput="filterRequests()">
-        <select id="status-filter" class="filter-select" onchange="filterRequests()">
-          <option value="">すべてのステータス</option>
-          <option value="accepted">承認済み</option>
-          <option value="pending">申請中</option>
-        </select>
-      </div>
+  <!-- 2. ビラ折込スケジュール -->
+  <div id="requests-section" class="schedule-section">
+    <div class="section-title">
+      <span>ビラ折込スケジュール</span>
+      <span id="requests-count" class="count-text">0件</span>
     </div>
-    <div id="requests-container" class="schedule-list">
-      <div class="loading">折込スケジュール情報を読み込んでいます...</div>
+    <div class="filter-bar">
+      <input type="text" id="requests-search" class="search-input" placeholder="劇団名・受け渡し方法で検索..." oninput="filterRequests()">
+      <select id="status-filter" class="filter-select" onchange="filterRequests()">
+        <option value="">すべてのステータス</option>
+        <option value="accepted">承認済み</option>
+        <option value="pending">申請中</option>
+      </select>
+    </div>
+    <div class="schedule-table-wrap">
+      <div id="requests-container">
+        <div class="loading">情報を読み込んでいます...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -359,28 +340,27 @@
     fetchAllData();
   });
 
-  // タブ切り替え機能
+  // タブ切り替え
   function switchTab(type, btnElement) {
-    // タブのアクティブ状態切り替え
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     btnElement.classList.add('active');
 
-    const eventsWrapper = document.getElementById('events-wrapper');
-    const requestsWrapper = document.getElementById('requests-wrapper');
+    const eventsSec = document.getElementById('events-section');
+    const requestsSec = document.getElementById('requests-section');
 
     if (type === 'all') {
-      eventsWrapper.classList.remove('hidden');
-      requestsWrapper.classList.remove('hidden');
+      eventsSec.classList.remove('hidden');
+      requestsSec.classList.remove('hidden');
     } else if (type === 'events') {
-      eventsWrapper.classList.remove('hidden');
-      requestsWrapper.classList.add('hidden');
+      eventsSec.classList.remove('hidden');
+      requestsSec.classList.add('hidden');
     } else if (type === 'requests') {
-      eventsWrapper.classList.add('hidden');
-      requestsWrapper.classList.remove('hidden');
+      eventsSec.classList.add('hidden');
+      requestsSec.classList.remove('hidden');
     }
   }
 
-  // データの一括取得
+  // データ取得
   async function fetchAllData() {
     const { data: eventsData, error: eventsError } = await dbEvents.from('events').select('*');
     if (eventsError) {
@@ -407,7 +387,7 @@
     renderRequests(allRequests);
   }
 
-  // 1. 企画スケジュールの個別絞り込み
+  // 企画絞り込み
   function filterEvents() {
     const keyword = document.getElementById('events-search').value.toLowerCase();
     const filtered = allEvents.filter(item => {
@@ -419,7 +399,7 @@
     renderEvents(filtered);
   }
 
-  // 2. ビラ折込スケジュールの個別絞り込み
+  // 折込絞り込み
   function filterRequests() {
     const keyword = document.getElementById('requests-search').value.toLowerCase();
     const statusFilter = document.getElementById('status-filter').value;
@@ -437,7 +417,7 @@
     renderRequests(filtered);
   }
 
-  // 企画リスト描画
+  // 企画リスト描画（テーブル風行）
   function renderEvents(events) {
     const container = document.getElementById('events-container');
     document.getElementById('events-count').textContent = `${events.length}件`;
@@ -452,26 +432,26 @@
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = item.description || '';
       const plainText = tempDiv.textContent || tempDiv.innerText || '';
-      const subtitleHtml = item.subtitle ? `<div class="schedule-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
+      const subtitleHtml = item.subtitle ? `<div class="item-subtitle">${escapeHtml(item.subtitle)}</div>` : '';
 
-      const itemHtml = `
-        <div class="schedule-item">
-          <div class="date-badge">
-            <div class="label">ID</div>
-            <div class="date">#${item.id}</div>
+      const rowHtml = `
+        <div class="schedule-row">
+          <div class="col-date">
+            <div class="date-label">ID</div>
+            <div class="date-box">#${item.id}</div>
           </div>
-          <div class="schedule-content">
-            <div class="schedule-title">${escapeHtml(item.title || 'タイトルなし')}</div>
+          <div class="col-main">
+            <div class="item-title">${escapeHtml(item.title || 'タイトルなし')}</div>
             ${subtitleHtml}
-            <div class="schedule-desc">${escapeHtml(plainText)}</div>
+            <div class="item-desc">${escapeHtml(plainText)}</div>
           </div>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', itemHtml);
+      container.insertAdjacentHTML('beforeend', rowHtml);
     });
   }
 
-  // ビラ折込リスト描画
+  // ビラ折込リスト描画（テーブル風行）
   function renderRequests(requests) {
     const container = document.getElementById('requests-container');
     document.getElementById('requests-count').textContent = `${requests.length}件`;
@@ -492,23 +472,23 @@
       const statusClass = statusCode === 'accepted' ? 'status-accepted' : (statusCode === 'pending' ? 'status-pending' : 'status-default');
       const delivery = item.deliveryMethod || item.delivery_method || '未定';
 
-      const itemHtml = `
-        <div class="schedule-item">
-          <div class="date-badge">
-            <div class="label">折込予定日</div>
-            <div class="date">${escapeHtml(foldingDate)}</div>
+      const rowHtml = `
+        <div class="schedule-row">
+          <div class="col-date">
+            <div class="date-label">折込予定日</div>
+            <div class="date-box">${escapeHtml(foldingDate)}</div>
           </div>
-          <div class="schedule-content">
-            <div class="schedule-title">織り込み：${escapeHtml(troupeName)}</div>
-            <div class="schedule-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
+          <div class="col-main">
+            <div class="item-title">折り込み：${escapeHtml(troupeName)}</div>
+            <div class="item-desc">受け渡し方法: ${escapeHtml(delivery)}</div>
           </div>
-          <div class="schedule-meta">
-            <div class="schedule-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
+          <div class="col-meta">
+            <div class="item-copies">${escapeHtml(copies)} ${escapeHtml(size)}</div>
             <div><span class="status-badge ${statusClass}">${escapeHtml(statusText)}</span></div>
           </div>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', itemHtml);
+      container.insertAdjacentHTML('beforeend', rowHtml);
     });
   }
 
