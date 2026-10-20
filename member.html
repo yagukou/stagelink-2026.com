@@ -149,35 +149,52 @@
     .leader-info .line-2 { font-size: 25px; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; font-weight: bold; color: #1a1a1a; }
     .leader-info .line-3 { font-size: 14px; color: #333333; line-height: 1.6; white-space: pre-line; }
 
-    /* --- SL Members / Advisors：4列グリッド（写真下部に名前ラベル） --- */
-    .member-grid {
+.member-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
+      gap: 40px 32px; /* 上下40px, 左右32px に広げて余白を確保 */
     }
     .member-card {
       position: relative;
       display: flex;
       flex-direction: column;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       background: #1a1a1a;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .member-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
     }
     .member-img {
       width: 100%;
       aspect-ratio: 3 / 4;
       object-fit: cover;
+      object-position: center 15%; /* 顔まわりにゆとりを持たせる位置調整 */
       background: #222;
       display: block;
     }
     .member-label {
-      padding: 14px 12px 16px;
+      padding: 18px 16px 20px; /* テキストの上下左右の余白を拡張 */
       background: #1a1a1a;
       text-align: left;
     }
-    .member-name { font-size: 17px; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
-    .member-role { font-size: 12.5px; color: #c5a059; letter-spacing: 0.3px; line-height: 1.5; }
+    .member-name { 
+      font-size: 17px; 
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; 
+      font-weight: 600; 
+      color: #ffffff; 
+      margin-bottom: 6px; 
+      line-height: 1.3;
+    }
+    .member-role { 
+      font-size: 12.5px; 
+      color: #c5a059; 
+      letter-spacing: 0.3px; 
+      line-height: 1.5; 
+    }
 
     /* --- スクロールで役割グループ順にポップインするアニメーション --- */
     .reveal-group {
