@@ -138,6 +138,22 @@
   }
 
   document.addEventListener('DOMContentLoaded', loadDetail);
+
+  // event-detail.html 内のデータ反映例
+const urlParams = new URLSearchParams(window.location.search);
+const eventId = urlParams.get('id');
+
+const { data, error } = await supabaseClient
+  .from('events')
+  .select('*')
+  .eq('id', eventId)
+  .single();
+
+if (data) {
+  document.getElementById('detail-title').innerText = data.title;
+  // ★ 保存した詳細リッチテキストをそのまま反映
+  document.getElementById('detail-content').innerHTML = data.detail_content || data.description;
+}
 </script>
 
 </body>

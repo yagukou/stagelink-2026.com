@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>企画管理パネル｜Stage Link</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- TinyMCE (リッチテキストエディタ) -->
-  <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+  <!-- Quill (リッチテキストエディタ) CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 
   <style>
     :root {
@@ -42,8 +45,10 @@
       margin-bottom: 30px;
     }
     .card h2 { font-size: 18px; margin-bottom: 16px; color: var(--wine); }
-    .form-group { margin-bottom: 16px; }
+    .form-group { margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .help-text { font-size: 12px; color: #666; margin-bottom: 6px; }
+    
     input[type="text"], input[type="date"], input[type="file"], select {
       width: 100%;
       padding: 10px 12px;
@@ -74,9 +79,9 @@
     }
     .btn:hover { background: var(--wine-dark); }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-edit { background: #3182ce; padding: 6px 12px; font-size: 12px; margin-right: 4px; }
+    .btn-edit { background: #3182ce; padding: 6px 12px; font-size: 12px; margin-right: 4px; color: white; border: none; border-radius: 4px; cursor: pointer; }
     .btn-edit:hover { background: #2b6cb0; }
-    .btn-danger { background: #e53e3e; padding: 6px 12px; font-size: 12px; }
+    .btn-danger { background: #e53e3e; padding: 6px 12px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer; }
     .btn-danger:hover { background: #c53030; }
     .btn-cancel { background: #718096; padding: 12px 24px; font-size: 15px; margin-left: 8px; }
     .btn-cancel:hover { background: #4a5568; }
@@ -89,6 +94,9 @@
     .badge-archive { background: #e2e8f0; color: #4a5568; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
     .current-img-info { font-size: 12px; color: #718096; margin-top: 4px; }
 
+    /* Quill スタイル微調整 */
+    .ql-toolbar { border-top-left-radius: 6px; border-top-right-radius: 6px; background: #f8fafc; border-color: var(--border) !important; }
+    .ql-container { border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; font-family: inherit; border-color: var(--border) !important; }
   </style>
 </head>
 <body>
@@ -113,8 +121,15 @@
       </div>
 
       <div class="form-group">
-        <label for="description">企画の概要・詳細説明文（文字装飾・見出し対応）</label>
-        <textarea id="description"></textarea>
+        <label>① カード用・簡易説明文（一覧カード等に表示）</label>
+        <div class="help-text">※カードに収まる簡単な概要（文字装飾も可能）</div>
+        <div id="editor-summary" style="height: 120px; background: #ffffff;"></div>
+      </div>
+
+      <div class="form-group" id="detail-editor-group">
+        <label>② 自動詳細ページ用・本文コンテンツ（event-detail.html に表示）</label>
+        <div class="help-text">※専用詳細ページを開いた際に表示される詳しい公演情報・本文・見出し・画像等を入力します</div>
+        <div id="editor-detail" style="height: 250px; background: #ffffff;"></div>
       </div>
 
       <div class="form-group">
@@ -125,8 +140,8 @@
 
       <div class="form-group">
         <label for="link_type">「詳しくみる」のリンク先</label>
-        <select id="link_type" onchange="toggleCustomUrlInput()">
-          <option value="auto">専用の自動詳細ページを使う（推奨）</option>
+        <select id="link_type" onchange="toggleLinkTypeOptions()">
+          <option value="auto">専用の自動詳細ページを使う（推奨：上記②の本文を表示）</option>
           <option value="custom">外部URL / 既存のHTMLファイル（BBQ.html など）を指定</option>
         </select>
       </div>
@@ -168,31 +183,53 @@
 </div>
 
 <script>
-  // ⚠️ ご自身の Supabase 情報に書き換えてください
-  // Supabase 設定
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let fetchedEvents = [];
+  let quillSummary, quillDetail;
 
-  // TinyMCEの初期化
-  tinymce.init({
-    selector: '#description',
-    height: 300,
-    menubar: false,
-    plugins: 'lists link code table',
-    toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright | bullist numlist | table link code',
-    content_style: 'body { font-family: "Noto Sans JP", sans-serif; font-size: 14px; }'
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. カード用概要エディタ
+    quillSummary = new Quill('#editor-summary', {
+      theme: 'snow',
+      placeholder: 'カードに表示する簡潔な説明文...',
+      modules: { toolbar: ['bold', 'italic', { 'color': [] }] }
+    });
+
+    // 2. 自動詳細ページ用本文エディタ
+    quillDetail = new Quill('#editor-detail', {
+      theme: 'snow',
+      placeholder: '専用詳細ページに掲載する詳しい内容、日程、チケット情報など...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', { 'color': [] }],
+          [{ 'align': [] }],
+          [{ 'list': 'bullet' }, { 'list': 'ordered' }],
+          ['link', 'code-block']
+        ]
+      }
+    });
+
+    fetchEvents();
   });
 
-  function toggleCustomUrlInput() {
+  function toggleLinkTypeOptions() {
     const type = document.getElementById('link_type').value;
     const customGroup = document.getElementById('custom_url_group');
-    customGroup.style.display = (type === 'custom') ? 'block' : 'none';
+    const detailGroup = document.getElementById('detail-editor-group');
+    
+    if (type === 'custom') {
+      customGroup.style.display = 'block';
+      detailGroup.style.opacity = '0.5';
+    } else {
+      customGroup.style.display = 'none';
+      detailGroup.style.opacity = '1';
+    }
   }
 
-  // Supabaseからデータ取得
   async function fetchEvents() {
     const listContainer = document.getElementById('event-list');
     const { data, error } = await supabaseClient
@@ -229,23 +266,15 @@
         <td>${isCurrentBadge}</td>
         <td><strong>${item.title}</strong></td>
         <td>
-          <button type="button" class="btn btn-edit" data-id="${item.id}">編集</button>
+          <button type="button" class="btn btn-edit" onclick="startEdit('${item.id}')">編集</button>
           <button type="button" class="btn btn-danger" onclick="deleteEvent('${item.id}')">削除</button>
         </td>
       `;
       listContainer.appendChild(tr);
     });
-
-    // 編集ボタンへのイベント割り当て（onclick記述による不具合を防止）
-    document.querySelectorAll('.btn-edit').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        startEdit(id);
-      });
-    });
   }
 
-  // 編集モードに入る
+  // 編集モードに入る（ID検索で安定化）
   function startEdit(id) {
     const item = fetchedEvents.find(e => String(e.id) === String(id));
     if (!item) return;
@@ -255,13 +284,9 @@
     document.getElementById('title').value = item.title || '';
     document.getElementById('event_date').value = item.event_date || '';
 
-    // TinyMCEへテキストを安全にセット
-    const editor = tinymce.get('description');
-    if (editor) {
-      editor.setContent(item.description || '');
-    } else {
-      document.getElementById('description').value = item.description || '';
-    }
+    // エディタへ内容を反映
+    if (quillSummary) quillSummary.clipboard.dangerouslyPasteHTML(item.description || '');
+    if (quillDetail) quillDetail.clipboard.dangerouslyPasteHTML(item.detail_content || item.description || '');
 
     document.getElementById('is_current').checked = item.is_current || false;
     document.getElementById('current_image_url').value = item.image_url || '';
@@ -279,7 +304,7 @@
       document.getElementById('link_type').value = 'custom';
       document.getElementById('link_url').value = item.link_url || '';
     }
-    toggleCustomUrlInput();
+    toggleLinkTypeOptions();
 
     document.getElementById('submit-btn').innerText = '変更を更新・保存する';
     document.getElementById('cancel-btn').style.display = 'inline-block';
@@ -287,7 +312,6 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // フォームのリセット
   function resetForm() {
     document.getElementById('form-title').innerText = '新規企画・イベントを追加';
     document.getElementById('event-form').reset();
@@ -295,17 +319,14 @@
     document.getElementById('current_image_url').value = '';
     document.getElementById('image_info').innerText = '';
 
-    const editor = tinymce.get('description');
-    if (editor) {
-      editor.setContent('');
-    }
+    if (quillSummary) quillSummary.setText('');
+    if (quillDetail) quillDetail.setText('');
 
-    toggleCustomUrlInput();
+    toggleLinkTypeOptions();
     document.getElementById('submit-btn').innerText = 'データを作成・保存する';
     document.getElementById('cancel-btn').style.display = 'none';
   }
 
-  // 画像アップロード処理
   async function uploadImage(file) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
@@ -326,7 +347,7 @@
     return publicUrlData.publicUrl;
   }
 
-  // 送信処理（新規保存 / 更新）
+  // 保存（新規 / 更新）処理
   document.getElementById('event-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -339,9 +360,9 @@
       const title = document.getElementById('title').value;
       const event_date = document.getElementById('event_date').value;
 
-      const editor = tinymce.get('description');
-      const description = editor ? editor.getContent() : document.getElementById('description').value;
-      // ★ QuillからリッチテキストHTMLを取得
+      // 両方のエディタからHTMLを取得
+      const description = quillSummary ? quillSummary.root.innerHTML : '';
+      const detail_content = quillDetail ? quillDetail.root.innerHTML : '';
 
       const is_current = document.getElementById('is_current').checked;
       const link_type = document.getElementById('link_type').value;
@@ -358,28 +379,29 @@
       }
 
       if (editId) {
-        // 更新処理
+        // 更新時
         if (link_type === 'auto') {
           finalLinkUrl = `event-detail.html?id=${editId}`;
         }
 
         const { error } = await supabaseClient
           .from('events')
-          .update({ title, event_date, description, image_url, link_url: finalLinkUrl, is_current })
+          .update({ title, event_date, description, detail_content, image_url, link_url: finalLinkUrl, is_current })
           .eq('id', editId);
 
         if (error) throw error;
         alert('企画情報を更新しました！');
 
       } else {
-        // 新規作成処理
+        // 新規作成時
         const { data, error } = await supabaseClient
           .from('events')
-          .insert([{ title, event_date, description, image_url, link_url: finalLinkUrl, is_current }])
+          .insert([{ title, event_date, description, detail_content, image_url, link_url: finalLinkUrl, is_current }])
           .select();
 
         if (error) throw error;
 
+        // 自動ページURLの生成・再セット
         if (link_type === 'auto' && data && data.length > 0) {
           const generatedId = data[0].id;
           const autoUrl = `event-detail.html?id=${generatedId}`;
@@ -397,21 +419,19 @@
       fetchEvents();
 
     } catch (err) {
-      alert(err.message);
+      alert('保存エラー: ' + err.message);
     } finally {
       submitBtn.disabled = false;
     }
   });
 
-  // 削除処理
   async function deleteEvent(id) {
     if (!confirm('本当に削除しますか？')) return;
     const { error } = await supabaseClient.from('events').delete().eq('id', id);
     if (error) alert('削除エラー: ' + error.message);
     else fetchEvents();
   }
-
-  document.addEventListener('DOMContentLoaded', fetchEvents);
 </script>
 
 </body>
+</html>
