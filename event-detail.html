@@ -102,7 +102,12 @@
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
 
   async function loadDetail() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -137,23 +142,30 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadDetail);
+ document.addEventListener('DOMContentLoaded', async () => {
+  // コールバック関数を async () => に変更
+  const urlParams = new URLSearchParams(window.location.search);
+  const eventId = urlParams.get('id');
 
-  // event-detail.html 内のデータ反映例
-const urlParams = new URLSearchParams(window.location.search);
-const eventId = urlParams.get('id');
+  if (!eventId) return;
 
-const { data, error } = await supabaseClient
-  .from('events')
-  .select('*')
-  .eq('id', eventId)
-  .single();
+  const { data, error } = await supabaseClient
+    .from('events')
+    .select('*')
+    .eq('id', eventId)
+    .single();
 
-if (data) {
-  document.getElementById('detail-title').innerText = data.title;
-  // ★ 保存した詳細リッチテキストをそのまま反映
-  document.getElementById('detail-content').innerHTML = data.detail_content || data.description;
-}
+  if (error) {
+    console.error('取得エラー:', error);
+    return;
+  }
+
+  if (data) {
+    document.getElementById('detail-title').innerText = data.title;
+    // リッチテキスト本文の反映
+    document.getElementById('detail-content').innerHTML = data.description || '';
+  }
+});
 </script>
 
 </body>
