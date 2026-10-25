@@ -132,19 +132,17 @@
         return;
       }
 
-      // 正しいHTML要素IDへデータをセット
       if (titleEl) titleEl.innerText = data.title || 'タイトルなし';
       if (dateEl) dateEl.innerText = '開催日: ' + (data.event_date || '未定');
       
-      // 画像が存在する場合は表示
       if (imgEl && data.image_url) {
         imgEl.src = data.image_url;
         imgEl.style.display = 'block';
       }
 
-      // リッチテキスト（装飾付き本文）の反映
+      // ★ 修正ポイント：detail_content（詳細本文）を優先して流し込む（無ければ description）
       if (descEl) {
-        descEl.innerHTML = data.description || '詳細情報はありません。';
+        descEl.innerHTML = data.detail_content || data.description || '詳細情報はありません。';
       }
 
     } catch (err) {

@@ -206,8 +206,8 @@
     document.getElementById('event_date').value = item.event_date || '';
 
     // それぞれのエディタへデータをセット
-    if (quillSummary) quillSummary.clipboard.dangerouslyPasteHTML(item.description || '');
-    if (quillDetail) quillDetail.clipboard.dangerouslyPasteHTML(item.detail_content || item.description || '');
+if (quillSummary) quillSummary.clipboard.dangerouslyPasteHTML(item.description || '');
+if (quillDetail) quillDetail.clipboard.dangerouslyPasteHTML(item.detail_content || ''); // ⭕ それぞれ独立して復元
 
     document.getElementById('is_current').checked = item.is_current || false;
     document.getElementById('current_image_url').value = item.image_url || '';
