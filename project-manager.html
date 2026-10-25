@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>企画管理パネル｜Stage Link</title>
-  
-  <!-- Supabase JS SDK -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Quill (リッチテキストエディタ) -->
-  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+  <!-- TinyMCE (リッチテキストエディタ) -->
+  <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
 
   <style>
     :root {
@@ -76,13 +74,13 @@
     }
     .btn:hover { background: var(--wine-dark); }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-edit { background: #3182ce; padding: 6px 12px; font-size: 12px; margin-right: 4px; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-edit { background: #3182ce; padding: 6px 12px; font-size: 12px; margin-right: 4px; }
     .btn-edit:hover { background: #2b6cb0; }
-    .btn-danger { background: #e53e3e; padding: 6px 12px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-danger { background: #e53e3e; padding: 6px 12px; font-size: 12px; }
     .btn-danger:hover { background: #c53030; }
     .btn-cancel { background: #718096; padding: 12px 24px; font-size: 15px; margin-left: 8px; }
     .btn-cancel:hover { background: #4a5568; }
-    
+
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
     th { background: #edf2f7; font-weight: 700; }
@@ -91,19 +89,6 @@
     .badge-archive { background: #e2e8f0; color: #4a5568; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
     .current-img-info { font-size: 12px; color: #718096; margin-top: 4px; }
 
-    /* Quill エディタの見た目調整 */
-    .ql-toolbar {
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-      background: #f8fafc;
-      border-color: var(--border) !important;
-    }
-    .ql-container {
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
-      font-family: inherit;
-      border-color: var(--border) !important;
-    }
   </style>
 </head>
 <body>
@@ -121,15 +106,15 @@
         <label for="title">タイトル *</label>
         <input type="text" id="title" placeholder="例: 慶劇祭（慶應義塾大学演劇祭）" required>
       </div>
-      
+
       <div class="form-group">
         <label for="event_date">開催年月 / 日付 *</label>
         <input type="date" id="event_date" required>
       </div>
 
       <div class="form-group">
-        <label>企画の概要・詳細説明文（文字装飾・見出し対応）</label>
-        <div id="editor-container" style="height: 220px; background: #ffffff;"></div>
+        <label for="description">企画の概要・詳細説明文（文字装飾・見出し対応）</label>
+        <textarea id="description"></textarea>
       </div>
 
       <div class="form-group">
@@ -183,31 +168,22 @@
 </div>
 
 <script>
+  // ⚠️ ご自身の Supabase 情報に書き換えてください
   // Supabase 設定
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let fetchedEvents = [];
-  let quill;
 
-  // 初期化（Quillエディタの登録 & データ一覧読み込み）
-  document.addEventListener('DOMContentLoaded', () => {
-    quill = new Quill('#editor-container', {
-      theme: 'snow',
-      placeholder: '企画の詳細情報を入力してください...',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, false] }],
-          ['bold', 'italic', { 'color': [] }],
-          [{ 'align': [] }],
-          [{ 'list': 'bullet' }, { 'list': 'ordered' }],
-          ['link', 'code-block']
-        ]
-      }
-    });
-
-    fetchEvents();
+  // TinyMCEの初期化
+  tinymce.init({
+    selector: '#description',
+    height: 300,
+    menubar: false,
+    plugins: 'lists link code table',
+    toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright | bullist numlist | table link code',
+    content_style: 'body { font-family: "Noto Sans JP", sans-serif; font-size: 14px; }'
   });
 
   function toggleCustomUrlInput() {
@@ -242,7 +218,7 @@
       const isCurrentBadge = item.is_current 
         ? '<span class="badge-current">今月表示</span>' 
         : '<span class="badge-archive">アーカイブ</span>';
-      
+
       const imageTag = item.image_url 
         ? `<img src="${item.image_url}" class="img-preview" alt="">`
         : 'なし';
@@ -253,11 +229,19 @@
         <td>${isCurrentBadge}</td>
         <td><strong>${item.title}</strong></td>
         <td>
-          <button type="button" class="btn btn-edit" onclick="startEdit('${item.id}')">編集</button>
+          <button type="button" class="btn btn-edit" data-id="${item.id}">編集</button>
           <button type="button" class="btn btn-danger" onclick="deleteEvent('${item.id}')">削除</button>
         </td>
       `;
       listContainer.appendChild(tr);
+    });
+
+    // 編集ボタンへのイベント割り当て（onclick記述による不具合を防止）
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        startEdit(id);
+      });
     });
   }
 
@@ -270,10 +254,13 @@
     document.getElementById('event_id').value = item.id;
     document.getElementById('title').value = item.title || '';
     document.getElementById('event_date').value = item.event_date || '';
-    
-    // QuillにHTMLテキストを反映
-    if (quill) {
-      quill.clipboard.dangerouslyPasteHTML(item.description || '');
+
+    // TinyMCEへテキストを安全にセット
+    const editor = tinymce.get('description');
+    if (editor) {
+      editor.setContent(item.description || '');
+    } else {
+      document.getElementById('description').value = item.description || '';
     }
 
     document.getElementById('is_current').checked = item.is_current || false;
@@ -307,9 +294,10 @@
     document.getElementById('event_id').value = '';
     document.getElementById('current_image_url').value = '';
     document.getElementById('image_info').innerText = '';
-    
-    if (quill) {
-      quill.setText('');
+
+    const editor = tinymce.get('description');
+    if (editor) {
+      editor.setContent('');
     }
 
     toggleCustomUrlInput();
@@ -350,9 +338,10 @@
       const editId = document.getElementById('event_id').value;
       const title = document.getElementById('title').value;
       const event_date = document.getElementById('event_date').value;
-      
+
+      const editor = tinymce.get('description');
+      const description = editor ? editor.getContent() : document.getElementById('description').value;
       // ★ QuillからリッチテキストHTMLを取得
-      const description = quill ? quill.root.innerHTML : '';
 
       const is_current = document.getElementById('is_current').checked;
       const link_type = document.getElementById('link_type').value;
@@ -408,7 +397,7 @@
       fetchEvents();
 
     } catch (err) {
-      alert('エラー: ' + err.message);
+      alert(err.message);
     } finally {
       submitBtn.disabled = false;
     }
@@ -421,7 +410,8 @@
     if (error) alert('削除エラー: ' + error.message);
     else fetchEvents();
   }
+
+  document.addEventListener('DOMContentLoaded', fetchEvents);
 </script>
 
 </body>
-</html>
