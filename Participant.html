@@ -1130,11 +1130,12 @@ function renderTroupes(troupes) {
     card.className = 'troupe-card';
     card.onclick = () => openTroupeModal(t.id);
 
+    // 🌟 admin@stagelink-2026.com でログインしている場合のみ削除ボタンを表示 🌟
     let deleteBtnHtml = '';
-    if (currentUser && currentUser.id === t.id) {
+    if (currentUser && currentUser.email === 'admin@stagelink-2026.com') {
       deleteBtnHtml = `
-        <button class="troupe-delete-btn" title="マイページから管理できます" onclick="event.stopPropagation(); showPage('mypage');">
-          <i class="ti ti-settings" style="font-size: 16px;"></i>
+        <button class="troupe-delete-btn" title="この劇団を削除する" onclick="deleteTroupeDirect(event, '${t.id}', '${escapeHtml(t.name)}')">
+          <i class="ti ti-trash" style="font-size: 16px;"></i>
         </button>`;
     }
 
