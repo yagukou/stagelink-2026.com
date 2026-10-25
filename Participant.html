@@ -1527,19 +1527,21 @@ async function handleRegisterTroupe() {
   };
 
   try {
-    const { data, error } = await db.from('troupes').insert([newTroupe]).select();
+    // .select() を削除して単純な insert に変更
+    const { error } = await db.from('troupes').insert([newTroupe]);
     if (error) throw error;
 
-    const createdUser = data ? data[0] : newTroupe;
-    troupesData.push(createdUser);
-    currentUser = createdUser;
+    troupesData.push(newTroupe);
+    currentUser = newTroupe;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
     updateAuthUI();
     renderMyPage();
+    renderTroupes(troupesData); // 一覧画面も即座に更新
     alert('アカウントが作成されました。');
   } catch (error) {
-    alert('登録に失敗しました: ' + error.message);
+    console.error('アカウント登録エラー:', error);
+    alert('登録に失敗しました: ' + (error.message || JSON.stringify(error)));
   }
 }
 
