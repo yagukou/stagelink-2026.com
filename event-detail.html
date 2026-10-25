@@ -52,6 +52,8 @@
       font-size: 16px;
       line-height: 1.8;
       color: #2d3748;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .description-body h1, 
     .description-body h2, 
@@ -77,12 +79,6 @@
       border: 1px solid #cbd5e0;
       padding: 8px 12px;
     }
-/* 詳細本文やカード枠に追加 */
-.description-body, .card {
-  /* 長い英数字や記号でも自動で改行させる指定 */
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
   </style>
 </head>
 <body>
@@ -98,74 +94,64 @@
 </div>
 
 <script>
-  // ⚠️ ご自身の Supabase 情報に書き換えてください
   const SUPABASE_URL = "https://blviywoprvcatwwrrysi.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
+  // 1. ストレージアクセスブロック（Tracking Prevention）対策を含めたSupabase初期化
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false
-  }
-});
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
 
-  async function loadDetail() {
+  // 2. DOM読み込み完了時にデータを取得・反映する非同期関数
+  document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+    const eventId = urlParams.get('id');
 
-    if (!id) {
-      document.getElementById('title-display').innerText = '企画が見つかりませんでした。';
+    const titleEl = document.getElementById('title-display');
+    const dateEl = document.getElementById('date-display');
+    const imgEl = document.getElementById('image-display');
+    const descEl = document.getElementById('desc-display');
+
+    if (!eventId) {
+      if (titleEl) titleEl.innerText = '企画が見つかりませんでした。';
       return;
     }
 
-    const { data, error } = await supabaseClient
-      .from('events')
-      .select('*')
-      .eq('id', id)
-      .single();
+    try {
+      const { data, error } = await supabaseClient
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
 
-    if (error || !data) {
-      document.getElementById('title-display').innerText = 'データの読み込みに失敗しました。';
-      return;
+      if (error || !data) {
+        if (titleEl) titleEl.innerText = 'データの読み込みに失敗しました。';
+        return;
+      }
+
+      // 正しいHTML要素IDへデータをセット
+      if (titleEl) titleEl.innerText = data.title || 'タイトルなし';
+      if (dateEl) dateEl.innerText = '開催日: ' + (data.event_date || '未定');
+      
+      // 画像が存在する場合は表示
+      if (imgEl && data.image_url) {
+        imgEl.src = data.image_url;
+        imgEl.style.display = 'block';
+      }
+
+      // リッチテキスト（装飾付き本文）の反映
+      if (descEl) {
+        descEl.innerHTML = data.description || '詳細情報はありません。';
+      }
+
+    } catch (err) {
+      console.error('取得エラー:', err);
+      if (titleEl) titleEl.innerText = 'データの読み込み中にエラーが発生しました。';
     }
-
-    document.getElementById('title-display').innerText = data.title;
-    document.getElementById('date-display').innerText = '開催日: ' + (data.event_date || '未定');
-    
-    // 装飾されたHTMLテキストを流し込み
-    document.getElementById('desc-display').innerHTML = data.description || '詳細情報はありません。';
-
-    if (data.image_url) {
-      const img = document.getElementById('image-display');
-      img.src = data.image_url;
-      img.style.display = 'block';
-    }
-  }
-
- document.addEventListener('DOMContentLoaded', async () => {
-  // コールバック関数を async () => に変更
-  const urlParams = new URLSearchParams(window.location.search);
-  const eventId = urlParams.get('id');
-
-  if (!eventId) return;
-
-  const { data, error } = await supabaseClient
-    .from('events')
-    .select('*')
-    .eq('id', eventId)
-    .single();
-
-  if (error) {
-    console.error('取得エラー:', error);
-    return;
-  }
-
-  if (data) {
-    document.getElementById('detail-title').innerText = data.title;
-    // リッチテキスト本文の反映
-    document.getElementById('detail-content').innerHTML = data.description || '';
-  }
-});
+  });
 </script>
 
 </body>
