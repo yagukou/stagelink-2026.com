@@ -884,6 +884,32 @@ header {
   padding-bottom: 2px;
   align-self: flex-start;
 }
+
+/* リッチテキスト表示用のスタイル調整 */
+.rich-content h1, .rich-content h2, .rich-content h3 {
+  font-family: "Noto Sans JP", sans-serif;
+  color: var(--wine-deep);
+  margin: 12px 0 6px;
+  font-weight: 700;
+}
+.rich-content h1 { font-size: 18px; }
+.rich-content h2 { font-size: 16px; }
+.rich-content h3 { font-size: 15px; }
+
+.rich-content p {
+  margin-bottom: 8px;
+  line-height: 1.7;
+}
+
+.rich-content ul, .rich-content ol {
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.rich-content a {
+  color: var(--wine);
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
@@ -1392,6 +1418,24 @@ function createCardHtml(item, isCurrent = false) {
     </div>
   `;
 }
+
+// what.html 内のカード描画部分の変更
+const card = document.createElement('article');
+card.className = 'fan-card';
+card.innerHTML = `
+  <div class="fan-card-media">
+    <img src="${item.image_url || 'images/default.jpg'}" alt="${item.title}">
+  </div>
+  <div class="fan-card-body">
+    <span class="fan-card-badge">今月の注目</span>
+    <h3 class="fan-card-title">${item.title}</h3>
+    
+    <!-- innerHTMLで装飾（<p>, <b>, <ul>など）をそのまま表示 -->
+    <div class="fan-card-desc rich-content">${item.description || ''}</div>
+    
+    <a href="${item.link_url || '#'}" class="card-btn">詳しく見る <span class="arrow">➔</span></a>
+  </div>
+`;
 </script>
 
 </body>
