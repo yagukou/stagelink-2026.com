@@ -6,86 +6,28 @@
   <title>企画管理パネル｜Stage Link</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   
-  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Quill (リッチテキストエディタ) CDN -->
   <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 
   <style>
-    :root {
-      --bg: #f4f5f7;
-      --card: #ffffff;
-      --text: #1f1a16;
-      --wine: #7c2946;
-      --wine-dark: #4a1428;
-      --border: #e2e8f0;
-    }
+    :root { --bg: #f4f5f7; --card: #ffffff; --text: #1f1a16; --wine: #7c2946; --wine-dark: #4a1428; --border: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Noto Sans JP', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 30px 20px;
-    }
+    body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; }
     .container { max-width: 900px; margin: 0 auto; }
-    h1 {
-      font-size: 24px;
-      color: var(--wine-dark);
-      margin-bottom: 20px;
-      border-bottom: 3px solid var(--wine);
-      padding-bottom: 8px;
-    }
-    .card {
-      background: var(--card);
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
+    h1 { font-size: 24px; color: var(--wine-dark); margin-bottom: 20px; border-bottom: 3px solid var(--wine); padding-bottom: 8px; }
+    .card { background: var(--card); border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; }
     .card h2 { font-size: 18px; margin-bottom: 16px; color: var(--wine); }
     .form-group { margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
     .help-text { font-size: 12px; color: #666; margin-bottom: 6px; }
-    
-    input[type="text"], input[type="date"], input[type="file"], select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 14px;
-      font-family: inherit;
-      background: #fff;
-    }
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--wine-dark);
-    }
-    .btn {
-      background: var(--wine);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 15px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    input[type="text"], input[type="date"], input[type="file"], select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-family: inherit; background: #fff; }
+    .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; color: var(--wine-dark); }
+    .btn { background: var(--wine); color: white; border: none; padding: 12px 24px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
     .btn:hover { background: var(--wine-dark); }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
     .btn-edit { background: #3182ce; padding: 6px 12px; font-size: 12px; margin-right: 4px; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    .btn-edit:hover { background: #2b6cb0; }
     .btn-danger { background: #e53e3e; padding: 6px 12px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    .btn-danger:hover { background: #c53030; }
     .btn-cancel { background: #718096; padding: 12px 24px; font-size: 15px; margin-left: 8px; }
-    .btn-cancel:hover { background: #4a5568; }
-
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
     th { background: #edf2f7; font-weight: 700; }
@@ -93,10 +35,8 @@
     .badge-current { background: #feebc8; color: #9c4221; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
     .badge-archive { background: #e2e8f0; color: #4a5568; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
     .current-img-info { font-size: 12px; color: #718096; margin-top: 4px; }
-
-    /* Quill スタイル微調整 */
     .ql-toolbar { border-top-left-radius: 6px; border-top-right-radius: 6px; background: #f8fafc; border-color: var(--border) !important; }
-    .ql-container { border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; font-family: inherit; border-color: var(--border) !important; font-size: 15px; }
+    .ql-container { border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; font-family: inherit; border-color: var(--border) !important; }
   </style>
 </head>
 <body>
@@ -120,10 +60,18 @@
         <input type="date" id="event_date" required>
       </div>
 
+      <!-- ① カード用エディタ -->
       <div class="form-group">
-        <label>企画の概要・詳細説明文（文字装飾・見出し・詳細ページ対応）</label>
-        <div class="help-text">※一覧カードおよび専用詳細ページ（event-detail.html）の両方に反映されます</div>
-        <div id="editor-description" style="height: 250px; background: #ffffff;"></div>
+        <label>① カード用・簡易説明文（what.html のカード等に表示）</label>
+        <div class="help-text">※一覧カードに表示される簡潔な文章（文字装飾可能）</div>
+        <div id="editor-summary" style="height: 120px; background: #ffffff;"></div>
+      </div>
+
+      <!-- ② 詳細ページ用エディタ -->
+      <div class="form-group" id="detail-editor-group">
+        <label>② 自動詳細ページ用・本文（event-detail.html に表示）</label>
+        <div class="help-text">※専用詳細ページに掲載する詳しい内容、日程、見出しなど</div>
+        <div id="editor-detail" style="height: 250px; background: #ffffff;"></div>
       </div>
 
       <div class="form-group">
@@ -135,7 +83,7 @@
       <div class="form-group">
         <label for="link_type">「詳しくみる」のリンク先</label>
         <select id="link_type" onchange="toggleLinkTypeOptions()">
-          <option value="auto">専用の自動詳細ページを使う（推奨：event-detail.html?id=xxx）</option>
+          <option value="auto">専用の自動詳細ページを使う（推奨：上記②の本文を表示）</option>
           <option value="custom">外部URL / 既存のHTMLファイル（BBQ.html など）を指定</option>
         </select>
       </div>
@@ -161,13 +109,7 @@
     <h2>登録中の企画一覧</h2>
     <table>
       <thead>
-        <tr>
-          <th>画像</th>
-          <th>日付</th>
-          <th>区分</th>
-          <th>タイトル</th>
-          <th>操作</th>
-        </tr>
+        <tr><th>画像</th><th>日付</th><th>区分</th><th>タイトル</th><th>操作</th></tr>
       </thead>
       <tbody id="event-list">
         <tr><td colspan="5">データを読み込んでいます...</td></tr>
@@ -181,19 +123,21 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: false, // セッションのローカルストレージ保存を無効化
-    autoRefreshToken: false // 自動トークン更新を無効化
-  }
-});
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
   let fetchedEvents = [];
-  let quillDesc;
+  let quillSummary, quillDetail;
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Quill エディタ初期化
-    quillDesc = new Quill('#editor-description', {
+    quillSummary = new Quill('#editor-summary', {
       theme: 'snow',
-      placeholder: '企画の概要や詳細説明を入力してください...',
+      placeholder: 'カード用説明文...',
+      modules: { toolbar: ['bold', 'italic', { 'color': [] }] }
+    });
+
+    quillDetail = new Quill('#editor-detail', {
+      theme: 'snow',
+      placeholder: '詳細ページ本文...',
       modules: {
         toolbar: [
           [{ 'header': [1, 2, 3, false] }],
@@ -210,11 +154,9 @@
 
   function toggleLinkTypeOptions() {
     const type = document.getElementById('link_type').value;
-    const customGroup = document.getElementById('custom_url_group');
-    customGroup.style.display = (type === 'custom') ? 'block' : 'none';
+    document.getElementById('custom_url_group').style.display = (type === 'custom') ? 'block' : 'none';
   }
 
-  // 企画一覧データの取得
   async function fetchEvents() {
     const listContainer = document.getElementById('event-list');
     try {
@@ -224,7 +166,6 @@
         .order('event_date', { ascending: false });
 
       if (error) throw error;
-
       fetchedEvents = data || [];
 
       if (fetchedEvents.length === 0) {
@@ -235,13 +176,8 @@
       listContainer.innerHTML = '';
       fetchedEvents.forEach(item => {
         const tr = document.createElement('tr');
-        const isCurrentBadge = item.is_current 
-          ? '<span class="badge-current">今月表示</span>' 
-          : '<span class="badge-archive">アーカイブ</span>';
-
-        const imageTag = item.image_url 
-          ? `<img src="${item.image_url}" class="img-preview" alt="">`
-          : 'なし';
+        const isCurrentBadge = item.is_current ? '<span class="badge-current">今月表示</span>' : '<span class="badge-archive">アーカイブ</span>';
+        const imageTag = item.image_url ? `<img src="${item.image_url}" class="img-preview" alt="">` : 'なし';
 
         tr.innerHTML = `
           <td>${imageTag}</td>
@@ -255,13 +191,11 @@
         `;
         listContainer.appendChild(tr);
       });
-    } catch (error) {
-      console.error('取得エラー:', error);
-      listContainer.innerHTML = `<tr><td colspan="5" style="color:red;">取得エラー: ${error.message}</td></tr>`;
+    } catch (err) {
+      listContainer.innerHTML = `<tr><td colspan="5" style="color:red;">取得エラー: ${err.message}</td></tr>`;
     }
   }
 
-  // 編集モード
   function startEdit(id) {
     const item = fetchedEvents.find(e => String(e.id) === String(id));
     if (!item) return;
@@ -271,10 +205,9 @@
     document.getElementById('title').value = item.title || '';
     document.getElementById('event_date').value = item.event_date || '';
 
-    // Quill エディタへセット
-    if (quillDesc) {
-      quillDesc.clipboard.dangerouslyPasteHTML(item.description || '');
-    }
+    // それぞれのエディタへデータをセット
+    if (quillSummary) quillSummary.clipboard.dangerouslyPasteHTML(item.description || '');
+    if (quillDetail) quillDetail.clipboard.dangerouslyPasteHTML(item.detail_content || item.description || '');
 
     document.getElementById('is_current').checked = item.is_current || false;
     document.getElementById('current_image_url').value = item.image_url || '';
@@ -296,7 +229,6 @@
 
     document.getElementById('submit-btn').innerText = '変更を更新・保存する';
     document.getElementById('cancel-btn').style.display = 'inline-block';
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -307,7 +239,8 @@
     document.getElementById('current_image_url').value = '';
     document.getElementById('image_info').innerText = '';
 
-    if (quillDesc) quillDesc.setText('');
+    if (quillSummary) quillSummary.setText('');
+    if (quillDetail) quillDetail.setText('');
 
     toggleLinkTypeOptions();
     document.getElementById('submit-btn').innerText = 'データを作成・保存する';
@@ -319,25 +252,15 @@
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
-    const { data, error } = await supabaseClient
-      .storage
-      .from('event-images')
-      .upload(filePath, file);
-
+    const { error } = await supabaseClient.storage.from('event-images').upload(filePath, file);
     if (error) throw new Error('画像のアップロードに失敗しました: ' + error.message);
 
-    const { data: publicUrlData } = supabaseClient
-      .storage
-      .from('event-images')
-      .getPublicUrl(filePath);
-
+    const { data: publicUrlData } = supabaseClient.storage.from('event-images').getPublicUrl(filePath);
     return publicUrlData.publicUrl;
   }
 
-  // 送信（保存 / 更新）処理
   document.getElementById('event-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const submitBtn = document.getElementById('submit-btn');
     submitBtn.disabled = true;
     submitBtn.innerText = '保存中...';
@@ -346,7 +269,11 @@
       const editId = document.getElementById('event_id').value;
       const title = document.getElementById('title').value;
       const event_date = document.getElementById('event_date').value;
-      const description = quillDesc ? quillDesc.root.innerHTML : '';
+
+      // ２つのエディタから内容を取得
+      const description = quillSummary ? quillSummary.root.innerHTML : '';
+      const detail_content = quillDetail ? quillDetail.root.innerHTML : '';
+
       const is_current = document.getElementById('is_current').checked;
       const link_type = document.getElementById('link_type').value;
       const fileInput = document.getElementById('image_file');
@@ -362,35 +289,28 @@
       }
 
       if (editId) {
-        // 更新時
-        if (link_type === 'auto') {
-          finalLinkUrl = `event-detail.html?id=${editId}`;
-        }
+        if (link_type === 'auto') finalLinkUrl = `event-detail.html?id=${editId}`;
 
         const { error } = await supabaseClient
           .from('events')
-          .update({ title, event_date, description, image_url, link_url: finalLinkUrl, is_current })
+          .update({ title, event_date, description, detail_content, image_url, link_url: finalLinkUrl, is_current })
           .eq('id', editId);
 
         if (error) throw error;
         alert('企画情報を更新しました！');
-
       } else {
-        // 新規作成時
         const { data, error } = await supabaseClient
           .from('events')
-          .insert([{ title, event_date, description, image_url, link_url: finalLinkUrl, is_current }])
+          .insert([{ title, event_date, description, detail_content, image_url, link_url: finalLinkUrl, is_current }])
           .select();
 
         if (error) throw error;
 
         if (link_type === 'auto' && data && data.length > 0) {
           const generatedId = data[0].id;
-          const autoUrl = `event-detail.html?id=${generatedId}`;
-
           await supabaseClient
             .from('events')
-            .update({ link_url: autoUrl })
+            .update({ link_url: `event-detail.html?id=${generatedId}` })
             .eq('id', generatedId);
         }
 
@@ -399,7 +319,6 @@
 
       resetForm();
       await fetchEvents();
-
     } catch (err) {
       alert('保存エラー: ' + err.message);
     } finally {
@@ -407,7 +326,6 @@
     }
   });
 
-  // 削除処理
   async function deleteEvent(id) {
     if (!confirm('本当に削除しますか？')) return;
     try {
