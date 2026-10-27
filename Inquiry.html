@@ -184,14 +184,14 @@ a {
       box-sizing: border-box;
     }
 
-    h2 {
+    .page-title {
       text-align: center;
       font-family: "Yu Mincho", serif;
       color: #b90e0e;
       margin-bottom: 30px;
       font-size: 26px;
       letter-spacing: 1px;
-      margin-top: 0;
+      margin: 0 0 24px;
     }
 
     label {
@@ -229,25 +229,46 @@ a {
     }
 
     button.submit-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+
       width: 100%;
-      margin-top: 30px;
+      max-width: 340px;
+      min-height:54px;
+      margin:30px auto 0;
       background: #111;
       color: #c5a059;
       border: 1px solid #c5a059;
-      padding: 14px;
+      padding: 14px 24px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       letter-spacing: 1px;
-      transition: 0.3s;
       font-family: "Yu Mincho", serif;
-      border-radius: 4px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     button.submit-btn:hover {
       background: #c5a059;
       color: #111;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+
+    button.submit-btn .arrow {
+      font-size: 20px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+
+    button.submit-btn:hover .arrow {
+      transform: translateX(4px);
+    }
+
 
     /* --------------------------------------------------
        ⚙️ 【最重要】Google翻訳UIの徹底完全非表示設定
@@ -366,8 +387,8 @@ a {
 
     <!-- メインコンテンツエリア -->
     <div class="container">
+      <h2 class="page-title">お問い合わせ</h2>
       <div class="form-container">
-        <h2>お問い合わせ</h2>
 
         <form action="https://formspree.io/mgodpzjw" method="POST">
           <label>お名前</label>
@@ -379,7 +400,10 @@ a {
           <label>お問い合わせ内容</label>
           <textarea name="message" required placeholder="こちらにお問い合わせ内容をご記入ください。"></textarea>
 
-          <button type="submit" class="submit-btn">上記の内容で送信する</button>
+          <button type="submit" class="submit-btn">
+            <span>送信する</span>
+            <span class="arrow">→</span>
+          </button>
         </form>
       </div>
     </div>
