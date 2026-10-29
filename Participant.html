@@ -1871,7 +1871,6 @@ async function deleteTroupeDirect(event, troupeId, troupeName) {
 }
 
 // プロフィール情報の更新処理
-// プロフィール情報の更新処理
 async function handleUpdateProfile() {
   if (!currentUser) return;
 
@@ -1882,7 +1881,7 @@ async function handleUpdateProfile() {
   const description = document.getElementById('edit-troupe-desc')?.value.trim() || '';
 
   const updatePayload = {
-    avatar_url: selectedAvatarDataUrl, // FileReaderで取得したData URLを保存
+    avatar_url: selectedAvatarDataUrl,
     affiliation: affiliation,
     homepage: homepage,
     instagram: instagram,
@@ -1894,13 +1893,16 @@ async function handleUpdateProfile() {
     const { error } = await db.from('troupes').update(updatePayload).eq('id', currentUser.id);
     if (error) throw error;
 
-    // ローカルデータの更新
+    // ローカルのデータ（currentUser および troupesData）を最新状態に更新
     Object.assign(currentUser, updatePayload);
     const idx = troupesData.findIndex(t => t.id === currentUser.id);
-    if (idx !== -1) troupesData[idx] = { ...troupesData[idx], ...updatePayload };
+    if (idx !== -1) {
+      troupesData[idx] = { ...troupesData[idx], ...updatePayload };
+    }
 
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
+    // 画面の再描画
     renderTroupes(troupesData);
     updateAuthUI();
     alert('劇団プロフィールおよび画像を更新しました！');
@@ -1908,17 +1910,6 @@ async function handleUpdateProfile() {
     console.error('プロフィール更新エラー:', error);
     alert('保存に失敗しました: ' + (error.message || JSON.stringify(error)));
   }
-}
-
-// マイページ描画時に既存データをフォームに反映する処理（renderMyPage 内に追加）
-function fillProfileForm() {
-  if (!currentUser) return;
-  document.getElementById('edit-troupe-avatar').value = currentUser.avatar_url || '';
-  document.getElementById('edit-troupe-affiliation').value = currentUser.affiliation || '';
-  document.getElementById('edit-troupe-homepage').value = currentUser.homepage || '';
-  document.getElementById('edit-troupe-instagram').value = currentUser.instagram || '';
-  document.getElementById('edit-troupe-sns').value = currentUser.sns || '';
-  document.getElementById('edit-troupe-desc').value = currentUser.description || '';
 }
 
 // 選択中の画像データ（Data URL形式）を保持する変数
