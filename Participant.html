@@ -639,6 +639,14 @@ gap: 4px;
 <div class="page-sub" id="register-page-sub">自劇団の公演スケジュールとビラ折り込みの受け入れ条件を設定します</div>
 </div>
 
+<!-- 公演登録エラー表示バナー -->
+<div id="register-error-banner" style="display:none; background:#FEF0F0; border:1px solid #F9C5C5; border-radius:var(--radius-md); padding:12px 16px; margin-bottom:1.5rem; color:#A32D2D; font-size:13px; line-height:1.6;">
+  <div style="font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+    <i class="ti ti-alert-triangle" style="font-size:16px;"></i> 入力内容にエラーがあります
+  </div>
+  <ul id="register-error-list" style="margin-left:20px; padding:0;"></ul>
+</div>
+
 <div id="register-form-body">
 <div class="form-section">
 <div class="form-section-title">基本情報</div>
@@ -1471,6 +1479,11 @@ function cancelEditPerformance() {
 
 function resetRegisterForm() {
   editingPerfId = null;
+  
+  // エラー表示バナーを非表示化
+  const errorBanner = document.getElementById('register-error-banner');
+  if (errorBanner) errorBanner.style.display = 'none';
+
   document.getElementById('new-perf-title').value = '';
   document.getElementById('new-perf-start').value = '';
   document.getElementById('new-perf-end').value = '';
@@ -1487,6 +1500,15 @@ async function handleRegisterPerformance() {
     return;
   }
 
+  // エラーバナーとリストの初期化
+  const errorBanner = document.getElementById('register-error-banner');
+  const errorList = document.getElementById('register-error-list');
+  errorList.innerHTML = '';
+  errorBanner.style.display = 'none';
+
+  const errors = [];
+
+  // 入力値の取得
   const title = document.getElementById('new-perf-title').value.trim();
   const start = document.getElementById('new-perf-start').value;
   const end = document.getElementById('new-perf-end').value;
@@ -1496,10 +1518,39 @@ async function handleRegisterPerformance() {
   const quotaInput = document.getElementById('new-perf-quota').value;
   const desc = document.getElementById('new-perf-desc').value.trim();
 
-  if (!title || !start || !end || !acceptStart || !acceptEnd || !venue || !quotaInput) {
-    alert('必須項目をすべて入力してください。');
+  // ----------------【バリデーションチェック】----------------
+  // 1. 必須項目の空チェック
+  if (!title) errors.push('公演タイトルを入力してください。');
+  if (!start) errors.push('公演開始日を選択してください。');
+  if (!end) errors.push('公演終了日を選択してください。');
+  if (!acceptStart) errors.push('折り込み受付開始日を選択してください。');
+  if (!acceptEnd) errors.push('折り込み受付終了日を選択してください。');
+  if (!venue) errors.push('会場名を入力してください。');
+  if (!quotaInput || parseInt(quotaInput) <= 0) errors.push('折り込み上限部数は1部以上の数値を入力してください。');
+
+  // 2. 日付の逆転・整合性チェック
+  if (start && end && start > end) {
+    errors.push('公演開始日は公演終了日より前の日付に設定してください。');
+  }
+  if (acceptStart && acceptEnd && acceptStart > acceptEnd) {
+    errors.push('折り込み受付開始日は受付終了日より前の日付に設定してください。');
+  }
+  if (acceptEnd && start && acceptEnd > start) {
+    errors.push('折り込み受付終了日は公演開始日以前に設定してください（公演開始後の受付はできません）。');
+  }
+
+  // エラーが存在する場合は赤文字リストを表示して送信をブロック
+  if (errors.length > 0) {
+    errors.forEach(err => {
+      const li = document.createElement('li');
+      li.textContent = err;
+      errorList.appendChild(li);
+    });
+    errorBanner.style.display = 'block';
+    errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
+  // --------------------------------------------------------
 
   const perfPayload = {
     troupeId: currentUser.id,
