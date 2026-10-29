@@ -772,16 +772,24 @@ gap: 4px;
   </div>
   
   <div class="form-2col">
-    <div class="form-row">
-      <label class="form-label">プロフィール画像URL（劇団ロゴ・写真）</label>
-      <input type="url" class="form-input" id="edit-troupe-avatar" placeholder="https://example.com/logo.jpg">
-      <span style="font-size:11px; color:var(--muted);">※画像のWeb直リンクURLを入力してください</span>
-    </div>
-    <div class="form-row">
-      <label class="form-label">所属大学・拠点</label>
-      <input type="text" class="form-input" id="edit-troupe-affiliation" placeholder="例：早稲田大学">
+  <!-- 左列：プロフィール画像 -->
+  <div class="form-row">
+    <label class="form-label">プロフィール画像（画像ファイルを選択）</label>
+    <input type="file" class="form-input" id="edit-troupe-avatar-file" accept="image/*" onchange="previewSelectedImage(event)">
+    <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px;">
+      <div id="avatar-preview-box" style="width: 50px; height: 50px; border-radius: 8px; background: var(--surface2); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-neutral);">
+        <span style="font-size: 11px; color: var(--muted);">なし</span>
+      </div>
+      <span style="font-size: 11px; color: var(--muted);">※画像を選択するとプレビューが表示されます</span>
     </div>
   </div>
+
+  <!-- 右列：所属大学・拠点 -->
+  <div class="form-row">
+    <label class="form-label">所属大学・拠点</label>
+    <input type="text" class="form-input" id="edit-troupe-affiliation" placeholder="例：早稲田大学">
+  </div>
+</div>
 
   <div class="form-2col">
     <div class="form-row">
@@ -1845,10 +1853,10 @@ async function deleteTroupeDirect(event, troupeId, troupeName) {
 }
 
 // プロフィール情報の更新処理
+// プロフィール情報の更新処理
 async function handleUpdateProfile() {
   if (!currentUser) return;
 
-  const avatarUrl = document.getElementById('edit-troupe-avatar')?.value.trim() || '';
   const affiliation = document.getElementById('edit-troupe-affiliation')?.value.trim() || '';
   const homepage = document.getElementById('edit-troupe-homepage')?.value.trim() || '';
   const instagram = document.getElementById('edit-troupe-instagram')?.value.trim() || '';
@@ -1856,7 +1864,7 @@ async function handleUpdateProfile() {
   const description = document.getElementById('edit-troupe-desc')?.value.trim() || '';
 
   const updatePayload = {
-    avatar_url: avatarUrl,
+    avatar_url: selectedAvatarDataUrl, // FileReaderで取得したData URLを保存
     affiliation: affiliation,
     homepage: homepage,
     instagram: instagram,
@@ -1877,7 +1885,7 @@ async function handleUpdateProfile() {
 
     renderTroupes(troupesData);
     updateAuthUI();
-    alert('劇団プロフィールを更新しました！');
+    alert('劇団プロフィールおよび画像を更新しました！');
   } catch (error) {
     console.error('プロフィール更新エラー:', error);
     alert('保存に失敗しました: ' + (error.message || JSON.stringify(error)));
@@ -1888,6 +1896,53 @@ async function handleUpdateProfile() {
 function fillProfileForm() {
   if (!currentUser) return;
   document.getElementById('edit-troupe-avatar').value = currentUser.avatar_url || '';
+  document.getElementById('edit-troupe-affiliation').value = currentUser.affiliation || '';
+  document.getElementById('edit-troupe-homepage').value = currentUser.homepage || '';
+  document.getElementById('edit-troupe-instagram').value = currentUser.instagram || '';
+  document.getElementById('edit-troupe-sns').value = currentUser.sns || '';
+  document.getElementById('edit-troupe-desc').value = currentUser.description || '';
+}
+
+// 選択中の画像データ（Data URL形式）を保持する変数
+let selectedAvatarDataUrl = '';
+
+// ファイルが選択された時にプレビューを表示する処理
+function previewSelectedImage(event) {
+  const file = event.target.files[0];
+  const previewBox = document.getElementById('avatar-preview-box');
+
+  if (!file) {
+    return;
+  }
+
+  // ファイルサイズチェック (例: 2MB以下を推奨)
+  if (file.size > 2 * 1024 * 1024) {
+    alert('画像サイズが大きすぎます。2MB以下の画像を選択してください。');
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    selectedAvatarDataUrl = e.target.result; // Data URLを取得
+    previewBox.innerHTML = `<img src="${selectedAvatarDataUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// マイページ表示時に既存の登録画像をプレビューにセットする処理（fillProfileForm内に追加）
+function fillProfileForm() {
+  if (!currentUser) return;
+  
+  selectedAvatarDataUrl = currentUser.avatar_url || '';
+  const previewBox = document.getElementById('avatar-preview-box');
+  
+  if (currentUser.avatar_url) {
+    previewBox.innerHTML = `<img src="${currentUser.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`;
+  } else {
+    previewBox.innerHTML = `<span style="font-size: 11px; color: var(--muted);">なし</span>`;
+  }
+
   document.getElementById('edit-troupe-affiliation').value = currentUser.affiliation || '';
   document.getElementById('edit-troupe-homepage').value = currentUser.homepage || '';
   document.getElementById('edit-troupe-instagram').value = currentUser.instagram || '';
