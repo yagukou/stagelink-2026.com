@@ -765,6 +765,48 @@ gap: 4px;
 <button class="btn-secondary" style="padding:6px 14px; font-size:12px; cursor: pointer;" onclick="handleLogout()"><i class="ti ti-logout"></i>ログアウト</button>
 </div>
 
+<!-- 劇団プロフィール編集フォーム -->
+<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
+  <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
+    <i class="ti ti-edit"></i> 劇団プロフィールの編集
+  </div>
+  
+  <div class="form-2col">
+    <div class="form-row">
+      <label class="form-label">プロフィール画像URL（劇団ロゴ・写真）</label>
+      <input type="url" class="form-input" id="edit-troupe-avatar" placeholder="https://example.com/logo.jpg">
+      <span style="font-size:11px; color:var(--muted);">※画像のWeb直リンクURLを入力してください</span>
+    </div>
+    <div class="form-row">
+      <label class="form-label">所属大学・拠点</label>
+      <input type="text" class="form-input" id="edit-troupe-affiliation" placeholder="例：早稲田大学">
+    </div>
+  </div>
+
+  <div class="form-2col">
+    <div class="form-row">
+      <label class="form-label"><i class="ti ti-world"></i> 公式ホームページ URL</label>
+      <input type="url" class="form-input" id="edit-troupe-homepage" placeholder="https://example.com">
+    </div>
+    <div class="form-row">
+      <label class="form-label"><i class="ti ti-brand-instagram" style="color:#E1306C"></i> Instagram URL</label>
+      <input type="url" class="form-input" id="edit-troupe-instagram" placeholder="https://instagram.com/your_account">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label class="form-label"><i class="ti ti-brand-x"></i> X (旧Twitter) URL</label>
+    <input type="url" class="form-input" id="edit-troupe-sns" placeholder="https://x.com/your_account">
+  </div>
+
+  <div class="form-row">
+    <label class="form-label">劇団紹介文</label>
+    <textarea class="form-textarea" id="edit-troupe-desc" placeholder="劇団のコンセプトや活動内容を入力してください"></textarea>
+  </div>
+
+  <button class="btn-primary" onclick="handleUpdateProfile()"><i class="ti ti-device-floppy"></i> プロフィールを保存する</button>
+</div>
+
 <div class="stat-grid">
 <div class="stat-card stat-card-red">
 <div class="stat-label">届いた依頼数</div>
@@ -1126,11 +1168,16 @@ function renderTroupes(troupes) {
       }
     }
 
+    // 🌟 ここを追加：画像があれば <img>、なければ頭文字を表示 🌟
+    let avatarHtml = `<div class="troupe-avatar" style="background:${bg}; color:${borderLeft}">${escapeHtml(t.name.charAt(0))}</div>`;
+    if (t.avatar_url) {
+      avatarHtml = `<img src="${escapeHtml(t.avatar_url)}" class="troupe-avatar" style="object-fit:cover;" alt="${escapeHtml(t.name)}">`;
+    }
+
     const card = document.createElement('div');
     card.className = 'troupe-card';
     card.onclick = () => openTroupeModal(t.id);
 
-    // 🌟 admin@stagelink-2026.com でログインしている場合のみ削除ボタンを表示 🌟
     let deleteBtnHtml = '';
     if (currentUser && currentUser.email === 'admin@stagelink-2026.com') {
       deleteBtnHtml = `
@@ -1139,13 +1186,14 @@ function renderTroupes(troupes) {
         </button>`;
     }
 
+    // 🌟 innerHTML 内の <div class="troupe-avatar"...> を ${avatarHtml} に差し替える 🌟
     card.innerHTML = `
       ${deleteBtnHtml}
       <div class="troupe-card-head">
-        <div class="troupe-avatar" style="background:${bg}; color:${borderLeft}">${t.name.charAt(0)}</div>
+        ${avatarHtml}
         <div>
-          <div class="troupe-name">${t.name}</div>
-          <div class="troupe-univ">${t.affiliation || ''}</div>
+          <div class="troupe-name">${escapeHtml(t.name)}</div>
+          <div class="troupe-univ">${escapeHtml(t.affiliation || '')}</div>
         </div>
         ${statusHtml}
       </div>
@@ -1189,22 +1237,27 @@ function openTroupeModal(troupeId) {
   document.body.removeChild(dummy);
 
   const avatar = document.getElementById('tsp-avatar');
+if (troupe.avatar_url) {
+  avatar.innerHTML = `<img src="${escapeHtml(troupe.avatar_url)}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
+} else {
   avatar.textContent = troupe.name.charAt(0);
   avatar.style.background = bg;
   avatar.style.color = borderLeft;
+}
 
-  document.getElementById('tsp-name').textContent = troupe.name;
-  document.getElementById('tsp-affiliation').textContent = troupe.affiliation || '';
-  document.getElementById('tsp-description').textContent = troupe.description || "劇団紹介文はまだ登録されていません。";
+// リンク群の生成
+const linksWrap = document.getElementById('tsp-links');
+linksWrap.innerHTML = '';
 
-  const linksWrap = document.getElementById('tsp-links');
-  linksWrap.innerHTML = '';
-  if (troupe.homepage) {
-    linksWrap.innerHTML += `<a href="${troupe.homepage}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--crimson); background:var(--crimson-pale); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(139,26,47,0.15);"><i class="ti ti-world" style="font-size:15px;"></i> 公式ホームページを開く <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-  }
-  if (troupe.sns) {
-    linksWrap.innerHTML += `<a href="${troupe.sns}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); background:var(--surface2); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid var(--border-neutral);"><i class="ti ti-brand-x" style="font-size:15px;"></i> 公式SNSを開く <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-  }
+if (troupe.homepage) {
+  linksWrap.innerHTML += `<a href="${escapeHtml(troupe.homepage)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--crimson); background:var(--crimson-pale); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(139,26,47,0.15);"><i class="ti ti-world" style="font-size:15px;"></i> 公式ホームページ <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+}
+if (troupe.instagram) {
+  linksWrap.innerHTML += `<a href="${escapeHtml(troupe.instagram)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#E1306C; background:#FDF0F5; padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(225,48,108,0.2);"><i class="ti ti-brand-instagram" style="font-size:15px;"></i> 公式Instagram <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+}
+if (troupe.sns) {
+  linksWrap.innerHTML += `<a href="${escapeHtml(troupe.sns)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); background:var(--surface2); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid var(--border-neutral);"><i class="ti ti-brand-x" style="font-size:15px;"></i> 公式 X (旧Twitter) <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+}
 
   const troupePerfs = performancesData.filter(p => p.troupeId === troupeId);
   const perfListWrap = document.getElementById('tsp-performances');
@@ -1509,7 +1562,7 @@ function renderMyPage() {
 
 // 1. 新規アカウント作成
 async function handleRegisterTroupe() {
-  const name = document.getElementById('reg-troupe-name').value.trim();
+const name = document.getElementById('reg-troupe-name').value.trim();
   const email = document.getElementById('reg-troupe-email').value.trim();
   const password = document.getElementById('reg-troupe-password').value.trim();
 
@@ -1518,16 +1571,22 @@ async function handleRegisterTroupe() {
     return;
   }
 
+  // 追加した全カラムの初期値を空文字('')で定義して送信する
   const newTroupe = {
     id: 'troupe_' + Date.now(),
     name: name,
     email: email,
     password: password,
-    affiliation: '早稲田大学' // デフォルト値
+    affiliation: '早稲田大学', // デフォルト値
+    description: '',
+    homepage: '',
+    instagram: '',
+    sns: '',
+    avatar_url: ''
   };
 
   try {
-    // .select() を削除して単純な insert に変更
+    // .select() はつけずに単純な insert のみにする
     const { error } = await db.from('troupes').insert([newTroupe]);
     if (error) throw error;
 
@@ -1537,7 +1596,7 @@ async function handleRegisterTroupe() {
     
     updateAuthUI();
     renderMyPage();
-    renderTroupes(troupesData); // 一覧画面も即座に更新
+    renderTroupes(troupesData); // 劇団一覧画面も更新
     alert('アカウントが作成されました。');
   } catch (error) {
     console.error('アカウント登録エラー:', error);
@@ -1783,6 +1842,57 @@ async function deleteTroupeDirect(event, troupeId, troupeName) {
     console.error('削除エラー:', error);
     alert('削除処理に失敗しました: ' + (error.message || JSON.stringify(error)));
   }
+}
+
+// プロフィール情報の更新処理
+async function handleUpdateProfile() {
+  if (!currentUser) return;
+
+  const avatarUrl = document.getElementById('edit-troupe-avatar')?.value.trim() || '';
+  const affiliation = document.getElementById('edit-troupe-affiliation')?.value.trim() || '';
+  const homepage = document.getElementById('edit-troupe-homepage')?.value.trim() || '';
+  const instagram = document.getElementById('edit-troupe-instagram')?.value.trim() || '';
+  const sns = document.getElementById('edit-troupe-sns')?.value.trim() || '';
+  const description = document.getElementById('edit-troupe-desc')?.value.trim() || '';
+
+  const updatePayload = {
+    avatar_url: avatarUrl,
+    affiliation: affiliation,
+    homepage: homepage,
+    instagram: instagram,
+    sns: sns,
+    description: description
+  };
+
+  try {
+    const { error } = await db.from('troupes').update(updatePayload).eq('id', currentUser.id);
+    if (error) throw error;
+
+    // ローカルデータの更新
+    Object.assign(currentUser, updatePayload);
+    const idx = troupesData.findIndex(t => t.id === currentUser.id);
+    if (idx !== -1) troupesData[idx] = { ...troupesData[idx], ...updatePayload };
+
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    renderTroupes(troupesData);
+    updateAuthUI();
+    alert('劇団プロフィールを更新しました！');
+  } catch (error) {
+    console.error('プロフィール更新エラー:', error);
+    alert('保存に失敗しました: ' + (error.message || JSON.stringify(error)));
+  }
+}
+
+// マイページ描画時に既存データをフォームに反映する処理（renderMyPage 内に追加）
+function fillProfileForm() {
+  if (!currentUser) return;
+  document.getElementById('edit-troupe-avatar').value = currentUser.avatar_url || '';
+  document.getElementById('edit-troupe-affiliation').value = currentUser.affiliation || '';
+  document.getElementById('edit-troupe-homepage').value = currentUser.homepage || '';
+  document.getElementById('edit-troupe-instagram').value = currentUser.instagram || '';
+  document.getElementById('edit-troupe-sns').value = currentUser.sns || '';
+  document.getElementById('edit-troupe-desc').value = currentUser.description || '';
 }
 </script>
 </body>
