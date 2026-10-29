@@ -1244,29 +1244,45 @@ function openTroupeModal(troupeId) {
   const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
   document.body.removeChild(dummy);
 
+  // 1. アイコン画像セット
   const avatar = document.getElementById('tsp-avatar');
-if (troupe.avatar_url) {
-  avatar.innerHTML = `<img src="${escapeHtml(troupe.avatar_url)}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
-} else {
-  avatar.textContent = troupe.name.charAt(0);
-  avatar.style.background = bg;
-  avatar.style.color = borderLeft;
-}
+  if (troupe.avatar_url) {
+    avatar.innerHTML = `<img src="${escapeHtml(troupe.avatar_url)}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
+  } else {
+    avatar.innerHTML = '';
+    avatar.textContent = troupe.name.charAt(0);
+    avatar.style.background = bg;
+    avatar.style.color = borderLeft;
+  }
 
-// リンク群の生成
-const linksWrap = document.getElementById('tsp-links');
-linksWrap.innerHTML = '';
+  // 2. 劇団名・所属・紹介文セット
+  document.getElementById('tsp-name').textContent = troupe.name || '-';
+  document.getElementById('tsp-affiliation').textContent = troupe.affiliation || '-';
+  document.getElementById('tsp-description').textContent = troupe.description || "劇団紹介文はまだ登録されていません。";
 
-if (troupe.homepage) {
-  linksWrap.innerHTML += `<a href="${escapeHtml(troupe.homepage)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--crimson); background:var(--crimson-pale); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(139,26,47,0.15);"><i class="ti ti-world" style="font-size:15px;"></i> 公式ホームページ <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-}
-if (troupe.instagram) {
-  linksWrap.innerHTML += `<a href="${escapeHtml(troupe.instagram)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#E1306C; background:#FDF0F5; padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(225,48,108,0.2);"><i class="ti ti-brand-instagram" style="font-size:15px;"></i> 公式Instagram <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-}
-if (troupe.sns) {
-  linksWrap.innerHTML += `<a href="${escapeHtml(troupe.sns)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); background:var(--surface2); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid var(--border-neutral);"><i class="ti ti-brand-x" style="font-size:15px;"></i> 公式 X (旧Twitter) <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-}
+  // 3. SNS・HP リンク群の生成
+  const linksWrap = document.getElementById('tsp-links');
+  linksWrap.innerHTML = '';
 
+  let hasLinks = false;
+  if (troupe.homepage) {
+    hasLinks = true;
+    linksWrap.innerHTML += `<a href="${escapeHtml(troupe.homepage)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--crimson); background:var(--crimson-pale); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(139,26,47,0.15);"><i class="ti ti-world" style="font-size:15px;"></i> 公式ホームページ <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+  }
+  if (troupe.instagram) {
+    hasLinks = true;
+    linksWrap.innerHTML += `<a href="${escapeHtml(troupe.instagram)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#E1306C; background:#FDF0F5; padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(225,48,108,0.2);"><i class="ti ti-brand-instagram" style="font-size:15px;"></i> 公式Instagram <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+  }
+  if (troupe.sns) {
+    hasLinks = true;
+    linksWrap.innerHTML += `<a href="${escapeHtml(troupe.sns)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); background:var(--surface2); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid var(--border-neutral);"><i class="ti ti-brand-x" style="font-size:15px;"></i> 公式 X (旧Twitter) <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+  }
+
+  if (!hasLinks) {
+    linksWrap.innerHTML = '<p style="font-size:12px; color:var(--muted); font-style:italic;">登録されているリンクはありません。</p>';
+  }
+
+  // 4. 公演一覧のセット
   const troupePerfs = performancesData.filter(p => p.troupeId === troupeId);
   const perfListWrap = document.getElementById('tsp-performances');
   perfListWrap.innerHTML = '';
@@ -1281,12 +1297,12 @@ if (troupe.sns) {
       item.onclick = () => { closeTroupeModal(); openPerformanceDetail(p.id); };
       item.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-          <strong style="font-size:13px; color:var(--ink); flex:1;">${p.title}</strong>
+          <strong style="font-size:13px; color:var(--ink); flex:1;">${escapeHtml(p.title)}</strong>
           <span class="status-badge ${stat.class}" style="margin:0; font-size:10px; padding:2px 6px; flex-shrink:0;">${stat.text}</span>
         </div>
         <div style="font-size:12px; color:var(--muted); display:flex; align-items:center; gap:12px; margin-top:2px; flex-wrap:wrap;">
           <span><i class="ti ti-calendar" style="font-size:12px;"></i> ${p.start} ～ ${p.end}</span>
-          <span><i class="ti ti-map-pin" style="font-size:12px;"></i> ${p.venue}</span>
+          <span><i class="ti ti-map-pin" style="font-size:12px;"></i> ${escapeHtml(p.venue)}</span>
         </div>`;
       perfListWrap.appendChild(item);
     });
@@ -1566,6 +1582,8 @@ function renderMyPage() {
       inboxList.appendChild(item);
     });
   }
+
+  fillProfileForm();
 }
 
 // 1. 新規アカウント作成
@@ -1911,11 +1929,8 @@ function previewSelectedImage(event) {
   const file = event.target.files[0];
   const previewBox = document.getElementById('avatar-preview-box');
 
-  if (!file) {
-    return;
-  }
+  if (!file) return;
 
-  // ファイルサイズチェック (例: 2MB以下を推奨)
   if (file.size > 2 * 1024 * 1024) {
     alert('画像サイズが大きすぎます。2MB以下の画像を選択してください。');
     event.target.value = '';
@@ -1924,13 +1939,13 @@ function previewSelectedImage(event) {
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    selectedAvatarDataUrl = e.target.result; // Data URLを取得
+    selectedAvatarDataUrl = e.target.result;
     previewBox.innerHTML = `<img src="${selectedAvatarDataUrl}" style="width:100%; height:100%; object-fit:cover;">`;
   };
   reader.readAsDataURL(file);
 }
 
-// マイページ表示時に既存の登録画像をプレビューにセットする処理（fillProfileForm内に追加）
+// マイページ表示時に既存データをフォームに反映する関数（1つに統合）
 function fillProfileForm() {
   if (!currentUser) return;
   
@@ -1938,16 +1953,22 @@ function fillProfileForm() {
   const previewBox = document.getElementById('avatar-preview-box');
   
   if (currentUser.avatar_url) {
-    previewBox.innerHTML = `<img src="${currentUser.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`;
+    previewBox.innerHTML = `<img src="${escapeHtml(currentUser.avatar_url)}" style="width:100%; height:100%; object-fit:cover;">`;
   } else {
     previewBox.innerHTML = `<span style="font-size: 11px; color: var(--muted);">なし</span>`;
   }
 
-  document.getElementById('edit-troupe-affiliation').value = currentUser.affiliation || '';
-  document.getElementById('edit-troupe-homepage').value = currentUser.homepage || '';
-  document.getElementById('edit-troupe-instagram').value = currentUser.instagram || '';
-  document.getElementById('edit-troupe-sns').value = currentUser.sns || '';
-  document.getElementById('edit-troupe-desc').value = currentUser.description || '';
+  const affEl = document.getElementById('edit-troupe-affiliation');
+  const hpEl = document.getElementById('edit-troupe-homepage');
+  const instaEl = document.getElementById('edit-troupe-instagram');
+  const snsEl = document.getElementById('edit-troupe-sns');
+  const descEl = document.getElementById('edit-troupe-desc');
+
+  if (affEl) affEl.value = currentUser.affiliation || '';
+  if (hpEl) hpEl.value = currentUser.homepage || '';
+  if (instaEl) instaEl.value = currentUser.instagram || '';
+  if (snsEl) snsEl.value = currentUser.sns || '';
+  if (descEl) descEl.value = currentUser.description || '';
 }
 </script>
 </body>
