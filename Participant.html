@@ -551,16 +551,31 @@ gap: 4px;
 </div>
 
 <div class="sidebar-card">
-<div class="sidebar-card-title"><i class="ti ti-stack-2"></i>折り込み枠の状況</div>
-<div class="quota-text">1団体あたりの上限部数</div>
-<div style="font-size:22px;font-weight:500;color:var(--ink)" id="detail-max-quota">300<span style="font-size:14px;font-weight:400;color:var(--muted)"> 部</span></div>
-<div style="margin:8px 0">
-<div class="quota-bar-bg"><div class="quota-bar-fill" id="detail-quota-bar" style="width:0%"></div></div>
-</div>
-<div class="quota-text" id="detail-quota-summary">0 / 300 部（申請中含む）</div>
-<button class="request-btn" id="detail-request-btn" onclick="openRequestForm()">折り込みを依頼する</button>
-</div>
-</div>
+  <div class="sidebar-card-title"><i class="ti ti-stack-2"></i>折り込み枠の状況</div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
+    <div>
+      <div class="quota-text">1団体あたりの上限</div>
+      <div style="font-size:18px; font-weight:500; color:var(--ink)" id="detail-max-quota">300 部/団体</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="quota-text">受け入れ総部数</div>
+      <div style="font-size:18px; font-weight:500; color:var(--ink)" id="detail-total-quota">1,000 部</div>
+    </div>
+  </div>
+
+  <div style="margin:12px 0 6px 0;">
+    <div class="quota-bar-bg" style="background: var(--surface2); height: 10px; border-radius: 5px; overflow: hidden;">
+      <div class="quota-bar-fill" id="detail-quota-bar" style="width:0%; height:100%; background: var(--crimson); transition: width 0.3s ease;"></div>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px;">
+    <span id="detail-quota-summary">申請中・承認済み: 0 部</span>
+    <span id="detail-remaining-quota" style="font-weight: 600; color: var(--crimson);">残り: 1,000 部</span>
+  </div>
+
+  <button class="request-btn" id="detail-request-btn" onclick="openRequestForm()">折り込みを依頼する</button>
 </div>
 
 <div class="page" id="page-request-form">
@@ -687,6 +702,10 @@ gap: 4px;
 <label class="form-label">1団体あたりの折り込み上限部数<span class="form-required">*</span></label>
 <input type="number" class="form-input" id="new-perf-quota" value="300" min="1" max="1000">
 </div>
+<div class="form-row">
+    <label class="form-label">受け入れ可能な総部数<span class="form-required">*</span></label>
+    <input type="number" class="form-input" id="new-perf-total-quota" value="1000" min="1" placeholder="例：1000">
+  </div>
 </div>
 <div class="form-section-title" style="margin-top:20px;">受け渡し方法の制限</div>
 <div class="form-row">
@@ -1340,16 +1359,36 @@ function openPerformanceDetail(perfId) {
   document.getElementById('detail-venue').textContent = perf.venue;
   document.getElementById('detail-accept-period').textContent = `${perf.acceptStart} ～ ${perf.acceptEnd}`;
   document.getElementById('detail-email').textContent = perf.email || "未設定";
-  document.getElementById('detail-max-quota').innerHTML = `${perf.maxQuota}<span style="font-size:14px;font-weight:400;color:var(--muted)"> 部/団体</span>`;
 
-  const requestingTroupes = [...new Set(
-    incomingRequests
-      .filter(r => r.perfId === perfId && r.status !== 'declined')
-      .map(r => r.fromTroupeId || r.fromEmail)
-  )].length;
+  // 部数・数値の設定
+  const maxQuota = perf.maxQuota || 300;
+  const totalQuota = perf.totalQuota || 1000;
 
-  document.getElementById('detail-quota-bar').style.width = `0%`;
-  document.getElementById('detail-quota-summary').textContent = `現在 ${requestingTroupes} 団体から依頼あり`;
+  document.getElementById('detail-max-quota').textContent = `${maxQuota.toLocaleString()} 部/団体`;
+  document.getElementById('detail-total-quota').textContent = `${totalQuota.toLocaleString()} 部`;
+
+  // 申請中および承認済みの総部数を計算（辞退・拒否分は除く）
+  const relevantRequests = incomingRequests.filter(r => r.perfId === perfId && r.status !== 'declined');
+  const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
+  const remainingCopies = Math.max(0, totalQuota - usedCopies);
+
+  // インジケーター（パーセンテージ）計算
+  const percentage = Math.min(100, Math.round((usedCopies / totalQuota) * 100));
+
+  const bar = document.getElementById('detail-quota-bar');
+  bar.style.width = `${percentage}%`;
+  
+  // 満枠に近い場合のカラー変化（80%以上で警告色、100%で赤）
+  if (percentage >= 100) {
+    bar.style.background = '#A32D2D';
+  } else if (percentage >= 80) {
+    bar.style.background = '#B8892A';
+  } else {
+    bar.style.background = 'var(--crimson)';
+  }
+
+  document.getElementById('detail-quota-summary').textContent = `申請中・承認済み: ${usedCopies.toLocaleString()} 部`;
+  document.getElementById('detail-remaining-quota').textContent = `残り: ${remainingCopies.toLocaleString()} 部`;
 
   const statusObj = getAcceptanceStatus(perf);
   const badge = document.getElementById('detail-status-badge');
@@ -1357,8 +1396,18 @@ function openPerformanceDetail(perfId) {
   badge.className = `status-badge ${statusObj.class}`;
 
   const reqBtn = document.getElementById('detail-request-btn');
-  reqBtn.disabled = !statusObj.accept;
-  reqBtn.textContent = statusObj.accept ? "この公演に折り込みを依頼する" : `リクエスト受付不可（${statusObj.text}）`;
+  const isFull = remainingCopies <= 0;
+
+  if (!statusObj.accept) {
+    reqBtn.disabled = true;
+    reqBtn.textContent = `リクエスト受付不可（${statusObj.text}）`;
+  } else if (isFull) {
+    reqBtn.disabled = true;
+    reqBtn.textContent = '受付終了（定員・総部数に達しました）';
+  } else {
+    reqBtn.disabled = false;
+    reqBtn.textContent = 'この公演に折り込みを依頼する';
+  }
 
   const actionsBlock = document.getElementById('perf-my-actions');
   actionsBlock.style.display = (currentUser && currentUser.id === perf.troupeId) ? 'flex' : 'none';
@@ -1386,7 +1435,9 @@ function startEditPerformance() {
   document.getElementById('new-perf-accept-start').value = perf.acceptStart || '';
   document.getElementById('new-perf-accept-end').value = perf.acceptEnd || '';
   document.getElementById('new-perf-venue').value = perf.venue || '';
-  document.getElementById('new-perf-quota').value = perf.maxQuota || '';
+  document.getElementById('new-perf-quota').value = perf.maxQuota || 300;
+  // 🌟 総部数（totalQuota）の入力反映を追加
+  document.getElementById('new-perf-total-quota').value = perf.totalQuota || 1000;
   document.getElementById('new-perf-desc').value = perf.desc || '';
 
   showPage('register');
@@ -1429,6 +1480,25 @@ async function submitRequestForm() {
 
   if (!fromName || !fromEmail || isNaN(copies) || copies <= 0) {
     alert('必須項目をすべて入力し、部数は正しく入力してください。');
+    return;
+  }
+
+  // 🌟 部数上限・残り部数のバリデーションチェックを追加 🌟
+  const maxQuota = perf.maxQuota || 300;
+  const totalQuota = perf.totalQuota || 1000;
+
+  // 現在の申請中・承認済み合計部数の算出
+  const relevantRequests = incomingRequests.filter(r => r.perfId === selectedPerformanceId && r.status !== 'declined');
+  const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
+  const remainingCopies = Math.max(0, totalQuota - usedCopies);
+
+  if (copies > maxQuota) {
+    alert(`1団体あたりの上限部数（${maxQuota.toLocaleString()}部）を超えています。部数を調整してください。`);
+    return;
+  }
+
+  if (copies > remainingCopies) {
+    alert(`申請部数（${copies.toLocaleString()}部）が残り受け入れ枠（${remainingCopies.toLocaleString()}部）を超えています。`);
     return;
   }
 
