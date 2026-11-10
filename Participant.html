@@ -228,6 +228,29 @@ gap: 4px;
 .status-soon { background: #FFF4E5; color: #8B5A1A; }
 .troupe-stats { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); border-top: 0.5px solid var(--border-neutral); padding-top: 8px; margin-top: 8px; }
 
+/* 通知バッチ用スタイル */
+.nav-tab-badge {
+  position: relative;
+}
+.nav-badge-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: #E01E5A;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 5px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--white);
+}
+
 /* ===================== PERF DETAIL ===================== */
 .perf-detail-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
 @media (max-width: 768px) { .perf-detail-grid { grid-template-columns: 1fr; } }
@@ -844,20 +867,6 @@ gap: 4px;
   <button class="btn-primary" onclick="handleUpdateProfile()"><i class="ti ti-device-floppy"></i> プロフィールを保存する</button>
 </div>
 
-<!-- 【追加】LINE通知の連携 -->
-<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
-  <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
-    <i class="ti ti-brand-line" style="color:#06C755;"></i> LINE通知の連携
-  </div>
-  <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">折り込み依頼やメッセージが届いたとき、ビラネットワーク公式LINEからお知らせします。</p>
-  <div id="line-link-status" style="margin-bottom:12px;"></div>
-  <div id="line-link-code-box" style="display:none; background:var(--surface); border:0.5px solid var(--border-neutral); border-radius:var(--radius-md); padding:14px; margin-bottom:12px;"></div>
-  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-    <button class="btn-primary" onclick="issueLineLinkCode()"><i class="ti ti-link"></i> 連携コードを発行する</button>
-    <button class="btn-secondary" onclick="refreshLineStatus()"><i class="ti ti-refresh"></i> 連携状況を更新</button>
-  </div>
-</div>
-
 <div class="stat-grid">
 <div class="stat-card stat-card-red">
 <div class="stat-label">届いた依頼数</div>
@@ -911,7 +920,7 @@ gap: 4px;
 <div class="slack-input-box">
 <textarea class="slack-input-textarea" id="chat-text-input" rows="1"
 placeholder="メッセージを送信..."
-onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();sendChatMessage();}"></textarea>
+onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
 <div class="slack-input-toolbar">
 <div class="slack-toolbar-left">
 <button class="slack-icon-btn" onclick="toggleEmojiPicker()" title="絵文字を追加">
@@ -973,14 +982,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 【修正】LINE通知を送る Google Apps Script のウェブアプリURL
-// GASでデプロイしたときに表示される「https://script.google.com/macros/s/..../exec」を貼り付ける
-const NOTIFY_GAS_URL = 'https://script.google.com/macros/s/AKfycbzF2fYxrsKZVxpZDN7F1aDLlo8H6p5QrkfYvCMrOB1Y4LlFuE402DgizpnS9VjUQu8X-w/exec';
-// 【追加】LINE公式アカウントの友だち追加URL（例：https://lin.ee/xxxxxxx）
-const LINE_FRIEND_URL = 'https://lin.ee/pe4Zlvb';
-// 【修正】チャットの新着確認間隔（ミリ秒）
-const CHAT_POLL_INTERVAL = 5000;
-
 // デモデータ（Supabase接続失敗時のフォールバック用）
 const DEFAULT_TROUPES = [
   { id: "troupe-a", name: "劇団ソウルフルズ", affiliation: "早稲田大学", email: "soul.member@example.com", password: "password123", description: "早稲田大学を拠点とする学生劇団です。", homepage: "https://example.com/soulfuls", sns: "https://x.com/soulfuls_waseda" },
@@ -1001,7 +1002,6 @@ let selectedPerformanceId = null;
 let editingPerfId = null;
 let activeChatPartnerId = null;
 let pageHistory = [];
-let chatPollTimer = null; // 【修正】チャット新着確認用タイマー
 
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
@@ -1029,9 +1029,9 @@ async function initApp() {
   renderTroupes(troupesData);
   renderCalendar();
   updateAuthUI();
-  // 【追加】LINE通知のリンクから来た場合は該当画面を開く
-  pendingDeepLink = readDeepLink();
-  await applyDeepLink();
+  
+  // ★未読通知バッチの表示を初期化
+  updateUnreadBadges();
 }
 
 async function loadAllData() {
@@ -1048,76 +1048,25 @@ async function loadAllData() {
     if (requestsError) throw requestsError;
     incomingRequests = requests || [];
 
-    // 【修正】messages の読み込み失敗を握りつぶさずログに出す
     const { data: msgs, error: msgsError } = await db.from('messages').select('*');
-    if (msgsError) {
-      console.error('messages テーブル読み込みエラー:', msgsError);
-    } else if (msgs) {
-      messagesData = msgs;
-    }
+    if (!msgsError && msgs) messagesData = msgs;
 
   } catch (error) {
-    console.error('データ読み込みエラー（フォールバック使用）:', error);
+    console.error('データ読み込みエラー（フォールバック使用）:', error.message);
     troupesData = [...DEFAULT_TROUPES];
     performancesData = [...DEFAULT_PERFORMANCES];
     incomingRequests = [...DEFAULT_REQUESTS];
   }
 }
 
-// 【修正】依頼一覧をDBから再取得（受信側が最新の依頼を見られるように）
-async function refreshRequests() {
-  const { data, error } = await db.from('requests').select('*');
-  if (error) {
-    console.error('requests 再取得エラー:', error);
-    return;
-  }
-  incomingRequests = data || [];
-}
-
-// 【修正】メッセージをDBから再取得。件数・既読状態が変わったら true を返す
-async function refreshMessages() {
-  const { data, error } = await db.from('messages').select('*');
-  if (error) {
-    console.error('messages 再取得エラー:', error);
-    return false;
-  }
-  const next = data || [];
-  const sig = arr => arr.map(m => m.id + ':' + (m.read ? 1 : 0)).sort().join('|');
-  const changed = sig(next) !== sig(messagesData);
-  messagesData = next;
-  return changed;
-}
-
-// 【修正】タイムスタンプ表示用（ISO文字列・旧形式どちらにも対応）
-function formatTimestamp(ts, timeOnly) {
-  if (!ts) return '';
-  const d = new Date(ts);
-  if (isNaN(d.getTime())) return String(ts); // 旧形式("19:05" など)はそのまま表示
-  if (timeOnly) {
-    const today = new Date();
-    const sameDay = d.toDateString() === today.toDateString();
-    const time = d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    return sameDay ? time : `${d.getMonth() + 1}/${d.getDate()} ${time}`;
-  }
-  return d.toLocaleString('ja-JP');
-}
-
-// 【修正】メッセージの並び順キー（ID末尾の数値=送信時刻を使うので旧データでも正しく並ぶ）
-function messageSortKey(m) {
-  const n = parseInt(String(m.id || '').replace(/^msg_/, ''), 10);
-  if (!isNaN(n)) return n;
-  const t = new Date(m.timestamp).getTime();
-  return isNaN(t) ? 0 : t;
-}
-
 function escapeHtml(str) {
   if (!str) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
 function showPage(pageId, pushToHistory = true) {
   const activePage = document.querySelector('.page.active');
-  if (activePage && pushToHistory) pageHistory.push(activePage.id.replace(/^page-/, ''));
+  if (activePage && pushToHistory) pageHistory.push(activePage.id);
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1130,16 +1079,9 @@ function showPage(pageId, pushToHistory = true) {
 
   window.scrollTo({ top: 0 });
 
-  // 【修正】チャット以外に移動したら新着確認を止める
-  if (pageId !== 'chat') stopChatPolling();
-
   if (pageId === 'calendar') renderCalendar();
   if (pageId === 'troupes') renderTroupes(troupesData);
-  if (pageId === 'mypage') {
-    renderMyPage();
-    // 【修正】最新の依頼をDBから取り直して再描画
-    if (currentUser) refreshRequests().then(renderMyPage);
-  }
+  if (pageId === 'mypage') renderMyPage();
   if (pageId === 'register') prepareRegisterPage();
   if (pageId === 'chat') initChat();
 }
@@ -1289,6 +1231,7 @@ function renderTroupes(troupes) {
       }
     }
 
+    // 🌟 ここを追加：画像があれば <img>、なければ頭文字を表示 🌟
     let avatarHtml = `<div class="troupe-avatar" style="background:${bg}; color:${borderLeft}">${escapeHtml(t.name.charAt(0))}</div>`;
     if (t.avatar_url) {
       avatarHtml = `<img src="${escapeHtml(t.avatar_url)}" class="troupe-avatar" style="object-fit:cover;" alt="${escapeHtml(t.name)}">`;
@@ -1306,6 +1249,7 @@ function renderTroupes(troupes) {
         </button>`;
     }
 
+    // 🌟 innerHTML 内の <div class="troupe-avatar"...> を ${avatarHtml} に差し替える 🌟
     card.innerHTML = `
       ${deleteBtnHtml}
       <div class="troupe-card-head">
@@ -1355,6 +1299,7 @@ function openTroupeModal(troupeId) {
   const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
   document.body.removeChild(dummy);
 
+  // 1. アイコン画像セット
   const avatar = document.getElementById('tsp-avatar');
   if (troupe.avatar_url) {
     avatar.innerHTML = `<img src="${escapeHtml(troupe.avatar_url)}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
@@ -1365,10 +1310,12 @@ function openTroupeModal(troupeId) {
     avatar.style.color = borderLeft;
   }
 
+  // 2. 劇団名・所属・紹介文セット
   document.getElementById('tsp-name').textContent = troupe.name || '-';
   document.getElementById('tsp-affiliation').textContent = troupe.affiliation || '-';
   document.getElementById('tsp-description').textContent = troupe.description || "劇団紹介文はまだ登録されていません。";
 
+  // 3. SNS・HP リンク群の生成
   const linksWrap = document.getElementById('tsp-links');
   linksWrap.innerHTML = '';
 
@@ -1390,6 +1337,7 @@ function openTroupeModal(troupeId) {
     linksWrap.innerHTML = '<p style="font-size:12px; color:var(--muted); font-style:italic;">登録されているリンクはありません。</p>';
   }
 
+  // 4. 公演一覧のセット
   const troupePerfs = performancesData.filter(p => p.troupeId === troupeId);
   const perfListWrap = document.getElementById('tsp-performances');
   perfListWrap.innerHTML = '';
@@ -1432,7 +1380,7 @@ function openPerformanceDetail(perfId) {
   const troupe = troupesData.find(t => t.id === perf.troupeId);
   const troupeNameStr = troupe ? troupe.name : "不明な劇団";
 
-  document.getElementById('detail-troupe-name').innerHTML = `<i class="ti ti-users" style="font-size:13px"></i> ${escapeHtml(troupeNameStr)} の詳細情報を表示`;
+  document.getElementById('detail-troupe-name').innerHTML = `<i class="ti ti-users" style="font-size:13px"></i> ${troupeNameStr} の詳細情報を表示`;
   document.getElementById('detail-title').textContent = perf.title;
   document.getElementById('detail-desc').textContent = perf.desc || "公演概要・補足テキストは未登録です。";
   document.getElementById('detail-date').textContent = `${perf.start} ～ ${perf.end}`;
@@ -1440,21 +1388,25 @@ function openPerformanceDetail(perfId) {
   document.getElementById('detail-accept-period').textContent = `${perf.acceptStart} ～ ${perf.acceptEnd}`;
   document.getElementById('detail-email').textContent = perf.email || "未設定";
 
+  // 部数・数値の設定
   const maxQuota = perf.maxQuota || 300;
   const totalQuota = perf.totalQuota || 1000;
 
   document.getElementById('detail-max-quota').textContent = `${maxQuota.toLocaleString()} 部/団体`;
   document.getElementById('detail-total-quota').textContent = `${totalQuota.toLocaleString()} 部`;
 
+  // 申請中および承認済みの総部数を計算（辞退・拒否分は除く）
   const relevantRequests = incomingRequests.filter(r => r.perfId === perfId && r.status !== 'declined');
   const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
   const remainingCopies = Math.max(0, totalQuota - usedCopies);
 
+  // インジケーター（パーセンテージ）計算
   const percentage = Math.min(100, Math.round((usedCopies / totalQuota) * 100));
 
   const bar = document.getElementById('detail-quota-bar');
   bar.style.width = `${percentage}%`;
   
+  // 満枠に近い場合のカラー変化（80%以上で警告色、100%で赤）
   if (percentage >= 100) {
     bar.style.background = '#A32D2D';
   } else if (percentage >= 80) {
@@ -1512,6 +1464,7 @@ function startEditPerformance() {
   document.getElementById('new-perf-accept-end').value = perf.acceptEnd || '';
   document.getElementById('new-perf-venue').value = perf.venue || '';
   document.getElementById('new-perf-quota').value = perf.maxQuota || 300;
+  // 🌟 総部数（totalQuota）の入力反映を追加
   document.getElementById('new-perf-total-quota').value = perf.totalQuota || 1000;
   document.getElementById('new-perf-desc').value = perf.desc || '';
 
@@ -1536,124 +1489,6 @@ function openRequestForm() {
   showPage('request-form');
 }
 
-// 【修正】依頼の保存後、Google Apps Script を呼んで受け取り側のLINEに通知する
-// 送り先はGAS側で requests → line_accounts から引くので、ここでは依頼IDだけ渡す
-async function notifyRequest(requestId) {
-  try {
-    if (!NOTIFY_GAS_URL.startsWith('https://')) throw new Error('NOTIFY_GAS_URL が未設定です');
-    // text/plain で送るとブラウザの事前確認(CORS)が不要になる。返事は読まずに送りっぱなし
-    await fetch(NOTIFY_GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ type: 'request', requestId })
-    });
-    return true;
-  } catch (e) {
-    console.error('LINE通知エラー（依頼自体は保存済み）:', e);
-    return false;
-  }
-}
-
-// 【追加】メッセージ送信後、相手のLINEに通知する（30分以内の連続通知はGAS側で止める）
-// 送信者の画面を待たせないよう、結果は待たずに送りっぱなしにする
-function notifyMessage(messageId) {
-  if (!NOTIFY_GAS_URL.startsWith('https://')) return;
-  fetch(NOTIFY_GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ type: 'message', messageId })
-  }).catch(e => console.error('LINE通知エラー（メッセージ自体は保存済み）:', e));
-}
-
-// 【追加】LINE連携コードを発行する（6桁・有効期限30分）
-async function issueLineLinkCode() {
-  if (!currentUser) return;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const arr = new Uint32Array(1);
-    crypto.getRandomValues(arr);
-    const code = String(arr[0] % 1000000).padStart(6, '0');
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
-
-    const { error } = await db.from('line_link_codes').insert([{ code, troupe_id: currentUser.id, expires_at: expiresAt }]);
-    if (!error) {
-      showLineLinkCode(code);
-      return;
-    }
-    if (error.code !== '23505') { // 23505 = コードの重複。それ以外は本当のエラー
-      console.error('連携コード発行エラー:', error);
-      alert('連携コードの発行に失敗しました: ' + error.message);
-      return;
-    }
-  }
-  alert('連携コードの発行に失敗しました。もう一度お試しください。');
-}
-
-function showLineLinkCode(code) {
-  const box = document.getElementById('line-link-code-box');
-  const friendStep = LINE_FRIEND_URL.startsWith('https://')
-    ? `<a href="${escapeHtml(LINE_FRIEND_URL)}" target="_blank" style="color:#06C755; font-weight:600;">ビラネットワーク公式LINE</a> を友だち追加（劇団のLINEグループに招待してもOK）`
-    : 'ビラネットワーク公式LINEを友だち追加（劇団のLINEグループに招待してもOK）';
-  box.innerHTML = `
-    <div style="font-size:12px; color:var(--muted);">連携コード（30分間有効）</div>
-    <div style="font-size:30px; font-weight:700; letter-spacing:0.2em; color:var(--ink); margin:4px 0 10px;">${code}</div>
-    <ol style="margin-left:20px; font-size:13px; color:var(--ink-mid); display:flex; flex-direction:column; gap:4px;">
-      <li>${friendStep}</li>
-      <li>トーク画面にこの6桁のコードを送信</li>
-      <li>「連携しました！」と返ってきたら、下の「連携状況を更新」を押す</li>
-    </ol>`;
-  box.style.display = 'block';
-}
-
-// 【追加】連携状況をDBから取り直す
-async function refreshLineStatus() {
-  if (!currentUser) return;
-  const { data, error } = await db.from('troupes').select('*').eq('id', currentUser.id);
-  if (error || !data || data.length === 0) {
-    alert('連携状況の取得に失敗しました。');
-    return;
-  }
-  currentUser = data[0];
-  localStorage.setItem('currentUser', JSON.stringify(currentUser));
-  if (currentUser.line_linked) document.getElementById('line-link-code-box').style.display = 'none';
-  renderLineLinkCard();
-}
-
-function renderLineLinkCard() {
-  const status = document.getElementById('line-link-status');
-  if (!status || !currentUser) return;
-  status.innerHTML = currentUser.line_linked
-    ? `<span class="status-badge status-open" style="margin:0;">連携済み</span>
-       <span style="font-size:12px; color:var(--muted); margin-left:8px;">解除するときは公式LINEに「解除」と送ってください</span>`
-    : `<span class="status-badge status-soon" style="margin:0;">未連携</span>`;
-}
-
-// 【追加】LINE通知のボタンから開いたとき（?page=chat&with=劇団ID / ?page=mypage）に該当画面を開く
-let pendingDeepLink = null;
-
-function readDeepLink() {
-  const p = new URLSearchParams(location.search);
-  const page = p.get('page');
-  if (page !== 'chat' && page !== 'mypage') return null;
-  return { page, withId: p.get('with') };
-}
-
-async function applyDeepLink() {
-  if (!pendingDeepLink) return;
-  if (!currentUser) {
-    showPage('mypage'); // 未ログインならまずログイン画面へ。ログイン後に続きを開く
-    return;
-  }
-  const { page, withId } = pendingDeepLink;
-  pendingDeepLink = null;
-  history.replaceState(null, '', location.pathname);
-  showPage(page);
-  if (page === 'chat' && withId && troupesData.some(t => t.id === withId)) {
-    await selectChatPartner(withId);
-  }
-}
-
 async function submitRequestForm() {
   const perf = performancesData.find(p => p.id === selectedPerformanceId);
   if (!perf) return;
@@ -1676,11 +1511,11 @@ async function submitRequestForm() {
     return;
   }
 
+  // 🌟 部数上限・残り部数のバリデーションチェックを追加 🌟
   const maxQuota = perf.maxQuota || 300;
   const totalQuota = perf.totalQuota || 1000;
 
-  // 【修正】判定直前にDBの最新の依頼を取り直す（他団体の申請と重複して枠を超えないように）
-  await refreshRequests();
+  // 現在の申請中・承認済み合計部数の算出
   const relevantRequests = incomingRequests.filter(r => r.perfId === selectedPerformanceId && r.status !== 'declined');
   const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
   const remainingCopies = Math.max(0, totalQuota - usedCopies);
@@ -1707,27 +1542,15 @@ async function submitRequestForm() {
     copies,
     size,
     notes,
-    // 【修正】"2026/10/30 19:05:00" ではなくDBが確実に解釈できるISO形式で保存
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toLocaleString('ja-JP'),
     status: 'pending'
   };
 
   try {
-    // 【修正】.select() で保存結果を受け取り、本当に行が作られたか確認する
-    const { data, error } = await db.from('requests').insert([newRequest]).select();
+    const { error } = await db.from('requests').insert([newRequest]);
     if (error) throw error;
-    if (!data || data.length === 0) {
-      throw new Error('依頼がデータベースに保存されませんでした（RLSポリシーを確認してください）');
-    }
 
-    incomingRequests.push(data[0]);
-
-    // 【修正】受け取り側へのLINE通知
-    const notified = await notifyRequest(newRequest.id);
-    if (!notified) {
-      console.warn('依頼は保存されましたが、LINE通知は送信できませんでした。');
-    }
-
+    incomingRequests.push(newRequest);
     document.getElementById('success-banner').classList.add('show');
     document.getElementById('request-form-body').style.display = 'none';
 
@@ -1755,6 +1578,7 @@ function cancelEditPerformance() {
 function resetRegisterForm() {
   editingPerfId = null;
   
+  // エラー表示バナーを非表示化
   const errorBanner = document.getElementById('register-error-banner');
   if (errorBanner) errorBanner.style.display = 'none';
 
@@ -1774,6 +1598,7 @@ async function handleRegisterPerformance() {
     return;
   }
 
+  // エラーバナーとリストの初期化
   const errorBanner = document.getElementById('register-error-banner');
   const errorList = document.getElementById('register-error-list');
   errorList.innerHTML = '';
@@ -1781,6 +1606,7 @@ async function handleRegisterPerformance() {
 
   const errors = [];
 
+  // 入力値の取得
   const title = document.getElementById('new-perf-title').value.trim();
   const start = document.getElementById('new-perf-start').value;
   const end = document.getElementById('new-perf-end').value;
@@ -1790,6 +1616,8 @@ async function handleRegisterPerformance() {
   const quotaInput = document.getElementById('new-perf-quota').value;
   const desc = document.getElementById('new-perf-desc').value.trim();
 
+  // ----------------【バリデーションチェック】----------------
+  // 1. 必須項目の空チェック
   if (!title) errors.push('公演タイトルを入力してください。');
   if (!start) errors.push('公演開始日を選択してください。');
   if (!end) errors.push('公演終了日を選択してください。');
@@ -1798,6 +1626,7 @@ async function handleRegisterPerformance() {
   if (!venue) errors.push('会場名を入力してください。');
   if (!quotaInput || parseInt(quotaInput) <= 0) errors.push('折り込み上限部数は1部以上の数値を入力してください。');
 
+  // 2. 日付の逆転・整合性チェック
   if (start && end && start > end) {
     errors.push('公演開始日は公演終了日より前の日付に設定してください。');
   }
@@ -1808,6 +1637,7 @@ async function handleRegisterPerformance() {
     errors.push('折り込み受付終了日は公演開始日以前に設定してください（公演開始後の受付はできません）。');
   }
 
+  // エラーが存在する場合は赤文字リストを表示して送信をブロック
   if (errors.length > 0) {
     errors.forEach(err => {
       const li = document.createElement('li');
@@ -1818,6 +1648,7 @@ async function handleRegisterPerformance() {
     errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
+  // --------------------------------------------------------
 
   const perfPayload = {
     troupeId: currentUser.id,
@@ -1886,8 +1717,8 @@ function renderMyPage() {
           <div class="inbox-from">${escapeHtml(req.fromName)}（${escapeHtml(req.fromEmail)}）</div>
           <div class="inbox-preview">${escapeHtml(req.notes || '備考なし')}</div>
           <div class="inbox-meta">
-            <span class="inbox-copies">${req.copies} 部 (${escapeHtml(req.size)})</span>
-            <span style="font-size:11px; color:var(--muted);">${escapeHtml(req.deliveryMethod)} / ${escapeHtml(formatTimestamp(req.timestamp))}</span>
+            <span class="inbox-copies">${req.copies} 部 (${req.size})</span>
+            <span style="font-size:11px; color:var(--muted);">${req.deliveryMethod} / ${req.timestamp}</span>
             <span class="status-badge ${req.status === 'accepted' ? 'status-open' : req.status === 'declined' ? 'status-closed' : 'status-soon'}">${req.status === 'accepted' ? '承認済み' : req.status === 'declined' ? '辞退' : '保留中'}</span>
           </div>
         </div>
@@ -1902,9 +1733,9 @@ function renderMyPage() {
   }
 
   fillProfileForm();
-  renderLineLinkCard(); // 【追加】
 }
 
+// 1. 新規アカウント作成
 async function handleRegisterTroupe() {
 const name = document.getElementById('reg-troupe-name').value.trim();
   const email = document.getElementById('reg-troupe-email').value.trim();
@@ -1915,12 +1746,13 @@ const name = document.getElementById('reg-troupe-name').value.trim();
     return;
   }
 
+  // 追加した全カラムの初期値を空文字('')で定義して送信する
   const newTroupe = {
     id: 'troupe_' + Date.now(),
     name: name,
     email: email,
     password: password,
-    affiliation: '早稲田大学',
+    affiliation: '早稲田大学', // デフォルト値
     description: '',
     homepage: '',
     instagram: '',
@@ -1929,6 +1761,7 @@ const name = document.getElementById('reg-troupe-name').value.trim();
   };
 
   try {
+    // .select() はつけずに単純な insert のみにする
     const { error } = await db.from('troupes').insert([newTroupe]);
     if (error) throw error;
 
@@ -1938,7 +1771,7 @@ const name = document.getElementById('reg-troupe-name').value.trim();
     
     updateAuthUI();
     renderMyPage();
-    renderTroupes(troupesData);
+    renderTroupes(troupesData); // 劇団一覧画面も更新
     alert('アカウントが作成されました。');
   } catch (error) {
     console.error('アカウント登録エラー:', error);
@@ -1946,6 +1779,7 @@ const name = document.getElementById('reg-troupe-name').value.trim();
   }
 }
 
+// 2. ログイン処理 (Supabaseから検索)
 async function handleLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-password').value.trim();
@@ -1971,11 +1805,8 @@ async function handleLogin() {
     currentUser = data;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     updateAuthUI();
-    // 【修正】ログイン直後に最新の依頼・メッセージを取得
-    await Promise.all([refreshRequests(), refreshMessages()]);
     renderMyPage();
     alert(`ログインしました: ${currentUser.name} さん`);
-    await applyDeepLink(); // 【追加】LINE通知から来ていた場合は続きの画面を開く
   } catch (err) {
     alert('ログイン処理でエラーが発生しました。');
   }
@@ -1983,8 +1814,6 @@ async function handleLogin() {
 
 function handleLogout() {
   currentUser = null;
-  activeChatPartnerId = null;
-  stopChatPolling();
   localStorage.removeItem('currentUser');
   updateAuthUI();
   renderMyPage();
@@ -2001,12 +1830,8 @@ function updateAuthUI() {
 
 async function handleRequestStatus(reqId, newStatus) {
   try {
-    // 【修正】.select() で実際に更新されたか確認
-    const { data, error } = await db.from('requests').update({ status: newStatus }).eq('id', reqId).select();
+    const { error } = await db.from('requests').update({ status: newStatus }).eq('id', reqId);
     if (error) throw error;
-    if (!data || data.length === 0) {
-      throw new Error('更新対象が見つからないか、更新が許可されていません（RLSポリシーを確認してください）');
-    }
 
     const req = incomingRequests.find(r => r.id === reqId);
     if (req) req.status = newStatus;
@@ -2016,42 +1841,8 @@ async function handleRequestStatus(reqId, newStatus) {
   }
 }
 
-// ===================== チャット機能 =====================
-// 【修正】チャット画面を開いている間、DBから新着を定期取得する
-function startChatPolling() {
-  stopChatPolling();
-  chatPollTimer = setInterval(async () => {
-    if (!currentUser) return;
-    const changed = await refreshMessages();
-    if (!changed) return;
-    if (activeChatPartnerId) await markConversationRead(activeChatPartnerId);
-    renderChatConversations();
-    if (activeChatPartnerId) renderChatMessages();
-  }, CHAT_POLL_INTERVAL);
-}
-
-function stopChatPolling() {
-  if (chatPollTimer) {
-    clearInterval(chatPollTimer);
-    chatPollTimer = null;
-  }
-}
-
-// 【修正】開いた会話の未読を既読にする
-async function markConversationRead(partnerId) {
-  if (!currentUser) return;
-  const unread = messagesData.filter(m => m.fromTroupeId === partnerId && m.toTroupeId === currentUser.id && !m.read);
-  if (unread.length === 0) return;
-  const { error } = await db.from('messages').update({ read: true })
-    .eq('fromTroupeId', partnerId).eq('toTroupeId', currentUser.id).eq('read', false);
-  if (error) {
-    console.error('既読更新エラー:', error);
-    return;
-  }
-  unread.forEach(m => { m.read = true; });
-}
-
-async function initChat() {
+// チャット機能
+function initChat() {
   const prompt = document.getElementById('chat-login-prompt');
   const layout = document.getElementById('chat-layout');
 
@@ -2064,12 +1855,6 @@ async function initChat() {
   prompt.style.display = 'none';
   layout.style.display = 'flex';
   renderChatConversations();
-
-  // 【修正】開いた時点で最新メッセージを取得し、以後は定期的に確認
-  await refreshMessages();
-  renderChatConversations();
-  if (activeChatPartnerId) renderChatMessages();
-  startChatPolling();
 }
 
 function renderChatConversations() {
@@ -2091,7 +1876,7 @@ function renderChatConversations() {
     item.onclick = () => selectChatPartner(partner.id);
 
     item.innerHTML = `
-      <div class="chat-conv-avatar">${escapeHtml(partner.name.charAt(0))}</div>
+      <div class="chat-conv-avatar">${partner.name.charAt(0)}</div>
       <div class="chat-conv-meta">
         <div class="chat-conv-name"># ${escapeHtml(partner.name)}</div>
         ${unreadCount > 0 ? `<div class="chat-unread">${unreadCount}</div>` : ''}
@@ -2105,8 +1890,27 @@ async function selectChatPartner(partnerId) {
   const partner = troupesData.find(t => t.id === partnerId);
   if (!partner) return;
 
+  // 1. 選択した相手から自分宛の未読メッセージを「既読（read: true）」にする
+  const unreadMsgs = messagesData.filter(m => m.fromTroupeId === partnerId && m.toTroupeId === currentUser.id && !m.read);
+  if (unreadMsgs.length > 0) {
+    unreadMsgs.forEach(m => m.read = true);
+    
+    // Supabase側のDBも既読に更新
+    try {
+      await db.from('messages')
+        .update({ read: true })
+        .eq('fromTroupeId', partnerId)
+        .eq('toTroupeId', currentUser.id);
+    } catch (e) {
+      console.warn('既読更新エラー:', e);
+    }
+  }
+
+  // 2. ヘッダーの赤い通知バッチと左側のチャットリストを再描画して既読を反映
+  updateUnreadBadges();
   renderChatConversations();
 
+  // 3. チャット画面の切り替えと表示
   document.getElementById('chat-empty-state').style.display = 'none';
   document.getElementById('chat-view').style.display = 'flex';
 
@@ -2114,12 +1918,6 @@ async function selectChatPartner(partnerId) {
   avatar.textContent = partner.name.charAt(0);
   document.getElementById('chat-header-name').textContent = `# ${partner.name}`;
 
-  renderChatMessages();
-
-  // 【修正】相手を選んだら最新を取得して既読化
-  await refreshMessages();
-  await markConversationRead(partnerId);
-  renderChatConversations();
   renderChatMessages();
 }
 
@@ -2129,11 +1927,10 @@ function renderChatMessages() {
 
   if (!activeChatPartnerId) return;
 
-  // 【修正】"19:05" のような時刻文字列は new Date() で解釈できず並びが崩れるため、ID由来の時刻で並べる
   const msgs = messagesData.filter(m => 
     (m.fromTroupeId === currentUser.id && m.toTroupeId === activeChatPartnerId) ||
     (m.fromTroupeId === activeChatPartnerId && m.toTroupeId === currentUser.id)
-  ).sort((a,b) => messageSortKey(a) - messageSortKey(b));
+  ).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
 
   if (msgs.length === 0) {
     container.innerHTML = `
@@ -2151,11 +1948,11 @@ function renderChatMessages() {
     const group = document.createElement('div');
     group.className = 'chat-msg-group';
     group.innerHTML = `
-      <div class="chat-msg-avatar">${escapeHtml(authorName.charAt(0))}</div>
+      <div class="chat-msg-avatar">${authorName.charAt(0)}</div>
       <div class="chat-msg-content">
         <div class="chat-msg-header">
           <span class="chat-msg-author">${escapeHtml(authorName)}</span>
-          <span class="chat-msg-time">${escapeHtml(formatTimestamp(msg.timestamp, true))}</span>
+          <span class="chat-msg-time">${escapeHtml(msg.timestamp)}</span>
         </div>
         <div class="chat-msg-text">${escapeHtml(msg.text)}</div>
       </div>`;
@@ -2176,26 +1973,19 @@ async function sendChatMessage() {
     fromTroupeId: currentUser.id,
     toTroupeId: activeChatPartnerId,
     text,
-    // 【修正】"19:05" だけでは日付型カラムに保存できないためISO形式で保存（表示は時刻に整形）
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
     read: false
   };
 
   try {
-    // 【修正】保存失敗を握りつぶして「送れたように見える」状態をやめる
-    const { data, error } = await db.from('messages').insert([newMsg]).select();
-    if (error) throw error;
-    if (!data || data.length === 0) {
-      throw new Error('メッセージがデータベースに保存されませんでした（RLSポリシーを確認してください）');
-    }
+    const { error } = await db.from('messages').insert([newMsg]);
+    if (error) console.warn('DBメッセージ保存失敗:', error);
 
-    messagesData.push(data[0]);
+    messagesData.push(newMsg);
     input.value = '';
     renderChatMessages();
-    notifyMessage(newMsg.id); // 【追加】相手のLINEに通知
   } catch (e) {
     console.error('メッセージ送信エラー:', e);
-    alert('メッセージの送信に失敗しました: ' + (e.message || JSON.stringify(e)));
   }
 }
 
@@ -2218,7 +2008,9 @@ function toggleEmojiPicker() {
   document.getElementById('chat-emoji-picker').classList.toggle('open');
 }
 
+// 劇団の直接削除処理（管理者権限用）
 async function deleteTroupeDirect(event, troupeId, troupeName) {
+  // カードクリックのイベントバブリング（モーダル開放）を防止
   event.stopPropagation();
 
   if (!confirm(`【管理者操作】\n本当に「${troupeName}」を削除しますか？\n※関連するデータも削除されます。`)) {
@@ -2226,12 +2018,15 @@ async function deleteTroupeDirect(event, troupeId, troupeName) {
   }
 
   try {
+    // 1. SupabaseのDBから削除
     const { error } = await db.from('troupes').delete().eq('id', troupeId);
     if (error) throw error;
 
+    // 2. ローカルデータ配列から除外
     troupesData = troupesData.filter(t => t.id !== troupeId);
     performancesData = performancesData.filter(p => p.troupeId !== troupeId);
 
+    // 3. UIの再描画
     renderTroupes(troupesData);
     renderCalendar();
     updateFilterDropdown();
@@ -2243,6 +2038,7 @@ async function deleteTroupeDirect(event, troupeId, troupeName) {
   }
 }
 
+// プロフィール情報の更新処理
 async function handleUpdateProfile() {
   if (!currentUser) return;
 
@@ -2265,6 +2061,7 @@ async function handleUpdateProfile() {
     const { error } = await db.from('troupes').update(updatePayload).eq('id', currentUser.id);
     if (error) throw error;
 
+    // ローカルのデータ（currentUser および troupesData）を最新状態に更新
     Object.assign(currentUser, updatePayload);
     const idx = troupesData.findIndex(t => t.id === currentUser.id);
     if (idx !== -1) {
@@ -2273,6 +2070,7 @@ async function handleUpdateProfile() {
 
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
+    // 画面の再描画
     renderTroupes(troupesData);
     updateAuthUI();
     alert('劇団プロフィールおよび画像を更新しました！');
@@ -2282,8 +2080,10 @@ async function handleUpdateProfile() {
   }
 }
 
+// 選択中の画像データ（Data URL形式）を保持する変数
 let selectedAvatarDataUrl = '';
 
+// ファイルが選択された時にプレビューを表示する処理
 function previewSelectedImage(event) {
   const file = event.target.files[0];
   const previewBox = document.getElementById('avatar-preview-box');
@@ -2304,6 +2104,7 @@ function previewSelectedImage(event) {
   reader.readAsDataURL(file);
 }
 
+// マイページ表示時に既存データをフォームに反映する関数（1つに統合）
 function fillProfileForm() {
   if (!currentUser) return;
   
@@ -2327,6 +2128,31 @@ function fillProfileForm() {
   if (instaEl) instaEl.value = currentUser.instagram || '';
   if (snsEl) snsEl.value = currentUser.sns || '';
   if (descEl) descEl.value = currentUser.description || '';
+}
+
+// 未読メッセージ件数を計算してヘッダーに赤い通知バッチを表示する
+function updateUnreadBadges() {
+  const chatTab = document.getElementById('tab-chat');
+  if (!chatTab) return;
+
+  // 既存のバッチがあれば一旦削除
+  const oldBadge = chatTab.querySelector('.nav-badge-dot');
+  if (oldBadge) oldBadge.remove();
+
+  if (!currentUser) return;
+
+  // 自分宛の未読メッセージ総数をカウント
+  const totalUnread = messagesData.filter(m => m.toTroupeId === currentUser.id && !m.read).length;
+
+  if (totalUnread > 0) {
+    chatTab.classList.add('nav-tab-badge');
+    const badge = document.createElement('span');
+    badge.className = 'nav-badge-dot';
+    badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+    chatTab.appendChild(badge);
+  } else {
+    chatTab.classList.remove('nav-tab-badge');
+  }
 }
 </script>
 </body>
