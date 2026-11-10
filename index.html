@@ -977,7 +977,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // GASでデプロイしたときに表示される「https://script.google.com/macros/s/..../exec」を貼り付ける
 const NOTIFY_GAS_URL = 'https://script.google.com/macros/s/AKfycbzF2fYxrsKZVxpZDN7F1aDLlo8H6p5QrkfYvCMrOB1Y4LlFuE402DgizpnS9VjUQu8X-w/exec';
 // 【追加】LINE公式アカウントの友だち追加URL（例：https://lin.ee/xxxxxxx）
-const LINE_FRIEND_URL = 'ここに友だち追加URLを貼り付け';
+const LINE_FRIEND_URL = 'https://lin.ee/pe4Zlvb';
 // 【修正】チャットの新着確認間隔（ミリ秒）
 const CHAT_POLL_INTERVAL = 5000;
 
@@ -1553,6 +1553,18 @@ async function notifyRequest(requestId) {
     console.error('LINE通知エラー（依頼自体は保存済み）:', e);
     return false;
   }
+}
+
+// 【追加】メッセージ送信後、相手のLINEに通知する（30分以内の連続通知はGAS側で止める）
+// 送信者の画面を待たせないよう、結果は待たずに送りっぱなしにする
+function notifyMessage(messageId) {
+  if (!NOTIFY_GAS_URL.startsWith('https://')) return;
+  fetch(NOTIFY_GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ type: 'message', messageId })
+  }).catch(e => console.error('LINE通知エラー（メッセージ自体は保存済み）:', e));
 }
 
 // 【追加】LINE連携コードを発行する（6桁・有効期限30分）
@@ -2180,6 +2192,7 @@ async function sendChatMessage() {
     messagesData.push(data[0]);
     input.value = '';
     renderChatMessages();
+    notifyMessage(newMsg.id); // 【追加】相手のLINEに通知
   } catch (e) {
     console.error('メッセージ送信エラー:', e);
     alert('メッセージの送信に失敗しました: ' + (e.message || JSON.stringify(e)));
