@@ -1030,7 +1030,7 @@ async function initApp() {
   renderCalendar();
   updateAuthUI();
   
-  // ★未読通知バッチの表示を初期化
+  // ★未読通知バッチの表示を更新
   updateUnreadBadges();
 }
 
@@ -1806,6 +1806,7 @@ async function handleLogin() {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     updateAuthUI();
     renderMyPage();
+    updateUnreadBadges();
     alert(`ログインしました: ${currentUser.name} さん`);
   } catch (err) {
     alert('ログイン処理でエラーが発生しました。');
@@ -1817,6 +1818,7 @@ function handleLogout() {
   localStorage.removeItem('currentUser');
   updateAuthUI();
   renderMyPage();
+  updateUnreadBadges();
 }
 
 function updateAuthUI() {
@@ -1984,6 +1986,7 @@ async function sendChatMessage() {
     messagesData.push(newMsg);
     input.value = '';
     renderChatMessages();
+    updateUnreadBadges();
   } catch (e) {
     console.error('メッセージ送信エラー:', e);
   }
