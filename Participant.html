@@ -719,6 +719,64 @@ gap: 4px;
   </button>
 </div>
 
+<!-- ガイドツアーメニュー一覧 -->
+<div class="section-title"><i class="ti ti-compass"></i>画面を動かしながら学ぶ「ガイドツアー」</div>
+<div class="guide-tour-grid">
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-sparkles"></i> まず登録したら</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('onboarding', 0)"><i class="ti ti-chevron-right"></i> マイページの編集をしよう</li>
+      <li onclick="startGuideTour('onboarding', 2)"><i class="ti ti-chevron-right"></i> 今月の公演を確認してみよう</li>
+      <li onclick="startGuideTour('onboarding', 3)"><i class="ti ti-chevron-right"></i> LINE連携をしよう（折り込み通知🔔）</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('onboarding', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-send"></i> 折り込み依頼を送る</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('send_request', 0)"><i class="ti ti-chevron-right"></i> スケジュールから探す方法</li>
+      <li onclick="startGuideTour('send_request', 2)"><i class="ti ti-chevron-right"></i> 劇団一覧から探す方法</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('send_request', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-inbox"></i> 折り込み依頼を受けたら</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('receive_request', 0)"><i class="ti ti-chevron-right"></i> 依頼を承認してメッセージでやり取りする</li>
+      <li onclick="startGuideTour('receive_request', 2)"><i class="ti ti-chevron-right"></i> 依頼を拒否する</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('receive_request', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-calendar-plus"></i> 公演の設定</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('setup_perf', 0)"><i class="ti ti-chevron-right"></i> 公演日程・受付期間・上限部数を登録する</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('setup_perf', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-messages"></i> 他劇団へのメッセージ方法</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('chat_guide', 0)"><i class="ti ti-chevron-right"></i> ダイレクトメッセージの送り方</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('chat_guide', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+</div>
+
 <div class="form-card" style="max-width: 100%; display: flex; flex-direction: column; gap: 24px;">
 <div class="form-section">
 <div class="form-section-title" style="font-size: 14px; color: var(--crimson); font-weight: 600;"><i class="ti ti-send"></i> 1. 他劇団の束にビラを「挟ませてほしい」場合（折り込み依頼側）</div>
@@ -1078,64 +1136,6 @@ gap: 4px;
 <p id="account-status-info" style="color:var(--muted); margin-top:2px;">通知用メールアドレス: -</p>
 </div>
 <button class="btn-secondary" style="padding:6px 14px; font-size:12px; cursor: pointer;" onclick="handleLogout()"><i class="ti ti-logout"></i>ログアウト</button>
-</div>
-
-<!-- ガイドツアーメニュー一覧 -->
-<div class="section-title"><i class="ti ti-compass"></i>画面を動かしながら学ぶ「ガイドツアー」</div>
-<div class="guide-tour-grid">
-  <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-sparkles"></i> まず登録したら</div>
-    <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('onboarding', 0)"><i class="ti ti-chevron-right"></i> マイページの編集をしよう</li>
-      <li onclick="startGuideTour('onboarding', 2)"><i class="ti ti-chevron-right"></i> 今月の公演を確認してみよう</li>
-      <li onclick="startGuideTour('onboarding', 3)"><i class="ti ti-chevron-right"></i> LINE連携をしよう（折り込み通知🔔）</li>
-    </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('onboarding', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
-  </div>
-
-  <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-send"></i> 折り込み依頼を送る</div>
-    <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('send_request', 0)"><i class="ti ti-chevron-right"></i> スケジュールから探す方法</li>
-      <li onclick="startGuideTour('send_request', 2)"><i class="ti ti-chevron-right"></i> 劇団一覧から探す方法</li>
-    </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('send_request', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
-  </div>
-
-  <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-inbox"></i> 折り込み依頼を受けたら</div>
-    <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('receive_request', 0)"><i class="ti ti-chevron-right"></i> 依頼を承認してメッセージでやり取りする</li>
-      <li onclick="startGuideTour('receive_request', 2)"><i class="ti ti-chevron-right"></i> 依頼を拒否する</li>
-    </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('receive_request', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
-  </div>
-
-  <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-calendar-plus"></i> 公演の設定</div>
-    <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('setup_perf', 0)"><i class="ti ti-chevron-right"></i> 公演日程・受付期間・上限部数を登録する</li>
-    </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('setup_perf', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
-  </div>
-
-  <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-messages"></i> 他劇団へのメッセージ方法</div>
-    <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('chat_guide', 0)"><i class="ti ti-chevron-right"></i> ダイレクトメッセージの送り方</li>
-    </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('chat_guide', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
-  </div>
 </div>
 
 <!-- 劇団プロフィール編集フォーム -->
