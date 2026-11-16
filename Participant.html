@@ -228,29 +228,6 @@ gap: 4px;
 .status-soon { background: #FFF4E5; color: #8B5A1A; }
 .troupe-stats { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); border-top: 0.5px solid var(--border-neutral); padding-top: 8px; margin-top: 8px; }
 
-/* 通知バッチ用スタイル */
-.nav-tab-badge {
-  position: relative;
-}
-.nav-badge-dot {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background-color: #E01E5A;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 10px;
-  padding: 1px 5px;
-  min-width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  box-shadow: 0 0 0 2px var(--white);
-}
-
 /* ===================== TUTORIAL MODAL ===================== */
 .tutorial-overlay {
   position: fixed;
@@ -392,6 +369,144 @@ gap: 4px;
   display: flex;
   gap: 8px;
   margin-left: auto;
+}
+
+/* ===================== SPOTLIGHT GUIDE TOUR ===================== */
+.tour-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 20, 16, 0.52);
+  z-index: 1100;
+  display: none;
+  pointer-events: auto;
+}
+.tour-backdrop.active {
+  display: block;
+}
+.tour-highlight-ring {
+  position: fixed;
+  z-index: 1101;
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px var(--gold-light), 0 0 0 9999px rgba(26, 20, 16, 0.55);
+  pointer-events: none;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
+}
+.tour-highlight-ring.active {
+  display: block;
+}
+.tour-popover {
+  position: fixed;
+  z-index: 1102;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(26, 20, 16, 0.3);
+  border: 1.5px solid var(--crimson);
+  overflow: hidden;
+  display: none;
+  transition: top 0.25s ease, left 0.25s ease;
+}
+.tour-popover.active {
+  display: block;
+}
+.tour-popover-header {
+  background: var(--crimson);
+  color: var(--white);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+}
+.tour-popover-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.tour-popover-body {
+  padding: 14px 16px;
+}
+.tour-popover-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.tour-popover-desc {
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.65;
+}
+.tour-popover-footer {
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tour-step-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* 使い方ページ内のガイドツアーメニュー */
+.guide-tour-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+.guide-tour-card {
+  background: var(--white);
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.guide-tour-card:hover {
+  border-color: var(--crimson);
+  box-shadow: 0 4px 16px rgba(139, 26, 47, 0.08);
+}
+.guide-tour-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--crimson);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.guide-tour-sublist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-mid);
+  flex: 1;
+}
+.guide-tour-sublist li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.guide-tour-sublist li:hover {
+  background: var(--crimson-pale);
+  color: var(--crimson);
 }
 
 /* ===================== PERF DETAIL ===================== */
@@ -722,31 +837,31 @@ gap: 4px;
 </div>
 
 <div class="sidebar-card">
-  <div class="sidebar-card-title"><i class="ti ti-stack-2"></i>折り込み枠の状況</div>
-  
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
-    <div>
-      <div class="quota-text">1団体あたりの上限</div>
-      <div style="font-size:18px; font-weight:500; color:var(--ink)" id="detail-max-quota">300 部/団体</div>
-    </div>
-    <div style="text-align: right;">
-      <div class="quota-text">受け入れ総部数</div>
-      <div style="font-size:18px; font-weight:500; color:var(--ink)" id="detail-total-quota">1,000 部</div>
-    </div>
-  </div>
+<div class="sidebar-card-title"><i class="ti ti-stack-2"></i>折り込み枠の状況</div>
 
-  <div style="margin:12px 0 6px 0;">
-    <div class="quota-bar-bg" style="background: var(--surface2); height: 10px; border-radius: 5px; overflow: hidden;">
-      <div class="quota-bar-fill" id="detail-quota-bar" style="width:0%; height:100%; background: var(--crimson); transition: width 0.3s ease;"></div>
-    </div>
-  </div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
+<div>
+<div class="quota-text">1団体あたりの上限</div>
+<div style="font-size:18px; font-weight:500; color:var(--ink)" id="detail-max-quota">300 部/団体</div>
+</div>
+<div style="text-align: right;">
+<div class="quota-text">受け入れ総部数</div>
+<div style="font-size:18px; font-weight:500; color:var(--ink)" id="detail-total-quota">1,000 部</div>
+</div>
+</div>
 
-  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px;">
-    <span id="detail-quota-summary">申請中・承認済み: 0 部</span>
-    <span id="detail-remaining-quota" style="font-weight: 600; color: var(--crimson);">残り: 1,000 部</span>
-  </div>
+<div style="margin:12px 0 6px 0;">
+<div class="quota-bar-bg" style="background: var(--surface2); height: 10px; border-radius: 5px; overflow: hidden;">
+<div class="quota-bar-fill" id="detail-quota-bar" style="width:0%; height:100%; background: var(--crimson); transition: width 0.3s ease;"></div>
+</div>
+</div>
 
-  <button class="request-btn" id="detail-request-btn" onclick="openRequestForm()">折り込みを依頼する</button>
+<div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px;">
+<span id="detail-quota-summary">申請中・承認済み: 0 部</span>
+<span id="detail-remaining-quota" style="font-weight: 600; color: var(--crimson);">残り: 1,000 部</span>
+</div>
+
+<button class="request-btn" id="detail-request-btn" onclick="openRequestForm()">折り込みを依頼する</button>
 </div>
 </div> 
 </div>
@@ -829,10 +944,10 @@ gap: 4px;
 
 <!-- 公演登録エラー表示バナー -->
 <div id="register-error-banner" style="display:none; background:#FEF0F0; border:1px solid #F9C5C5; border-radius:var(--radius-md); padding:12px 16px; margin-bottom:1.5rem; color:#A32D2D; font-size:13px; line-height:1.6;">
-  <div style="font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-    <i class="ti ti-alert-triangle" style="font-size:16px;"></i> 入力内容にエラーがあります
-  </div>
-  <ul id="register-error-list" style="margin-left:20px; padding:0;"></ul>
+<div style="font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+<i class="ti ti-alert-triangle" style="font-size:16px;"></i> 入力内容にエラーがあります
+</div>
+<ul id="register-error-list" style="margin-left:20px; padding:0;"></ul>
 </div>
 
 <div id="register-form-body">
@@ -876,9 +991,9 @@ gap: 4px;
 <input type="number" class="form-input" id="new-perf-quota" value="300" min="1" max="1000">
 </div>
 <div class="form-row">
-    <label class="form-label">受け入れ可能な総部数<span class="form-required">*</span></label>
-    <input type="number" class="form-input" id="new-perf-total-quota" value="1000" min="1" placeholder="例：1000">
-  </div>
+<label class="form-label">受け入れ可能な総部数<span class="form-required">*</span></label>
+<input type="number" class="form-input" id="new-perf-total-quota" value="1000" min="1" placeholder="例：1000">
+</div>
 </div>
 <div class="form-section-title" style="margin-top:20px;">受け渡し方法の制限</div>
 <div class="form-row">
@@ -965,54 +1080,126 @@ gap: 4px;
 <button class="btn-secondary" style="padding:6px 14px; font-size:12px; cursor: pointer;" onclick="handleLogout()"><i class="ti ti-logout"></i>ログアウト</button>
 </div>
 
-<!-- 劇団プロフィール編集フォーム -->
-<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
-  <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
-    <i class="ti ti-edit"></i> 劇団プロフィールの編集
-  </div>
-  
-  <div class="form-2col">
-  <!-- 左列：プロフィール画像 -->
-  <div class="form-row">
-    <label class="form-label">プロフィール画像（画像ファイルを選択）</label>
-    <input type="file" class="form-input" id="edit-troupe-avatar-file" accept="image/*" onchange="previewSelectedImage(event)">
-    <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px;">
-      <div id="avatar-preview-box" style="width: 50px; height: 50px; border-radius: 8px; background: var(--surface2); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-neutral);">
-        <span style="font-size: 11px; color: var(--muted);">なし</span>
-      </div>
-      <span style="font-size: 11px; color: var(--muted);">※画像を選択するとプレビューが表示されます</span>
-    </div>
+<!-- ガイドツアーメニュー一覧 -->
+<div class="section-title"><i class="ti ti-compass"></i>画面を動かしながら学ぶ「ガイドツアー」</div>
+<div class="guide-tour-grid">
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-sparkles"></i> まず登録したら</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('onboarding', 0)"><i class="ti ti-chevron-right"></i> マイページの編集をしよう</li>
+      <li onclick="startGuideTour('onboarding', 2)"><i class="ti ti-chevron-right"></i> 今月の公演を確認してみよう</li>
+      <li onclick="startGuideTour('onboarding', 3)"><i class="ti ti-chevron-right"></i> LINE連携をしよう（折り込み通知🔔）</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('onboarding', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
   </div>
 
-  <!-- 右列：所属大学・拠点 -->
-  <div class="form-row">
-    <label class="form-label">所属大学・拠点</label>
-    <input type="text" class="form-input" id="edit-troupe-affiliation" placeholder="例：早稲田大学">
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-send"></i> 折り込み依頼を送る</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('send_request', 0)"><i class="ti ti-chevron-right"></i> スケジュールから探す方法</li>
+      <li onclick="startGuideTour('send_request', 2)"><i class="ti ti-chevron-right"></i> 劇団一覧から探す方法</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('send_request', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-inbox"></i> 折り込み依頼を受けたら</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('receive_request', 0)"><i class="ti ti-chevron-right"></i> 依頼を承認してメッセージでやり取りする</li>
+      <li onclick="startGuideTour('receive_request', 2)"><i class="ti ti-chevron-right"></i> 依頼を拒否する</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('receive_request', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-calendar-plus"></i> 公演の設定</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('setup_perf', 0)"><i class="ti ti-chevron-right"></i> 公演日程・受付期間・上限部数を登録する</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('setup_perf', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
+  </div>
+
+  <div class="guide-tour-card">
+    <div class="guide-tour-card-title"><i class="ti ti-messages"></i> 他劇団へのメッセージ方法</div>
+    <ul class="guide-tour-sublist">
+      <li onclick="startGuideTour('chat_guide', 0)"><i class="ti ti-chevron-right"></i> ダイレクトメッセージの送り方</li>
+    </ul>
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('chat_guide', 0)">
+      <i class="ti ti-player-play"></i> このツアーを開始
+    </button>
   </div>
 </div>
 
-  <div class="form-2col">
-    <div class="form-row">
-      <label class="form-label"><i class="ti ti-world"></i> 公式ホームページ URL</label>
-      <input type="url" class="form-input" id="edit-troupe-homepage" placeholder="https://example.com">
-    </div>
-    <div class="form-row">
-      <label class="form-label"><i class="ti ti-brand-instagram" style="color:#E1306C"></i> Instagram URL</label>
-      <input type="url" class="form-input" id="edit-troupe-instagram" placeholder="https://instagram.com/your_account">
-    </div>
-  </div>
+<!-- 劇団プロフィール編集フォーム -->
+<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
+<div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
+<i class="ti ti-edit"></i> 劇団プロフィールの編集
+</div>
 
-  <div class="form-row">
-    <label class="form-label"><i class="ti ti-brand-x"></i> X (旧Twitter) URL</label>
-    <input type="url" class="form-input" id="edit-troupe-sns" placeholder="https://x.com/your_account">
-  </div>
+<div class="form-2col">
+<!-- 左列：プロフィール画像 -->
+<div class="form-row">
+<label class="form-label">プロフィール画像（画像ファイルを選択）</label>
+<input type="file" class="form-input" id="edit-troupe-avatar-file" accept="image/*" onchange="previewSelectedImage(event)">
+<div style="margin-top: 8px; display: flex; align-items: center; gap: 12px;">
+<div id="avatar-preview-box" style="width: 50px; height: 50px; border-radius: 8px; background: var(--surface2); overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-neutral);">
+<span style="font-size: 11px; color: var(--muted);">なし</span>
+</div>
+<span style="font-size: 11px; color: var(--muted);">※画像を選択するとプレビューが表示されます</span>
+</div>
+</div>
 
-  <div class="form-row">
-    <label class="form-label">劇団紹介文</label>
-    <textarea class="form-textarea" id="edit-troupe-desc" placeholder="劇団のコンセプトや活動内容を入力してください"></textarea>
-  </div>
+<!-- 右列：所属大学・拠点 -->
+<div class="form-row">
+<label class="form-label">所属大学・拠点</label>
+<input type="text" class="form-input" id="edit-troupe-affiliation" placeholder="例：早稲田大学">
+</div>
+</div>
 
-  <button class="btn-primary" onclick="handleUpdateProfile()"><i class="ti ti-device-floppy"></i> プロフィールを保存する</button>
+<div class="form-2col">
+<div class="form-row">
+<label class="form-label"><i class="ti ti-world"></i> 公式ホームページ URL</label>
+<input type="url" class="form-input" id="edit-troupe-homepage" placeholder="https://example.com">
+</div>
+<div class="form-row">
+<label class="form-label"><i class="ti ti-brand-instagram" style="color:#E1306C"></i> Instagram URL</label>
+<input type="url" class="form-input" id="edit-troupe-instagram" placeholder="https://instagram.com/your_account">
+</div>
+</div>
+
+<div class="form-row">
+<label class="form-label"><i class="ti ti-brand-x"></i> X (旧Twitter) URL</label>
+<input type="url" class="form-input" id="edit-troupe-sns" placeholder="https://x.com/your_account">
+</div>
+
+<div class="form-row">
+<label class="form-label">劇団紹介文</label>
+<textarea class="form-textarea" id="edit-troupe-desc" placeholder="劇団のコンセプトや活動内容を入力してください"></textarea>
+</div>
+
+<button class="btn-primary" onclick="handleUpdateProfile()"><i class="ti ti-device-floppy"></i> プロフィールを保存する</button>
+</div>
+
+<!-- 【追加】LINE通知の連携 -->
+<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
+  <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
+    <i class="ti ti-brand-line" style="color:#06C755;"></i> LINE通知の連携
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">折り込み依頼やメッセージが届いたとき、ビラネットワーク公式LINEからお知らせします。</p>
+  <div id="line-link-status" style="margin-bottom:12px;"></div>
+  <div id="line-link-code-box" style="display:none; background:var(--surface); border:0.5px solid var(--border-neutral); border-radius:var(--radius-md); padding:14px; margin-bottom:12px;"></div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="btn-primary" onclick="issueLineLinkCode()"><i class="ti ti-link"></i> 連携コードを発行する</button>
+    <button class="btn-secondary" onclick="refreshLineStatus()"><i class="ti ti-refresh"></i> 連携状況を更新</button>
+  </div>
 </div>
 
 <div class="stat-grid">
@@ -1068,7 +1255,7 @@ gap: 4px;
 <div class="slack-input-box">
 <textarea class="slack-input-textarea" id="chat-text-input" rows="1"
 placeholder="メッセージを送信..."
-onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
+onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();sendChatMessage();}"></textarea>
 <div class="slack-input-toolbar">
 <div class="slack-toolbar-left">
 <button class="slack-icon-btn" onclick="toggleEmojiPicker()" title="絵文字を追加">
@@ -1153,6 +1340,26 @@ onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendC
   </div>
 </div>
 
+<!-- ===================== SPOTLIGHT GUIDE TOUR POPOVER ===================== -->
+<div class="tour-highlight-ring" id="tour-highlight-ring"></div>
+<div class="tour-popover" id="tour-popover" role="dialog" aria-modal="true">
+  <div class="tour-popover-header">
+    <span id="tour-category-label">ガイドツアー</span>
+    <button class="tour-popover-close" onclick="endGuideTour()" title="ツアーを終了"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="tour-popover-body">
+    <div class="tour-popover-title" id="tour-step-title">タイトル</div>
+    <div class="tour-popover-desc" id="tour-step-desc">説明文</div>
+  </div>
+  <div class="tour-popover-footer">
+    <span class="tour-step-count" id="tour-step-count">1 / 4</span>
+    <div style="display:flex; gap:6px;">
+      <button class="btn-secondary" id="tour-prev-btn" onclick="moveGuideTour(-1)" style="padding:5px 10px; font-size:12px;">戻る</button>
+      <button class="btn-primary" id="tour-next-btn" onclick="moveGuideTour(1)" style="padding:5px 12px; font-size:12px;">次へ</button>
+    </div>
+  </div>
+</div>
+
 <!-- JavaScript: スクリプト統合とSupabase処理 -->
 <script>
 // ===================== SUPABASE 初期化 =====================
@@ -1161,13 +1368,21 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// 【修正】LINE通知を送る Google Apps Script のウェブアプリURL
+// GASでデプロイしたときに表示される「https://script.google.com/macros/s/..../exec」を貼り付ける
+const NOTIFY_GAS_URL = 'https://script.google.com/macros/s/AKfycbzF2fYxrsKZVxpZDN7F1aDLlo8H6p5QrkfYvCMrOB1Y4LlFuE402DgizpnS9VjUQu8X-w/exec';
+// 【追加】LINE公式アカウントの友だち追加URL（例：https://lin.ee/xxxxxxx）
+const LINE_FRIEND_URL = 'https://lin.ee/pe4Zlvb';
+// 【修正】チャットの新着確認間隔（ミリ秒）
+const CHAT_POLL_INTERVAL = 5000;
+
 // デモデータ（Supabase接続失敗時のフォールバック用）
 const DEFAULT_TROUPES = [
-  { id: "troupe-a", name: "劇団ソウルフルズ", affiliation: "早稲田大学", email: "soul.member@example.com", password: "password123", description: "早稲田大学を拠点とする学生劇団です。", homepage: "https://example.com/soulfuls", sns: "https://x.com/soulfuls_waseda" },
-  { id: "troupe-b", name: "慶應シアターラボ", affiliation: "慶應義塾大学", email: "lab@example.com", password: "password123", description: "慶應義塾大学公認の演劇サークルです。", homepage: "https://example.com/theater-lab", sns: "https://x.com/keio_theater_lab" }
+{ id: "troupe-a", name: "劇団ソウルフルズ", affiliation: "早稲田大学", email: "soul.member@example.com", password: "password123", description: "早稲田大学を拠点とする学生劇団です。", homepage: "https://example.com/soulfuls", sns: "https://x.com/soulfuls_waseda" },
+{ id: "troupe-b", name: "慶應シアターラボ", affiliation: "慶應義塾大学", email: "lab@example.com", password: "password123", description: "慶應義塾大学公認の演劇サークルです。", homepage: "https://example.com/theater-lab", sns: "https://x.com/keio_theater_lab" }
 ];
 const DEFAULT_PERFORMANCES = [
-  { id: "perf-1", troupeId: "troupe-a", title: "初夏の本公演『新緑のプレリュード』", start: "2026-06-12", end: "2026-06-15", acceptStart: "2026-05-10", acceptEnd: "2026-06-08", venue: "早稲田小劇場どらま館", maxQuota: 350, desc: "若者たちの交錯する群像劇。", email: "soul.member@example.com" }
+{ id: "perf-1", troupeId: "troupe-a", title: "初夏の本公演『新緑のプレリュード』", start: "2026-06-12", end: "2026-06-15", acceptStart: "2026-05-10", acceptEnd: "2026-06-08", venue: "早稲田小劇場どらま館", maxQuota: 350, desc: "若者たちの交錯する群像劇。", email: "soul.member@example.com" }
 ];
 const DEFAULT_REQUESTS = [];
 
@@ -1181,1086 +1396,1322 @@ let selectedPerformanceId = null;
 let editingPerfId = null;
 let activeChatPartnerId = null;
 let pageHistory = [];
+let chatPollTimer = null; // 【修正】チャット新着確認用タイマー
 
 window.addEventListener('DOMContentLoaded', () => {
-  initApp();
-  initEmojiPicker();
+initApp();
+initEmojiPicker();
 });
 
 async function initApp() {
-  await loadAllData();
-  try {
-    const saved = localStorage.getItem('currentUser');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      const { data: freshData } = await db.from('troupes').select('*').eq('id', parsed.id);
-      if (freshData && freshData.length > 0) {
-        currentUser = freshData[0];
-      } else {
-        localStorage.removeItem('currentUser');
-      }
-    }
-  } catch(e) {
-    localStorage.removeItem('currentUser');
-  }
-  updateFilterDropdown();
-  renderLegend();
-  renderTroupes(troupesData);
-  renderCalendar();
-  updateAuthUI();
-  
+await loadAllData();
+try {
+const saved = localStorage.getItem('currentUser');
+if (saved) {
+const parsed = JSON.parse(saved);
+const { data: freshData } = await db.from('troupes').select('*').eq('id', parsed.id);
+if (freshData && freshData.length > 0) {
+currentUser = freshData[0];
+} else {
+localStorage.removeItem('currentUser');
+}
+}
+} catch(e) {
+localStorage.removeItem('currentUser');
+}
+updateFilterDropdown();
+renderLegend();
+renderTroupes(troupesData);
+renderCalendar();
+updateAuthUI();
+  // 【追加】LINE通知のリンクから来た場合は該当画面を開く
+  pendingDeepLink = readDeepLink();
+  await applyDeepLink();
   // ★未読通知バッチの表示を更新
-  updateUnreadBadges();
+
+  // ★初回アクセス時のチュートリアル表示判定
   checkAndOpenTutorial();
 }
 
 async function loadAllData() {
-  try {
-    const { data: troupes, error: troupesError } = await db.from('troupes').select('*');
-    if (troupesError) throw troupesError;
-    troupesData = troupes || [];
+try {
+const { data: troupes, error: troupesError } = await db.from('troupes').select('*');
+if (troupesError) throw troupesError;
+troupesData = troupes || [];
 
-    const { data: performances, error: performancesError } = await db.from('performances').select('*');
-    if (performancesError) throw performancesError;
-    performancesData = performances || [];
+const { data: performances, error: performancesError } = await db.from('performances').select('*');
+if (performancesError) throw performancesError;
+performancesData = performances || [];
 
-    const { data: requests, error: requestsError } = await db.from('requests').select('*');
-    if (requestsError) throw requestsError;
-    incomingRequests = requests || [];
+const { data: requests, error: requestsError } = await db.from('requests').select('*');
+if (requestsError) throw requestsError;
+incomingRequests = requests || [];
 
-    const { data: msgs, error: msgsError } = await db.from('messages').select('*');
-    if (!msgsError && msgs) messagesData = msgs;
+    // 【修正】messages の読み込み失敗を握りつぶさずログに出す
+const { data: msgs, error: msgsError } = await db.from('messages').select('*');
+    if (msgsError) {
+      console.error('messages テーブル読み込みエラー:', msgsError);
+    } else if (msgs) {
+      messagesData = msgs;
+    }
 
-  } catch (error) {
-    console.error('データ読み込みエラー（フォールバック使用）:', error.message);
-    troupesData = [...DEFAULT_TROUPES];
-    performancesData = [...DEFAULT_PERFORMANCES];
-    incomingRequests = [...DEFAULT_REQUESTS];
+} catch (error) {
+    console.error('データ読み込みエラー（フォールバック使用）:', error);
+troupesData = [...DEFAULT_TROUPES];
+performancesData = [...DEFAULT_PERFORMANCES];
+incomingRequests = [...DEFAULT_REQUESTS];
+}
+}
+
+// 【修正】依頼一覧をDBから再取得（受信側が最新の依頼を見られるように）
+async function refreshRequests() {
+  const { data, error } = await db.from('requests').select('*');
+  if (error) {
+    console.error('requests 再取得エラー:', error);
+    return;
   }
+  incomingRequests = data || [];
+}
+
+// 【修正】メッセージをDBから再取得。件数・既読状態が変わったら true を返す
+async function refreshMessages() {
+  const { data, error } = await db.from('messages').select('*');
+  if (error) {
+    console.error('messages 再取得エラー:', error);
+    return false;
+  }
+  const next = data || [];
+  const sig = arr => arr.map(m => m.id + ':' + (m.read ? 1 : 0)).sort().join('|');
+  const changed = sig(next) !== sig(messagesData);
+  messagesData = next;
+  return changed;
+}
+
+// 【修正】タイムスタンプ表示用（ISO文字列・旧形式どちらにも対応）
+function formatTimestamp(ts, timeOnly) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  if (isNaN(d.getTime())) return String(ts); // 旧形式("19:05" など)はそのまま表示
+  if (timeOnly) {
+    const today = new Date();
+    const sameDay = d.toDateString() === today.toDateString();
+    const time = d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    return sameDay ? time : `${d.getMonth() + 1}/${d.getDate()} ${time}`;
+  }
+  return d.toLocaleString('ja-JP');
+}
+
+// 【修正】メッセージの並び順キー（ID末尾の数値=送信時刻を使うので旧データでも正しく並ぶ）
+function messageSortKey(m) {
+  const n = parseInt(String(m.id || '').replace(/^msg_/, ''), 10);
+  if (!isNaN(n)) return n;
+  const t = new Date(m.timestamp).getTime();
+  return isNaN(t) ? 0 : t;
 }
 
 function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
 function showPage(pageId, pushToHistory = true) {
-  const activePage = document.querySelector('.page.active');
-  if (activePage && pushToHistory) pageHistory.push(activePage.id);
+const activePage = document.querySelector('.page.active');
+  if (activePage && pushToHistory) pageHistory.push(activePage.id.replace(/^page-/, ''));
 
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
 
-  const targetPage = document.getElementById(`page-${pageId}`);
-  if (targetPage) targetPage.classList.add('active');
+const targetPage = document.getElementById(`page-${pageId}`);
+if (targetPage) targetPage.classList.add('active');
 
-  const tab = document.getElementById(`tab-${pageId}`);
-  if (tab) tab.classList.add('active');
+const tab = document.getElementById(`tab-${pageId}`);
+if (tab) tab.classList.add('active');
 
-  window.scrollTo({ top: 0 });
+window.scrollTo({ top: 0 });
 
-  if (pageId === 'calendar') renderCalendar();
-  if (pageId === 'troupes') renderTroupes(troupesData);
-  if (pageId === 'mypage') renderMyPage();
-  if (pageId === 'register') prepareRegisterPage();
-  if (pageId === 'chat') initChat();
+  // 【修正】チャット以外に移動したら新着確認を止める
+  if (pageId !== 'chat') stopChatPolling();
+
+if (pageId === 'calendar') renderCalendar();
+if (pageId === 'troupes') renderTroupes(troupesData);
+  if (pageId === 'mypage') {
+    renderMyPage();
+    // 【修正】最新の依頼をDBから取り直して再描画
+    if (currentUser) refreshRequests().then(renderMyPage);
+  }
+if (pageId === 'register') prepareRegisterPage();
+if (pageId === 'chat') initChat();
 }
 
 function goBack() {
-  if (pageHistory.length > 0) {
-    const prevPage = pageHistory.pop();
-    showPage(prevPage, false);
-  } else {
-    showPage('calendar', false);
-  }
+if (pageHistory.length > 0) {
+const prevPage = pageHistory.pop();
+showPage(prevPage, false);
+} else {
+showPage('calendar', false);
+}
 }
 
 function getTroupeColorClass(troupeId) {
-  const idx = troupesData.findIndex(t => t.id === troupeId);
-  if (idx === -1) return 'troupe-a';
-  const classes = ['troupe-a', 'troupe-b', 'troupe-c', 'troupe-d', 'troupe-e'];
-  return classes[idx % classes.length];
+const idx = troupesData.findIndex(t => t.id === troupeId);
+if (idx === -1) return 'troupe-a';
+const classes = ['troupe-a', 'troupe-b', 'troupe-c', 'troupe-d', 'troupe-e'];
+return classes[idx % classes.length];
 }
 
 function getAcceptanceStatus(perf) {
-  const now = new Date();
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  if (todayStr < perf.acceptStart) return { text: "受付開始前", class: "status-soon", accept: false };
-  if (todayStr >= perf.acceptStart && todayStr <= perf.acceptEnd) {
-    return { text: "折り込み受付中", class: "status-open", accept: true };
-  }
-  return { text: "受付期間終了", class: "status-closed", accept: false };
+const now = new Date();
+const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+if (todayStr < perf.acceptStart) return { text: "受付開始前", class: "status-soon", accept: false };
+if (todayStr >= perf.acceptStart && todayStr <= perf.acceptEnd) {
+return { text: "折り込み受付中", class: "status-open", accept: true };
+}
+return { text: "受付期間終了", class: "status-closed", accept: false };
 }
 
 function updateFilterDropdown() {
-  const select = document.getElementById('cal-filter');
-  if (!select) return;
-  select.innerHTML = '<option value="">すべての劇団</option>';
-  troupesData.forEach(t => {
-    select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
-  });
+const select = document.getElementById('cal-filter');
+if (!select) return;
+select.innerHTML = '<option value="">すべての劇団</option>';
+troupesData.forEach(t => {
+select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+});
 }
 
 function renderLegend() {
-  const legend = document.getElementById('calendar-legend');
-  if (!legend) return;
-  legend.innerHTML = '';
-  troupesData.forEach(t => {
-    const colorClass = getTroupeColorClass(t.id);
-    let dummy = document.createElement('div');
-    dummy.className = colorClass;
-    document.body.appendChild(dummy);
-    const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
-    document.body.removeChild(dummy);
-    legend.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${borderLeft}"></div><span>${t.name} (${(t.affiliation||'').replace('大学','')})</span></div>`;
-  });
+const legend = document.getElementById('calendar-legend');
+if (!legend) return;
+legend.innerHTML = '';
+troupesData.forEach(t => {
+const colorClass = getTroupeColorClass(t.id);
+let dummy = document.createElement('div');
+dummy.className = colorClass;
+document.body.appendChild(dummy);
+const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
+document.body.removeChild(dummy);
+legend.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${borderLeft}"></div><span>${t.name} (${(t.affiliation||'').replace('大学','')})</span></div>`;
+});
 }
 
 function changeMonth(dir) {
-  currentDate.setMonth(currentDate.getMonth() + dir);
-  renderCalendar();
+currentDate.setMonth(currentDate.getMonth() + dir);
+renderCalendar();
 }
 
 function renderCalendar() {
-  const grid = document.getElementById('cal-grid');
-  const label = document.getElementById('month-label');
-  const filterEl = document.getElementById('cal-filter');
-  if (!grid || !label || !filterEl) return;
+const grid = document.getElementById('cal-grid');
+const label = document.getElementById('month-label');
+const filterEl = document.getElementById('cal-filter');
+if (!grid || !label || !filterEl) return;
 
-  const filterVal = filterEl.value;
-  grid.innerHTML = '';
-  const dows = ['日', '月', '火', '水', '木', '金', '土'];
-  dows.forEach(d => { grid.innerHTML += `<div class="cal-dow">${d}</div>`; });
+const filterVal = filterEl.value;
+grid.innerHTML = '';
+const dows = ['日', '月', '火', '水', '木', '金', '土'];
+dows.forEach(d => { grid.innerHTML += `<div class="cal-dow">${d}</div>`; });
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  label.textContent = `${year}年${month + 1}月`;
+const year = currentDate.getFullYear();
+const month = currentDate.getMonth();
+label.textContent = `${year}年${month + 1}月`;
 
-  const firstDay = new Date(year, month, 1);
-  const startDow = firstDay.getDay();
-  const lastDay = new Date(year, month + 1, 0);
-  const totalDays = lastDay.getDate();
-  const prevLastDay = new Date(year, month, 0).getDate();
+const firstDay = new Date(year, month, 1);
+const startDow = firstDay.getDay();
+const lastDay = new Date(year, month + 1, 0);
+const totalDays = lastDay.getDate();
+const prevLastDay = new Date(year, month, 0).getDate();
 
-  for (let i = startDow - 1; i >= 0; i--) {
-    grid.innerHTML += `<div class="cal-cell other-month"><div class="cal-day-num">${prevLastDay - i}</div></div>`;
-  }
+for (let i = startDow - 1; i >= 0; i--) {
+grid.innerHTML += `<div class="cal-cell other-month"><div class="cal-day-num">${prevLastDay - i}</div></div>`;
+}
 
-  for (let day = 1; day <= totalDays; day++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const today = new Date();
-    const isToday = (year === today.getFullYear() && month === today.getMonth() && day === today.getDate());
-    let cell = document.createElement('div');
-    cell.className = `cal-cell ${isToday ? 'today' : ''}`;
-    cell.innerHTML = `<div class="cal-day-num">${day}</div>`;
+for (let day = 1; day <= totalDays; day++) {
+const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+const today = new Date();
+const isToday = (year === today.getFullYear() && month === today.getMonth() && day === today.getDate());
+let cell = document.createElement('div');
+cell.className = `cal-cell ${isToday ? 'today' : ''}`;
+cell.innerHTML = `<div class="cal-day-num">${day}</div>`;
 
-    performancesData.forEach(p => {
-      if (filterVal && p.troupeId !== filterVal) return;
-      if (dateStr >= p.start && dateStr <= p.end) {
-        const colorClass = getTroupeColorClass(p.troupeId);
-        const ev = document.createElement('div');
-        ev.className = `cal-event ${colorClass}`;
-        ev.textContent = p.title;
-        ev.title = p.title;
-        ev.onclick = (e) => { e.stopPropagation(); openPerformanceDetail(p.id); };
-        cell.appendChild(ev);
-      }
-    });
-    grid.appendChild(cell);
-  }
+performancesData.forEach(p => {
+if (filterVal && p.troupeId !== filterVal) return;
+if (dateStr >= p.start && dateStr <= p.end) {
+const colorClass = getTroupeColorClass(p.troupeId);
+const ev = document.createElement('div');
+ev.className = `cal-event ${colorClass}`;
+ev.textContent = p.title;
+ev.title = p.title;
+ev.onclick = (e) => { e.stopPropagation(); openPerformanceDetail(p.id); };
+cell.appendChild(ev);
+}
+});
+grid.appendChild(cell);
+}
 
-  const totalCellsSoFar = startDow + totalDays;
-  const remaining = 42 - totalCellsSoFar;
-  const nextMonthDisplay = remaining >= 7 ? remaining - 7 : remaining;
-  for (let i = 1; i <= nextMonthDisplay; i++) {
-    const nextCell = document.createElement('div');
-    nextCell.className = 'cal-cell other-month';
-    nextCell.innerHTML = `<div class="cal-day-num">${i}</div>`;
-    grid.appendChild(nextCell);
-  }
+const totalCellsSoFar = startDow + totalDays;
+const remaining = 42 - totalCellsSoFar;
+const nextMonthDisplay = remaining >= 7 ? remaining - 7 : remaining;
+for (let i = 1; i <= nextMonthDisplay; i++) {
+const nextCell = document.createElement('div');
+nextCell.className = 'cal-cell other-month';
+nextCell.innerHTML = `<div class="cal-day-num">${i}</div>`;
+grid.appendChild(nextCell);
+}
 }
 
 function renderTroupes(troupes) {
-  const grid = document.getElementById('troupe-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
+const grid = document.getElementById('troupe-grid');
+if (!grid) return;
+grid.innerHTML = '';
 
-  if (troupes.length === 0) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><i class="ti ti-users-minus"></i>該当する劇団が見つかりませんでした。</div>';
-    return;
-  }
+if (troupes.length === 0) {
+grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><i class="ti ti-users-minus"></i>該当する劇団が見つかりませんでした。</div>';
+return;
+}
 
-  troupes.forEach(t => {
-    const colorClass = getTroupeColorClass(t.id);
-    let dummy = document.createElement('div');
-    dummy.className = colorClass;
-    document.body.appendChild(dummy);
-    const bg = window.getComputedStyle(dummy).backgroundColor;
-    const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
-    document.body.removeChild(dummy);
+troupes.forEach(t => {
+const colorClass = getTroupeColorClass(t.id);
+let dummy = document.createElement('div');
+dummy.className = colorClass;
+document.body.appendChild(dummy);
+const bg = window.getComputedStyle(dummy).backgroundColor;
+const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
+document.body.removeChild(dummy);
 
-    const myPerfs = performancesData.filter(p => p.troupeId === t.id);
-    let statusHtml = '<span class="status-badge status-closed">公演予定なし</span>';
-    if (myPerfs.length > 0) {
-      const activeOpenPerf = myPerfs.find(p => getAcceptanceStatus(p).accept);
-      if (activeOpenPerf) {
-        statusHtml = `<span class="status-badge status-open">折り込み受付中</span>`;
-      } else {
-        const statusObj = getAcceptanceStatus(myPerfs[myPerfs.length - 1]);
-        statusHtml = `<span class="status-badge ${statusObj.class}">${statusObj.text}</span>`;
-      }
-    }
+const myPerfs = performancesData.filter(p => p.troupeId === t.id);
+let statusHtml = '<span class="status-badge status-closed">公演予定なし</span>';
+if (myPerfs.length > 0) {
+const activeOpenPerf = myPerfs.find(p => getAcceptanceStatus(p).accept);
+if (activeOpenPerf) {
+statusHtml = `<span class="status-badge status-open">折り込み受付中</span>`;
+} else {
+const statusObj = getAcceptanceStatus(myPerfs[myPerfs.length - 1]);
+statusHtml = `<span class="status-badge ${statusObj.class}">${statusObj.text}</span>`;
+}
+}
 
     // 🌟 ここを追加：画像があれば <img>、なければ頭文字を表示 🌟
-    let avatarHtml = `<div class="troupe-avatar" style="background:${bg}; color:${borderLeft}">${escapeHtml(t.name.charAt(0))}</div>`;
-    if (t.avatar_url) {
-      avatarHtml = `<img src="${escapeHtml(t.avatar_url)}" class="troupe-avatar" style="object-fit:cover;" alt="${escapeHtml(t.name)}">`;
-    }
+let avatarHtml = `<div class="troupe-avatar" style="background:${bg}; color:${borderLeft}">${escapeHtml(t.name.charAt(0))}</div>`;
+if (t.avatar_url) {
+avatarHtml = `<img src="${escapeHtml(t.avatar_url)}" class="troupe-avatar" style="object-fit:cover;" alt="${escapeHtml(t.name)}">`;
+}
 
-    const card = document.createElement('div');
-    card.className = 'troupe-card';
-    card.onclick = () => openTroupeModal(t.id);
+const card = document.createElement('div');
+card.className = 'troupe-card';
+card.onclick = () => openTroupeModal(t.id);
 
-    let deleteBtnHtml = '';
-    if (currentUser && currentUser.email === 'admin@stagelink-2026.com') {
-      deleteBtnHtml = `
-        <button class="troupe-delete-btn" title="この劇団を削除する" onclick="deleteTroupeDirect(event, '${t.id}', '${escapeHtml(t.name)}')">
-          <i class="ti ti-trash" style="font-size: 16px;"></i>
-        </button>`;
-    }
+let deleteBtnHtml = '';
+if (currentUser && currentUser.email === 'admin@stagelink-2026.com') {
+deleteBtnHtml = `
+       <button class="troupe-delete-btn" title="この劇団を削除する" onclick="deleteTroupeDirect(event, '${t.id}', '${escapeHtml(t.name)}')">
+         <i class="ti ti-trash" style="font-size: 16px;"></i>
+       </button>`;
+}
 
     // 🌟 innerHTML 内の <div class="troupe-avatar"...> を ${avatarHtml} に差し替える 🌟
-    card.innerHTML = `
-      ${deleteBtnHtml}
-      <div class="troupe-card-head">
-        ${avatarHtml}
-        <div>
-          <div class="troupe-name">${escapeHtml(t.name)}</div>
-          <div class="troupe-univ">${escapeHtml(t.affiliation || '')}</div>
-        </div>
-        ${statusHtml}
-      </div>
-      <div class="troupe-stats">
-        <span>登録公演: <strong>${myPerfs.length}</strong> 件</span>
-        <span style="color:var(--crimson); font-weight:500;">詳細・スケジュールを見る →</span>
-      </div>`;
-    grid.appendChild(card);
-  });
+card.innerHTML = `
+     ${deleteBtnHtml}
+     <div class="troupe-card-head">
+       ${avatarHtml}
+       <div>
+         <div class="troupe-name">${escapeHtml(t.name)}</div>
+         <div class="troupe-univ">${escapeHtml(t.affiliation || '')}</div>
+       </div>
+       ${statusHtml}
+     </div>
+     <div class="troupe-stats">
+       <span>登録公演: <strong>${myPerfs.length}</strong> 件</span>
+       <span style="color:var(--crimson); font-weight:500;">詳細・スケジュールを見る →</span>
+     </div>`;
+grid.appendChild(card);
+});
 }
 
 function filterTroupes() {
-  const keyword = document.querySelector('.search-input').value.toLowerCase();
-  const univ = document.getElementById('univ-filter').value;
-  const acceptOnly = document.getElementById('accept-filter').value;
+const keyword = document.querySelector('.search-input').value.toLowerCase();
+const univ = document.getElementById('univ-filter').value;
+const acceptOnly = document.getElementById('accept-filter').value;
 
-  const filtered = troupesData.filter(t => {
-    const matchKeyword = t.name.toLowerCase().includes(keyword) || (t.affiliation && t.affiliation.toLowerCase().includes(keyword));
-    const matchUniv = !univ || t.affiliation === univ;
-    let matchAccept = true;
-    if (acceptOnly) {
-      const myPerfs = performancesData.filter(p => p.troupeId === t.id);
-      const hasAccept = myPerfs.some(p => getAcceptanceStatus(p).accept);
-      matchAccept = (acceptOnly === 'true') ? hasAccept : !hasAccept;
-    }
-    return matchKeyword && matchUniv && matchAccept;
-  });
-  renderTroupes(filtered);
+const filtered = troupesData.filter(t => {
+const matchKeyword = t.name.toLowerCase().includes(keyword) || (t.affiliation && t.affiliation.toLowerCase().includes(keyword));
+const matchUniv = !univ || t.affiliation === univ;
+let matchAccept = true;
+if (acceptOnly) {
+const myPerfs = performancesData.filter(p => p.troupeId === t.id);
+const hasAccept = myPerfs.some(p => getAcceptanceStatus(p).accept);
+matchAccept = (acceptOnly === 'true') ? hasAccept : !hasAccept;
+}
+return matchKeyword && matchUniv && matchAccept;
+});
+renderTroupes(filtered);
 }
 
 function openTroupeModal(troupeId) {
-  const troupe = troupesData.find(t => t.id === troupeId);
-  if (!troupe) return;
+const troupe = troupesData.find(t => t.id === troupeId);
+if (!troupe) return;
 
-  const colorClass = getTroupeColorClass(troupe.id);
-  let dummy = document.createElement('div');
-  dummy.className = colorClass;
-  document.body.appendChild(dummy);
-  const bg = window.getComputedStyle(dummy).backgroundColor;
-  const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
-  document.body.removeChild(dummy);
+const colorClass = getTroupeColorClass(troupe.id);
+let dummy = document.createElement('div');
+dummy.className = colorClass;
+document.body.appendChild(dummy);
+const bg = window.getComputedStyle(dummy).backgroundColor;
+const borderLeft = window.getComputedStyle(dummy).borderLeftColor;
+document.body.removeChild(dummy);
 
   // 1. アイコン画像セット
-  const avatar = document.getElementById('tsp-avatar');
-  if (troupe.avatar_url) {
-    avatar.innerHTML = `<img src="${escapeHtml(troupe.avatar_url)}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
-  } else {
-    avatar.innerHTML = '';
-    avatar.textContent = troupe.name.charAt(0);
-    avatar.style.background = bg;
-    avatar.style.color = borderLeft;
-  }
+const avatar = document.getElementById('tsp-avatar');
+if (troupe.avatar_url) {
+avatar.innerHTML = `<img src="${escapeHtml(troupe.avatar_url)}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
+} else {
+avatar.innerHTML = '';
+avatar.textContent = troupe.name.charAt(0);
+avatar.style.background = bg;
+avatar.style.color = borderLeft;
+}
 
   // 2. 劇団名・所属・紹介文セット
-  document.getElementById('tsp-name').textContent = troupe.name || '-';
-  document.getElementById('tsp-affiliation').textContent = troupe.affiliation || '-';
-  document.getElementById('tsp-description').textContent = troupe.description || "劇団紹介文はまだ登録されていません。";
+document.getElementById('tsp-name').textContent = troupe.name || '-';
+document.getElementById('tsp-affiliation').textContent = troupe.affiliation || '-';
+document.getElementById('tsp-description').textContent = troupe.description || "劇団紹介文はまだ登録されていません。";
 
   // 3. SNS・HP リンク群の生成
-  const linksWrap = document.getElementById('tsp-links');
-  linksWrap.innerHTML = '';
+const linksWrap = document.getElementById('tsp-links');
+linksWrap.innerHTML = '';
 
-  let hasLinks = false;
-  if (troupe.homepage) {
-    hasLinks = true;
-    linksWrap.innerHTML += `<a href="${escapeHtml(troupe.homepage)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--crimson); background:var(--crimson-pale); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(139,26,47,0.15);"><i class="ti ti-world" style="font-size:15px;"></i> 公式ホームページ <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-  }
-  if (troupe.instagram) {
-    hasLinks = true;
-    linksWrap.innerHTML += `<a href="${escapeHtml(troupe.instagram)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#E1306C; background:#FDF0F5; padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(225,48,108,0.2);"><i class="ti ti-brand-instagram" style="font-size:15px;"></i> 公式Instagram <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-  }
-  if (troupe.sns) {
-    hasLinks = true;
-    linksWrap.innerHTML += `<a href="${escapeHtml(troupe.sns)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); background:var(--surface2); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid var(--border-neutral);"><i class="ti ti-brand-x" style="font-size:15px;"></i> 公式 X (旧Twitter) <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
-  }
+let hasLinks = false;
+if (troupe.homepage) {
+hasLinks = true;
+linksWrap.innerHTML += `<a href="${escapeHtml(troupe.homepage)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--crimson); background:var(--crimson-pale); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(139,26,47,0.15);"><i class="ti ti-world" style="font-size:15px;"></i> 公式ホームページ <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+}
+if (troupe.instagram) {
+hasLinks = true;
+linksWrap.innerHTML += `<a href="${escapeHtml(troupe.instagram)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#E1306C; background:#FDF0F5; padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid rgba(225,48,108,0.2);"><i class="ti ti-brand-instagram" style="font-size:15px;"></i> 公式Instagram <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+}
+if (troupe.sns) {
+hasLinks = true;
+linksWrap.innerHTML += `<a href="${escapeHtml(troupe.sns)}" target="_blank" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink); background:var(--surface2); padding:8px 12px; border-radius:var(--radius-sm); border:0.5px solid var(--border-neutral);"><i class="ti ti-brand-x" style="font-size:15px;"></i> 公式 X (旧Twitter) <i class="ti ti-external-link" style="margin-left:auto; font-size:13px;"></i></a>`;
+}
 
-  if (!hasLinks) {
-    linksWrap.innerHTML = '<p style="font-size:12px; color:var(--muted); font-style:italic;">登録されているリンクはありません。</p>';
-  }
+if (!hasLinks) {
+linksWrap.innerHTML = '<p style="font-size:12px; color:var(--muted); font-style:italic;">登録されているリンクはありません。</p>';
+}
 
   // 4. 公演一覧のセット
-  const troupePerfs = performancesData.filter(p => p.troupeId === troupeId);
-  const perfListWrap = document.getElementById('tsp-performances');
-  perfListWrap.innerHTML = '';
+const troupePerfs = performancesData.filter(p => p.troupeId === troupeId);
+const perfListWrap = document.getElementById('tsp-performances');
+perfListWrap.innerHTML = '';
 
-  if (troupePerfs.length === 0) {
-    perfListWrap.innerHTML = '<p style="font-size:12px; color:var(--muted); font-style:italic;">現在、登録されている公演スケジュールはありません。</p>';
-  } else {
-    troupePerfs.forEach(p => {
-      const stat = getAcceptanceStatus(p);
-      const item = document.createElement('div');
-      item.style.cssText = "padding:10px 12px; background:var(--surface); border:0.5px solid var(--border-neutral); border-radius:var(--radius-md); cursor:pointer; display:flex; flex-direction:column; gap:4px; transition:border-color 0.2s;";
-      item.onclick = () => { closeTroupeModal(); openPerformanceDetail(p.id); };
-      item.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-          <strong style="font-size:13px; color:var(--ink); flex:1;">${escapeHtml(p.title)}</strong>
-          <span class="status-badge ${stat.class}" style="margin:0; font-size:10px; padding:2px 6px; flex-shrink:0;">${stat.text}</span>
-        </div>
-        <div style="font-size:12px; color:var(--muted); display:flex; align-items:center; gap:12px; margin-top:2px; flex-wrap:wrap;">
-          <span><i class="ti ti-calendar" style="font-size:12px;"></i> ${p.start} ～ ${p.end}</span>
-          <span><i class="ti ti-map-pin" style="font-size:12px;"></i> ${escapeHtml(p.venue)}</span>
-        </div>`;
-      perfListWrap.appendChild(item);
-    });
-  }
+if (troupePerfs.length === 0) {
+perfListWrap.innerHTML = '<p style="font-size:12px; color:var(--muted); font-style:italic;">現在、登録されている公演スケジュールはありません。</p>';
+} else {
+troupePerfs.forEach(p => {
+const stat = getAcceptanceStatus(p);
+const item = document.createElement('div');
+item.style.cssText = "padding:10px 12px; background:var(--surface); border:0.5px solid var(--border-neutral); border-radius:var(--radius-md); cursor:pointer; display:flex; flex-direction:column; gap:4px; transition:border-color 0.2s;";
+item.onclick = () => { closeTroupeModal(); openPerformanceDetail(p.id); };
+item.innerHTML = `
+       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+         <strong style="font-size:13px; color:var(--ink); flex:1;">${escapeHtml(p.title)}</strong>
+         <span class="status-badge ${stat.class}" style="margin:0; font-size:10px; padding:2px 6px; flex-shrink:0;">${stat.text}</span>
+       </div>
+       <div style="font-size:12px; color:var(--muted); display:flex; align-items:center; gap:12px; margin-top:2px; flex-wrap:wrap;">
+         <span><i class="ti ti-calendar" style="font-size:12px;"></i> ${p.start} ～ ${p.end}</span>
+         <span><i class="ti ti-map-pin" style="font-size:12px;"></i> ${escapeHtml(p.venue)}</span>
+       </div>`;
+perfListWrap.appendChild(item);
+});
+}
 
-  document.getElementById('troupe-panel-overlay').classList.add('open');
-  document.getElementById('troupe-side-panel').classList.add('open');
+document.getElementById('troupe-panel-overlay').classList.add('open');
+document.getElementById('troupe-side-panel').classList.add('open');
 }
 
 function closeTroupeModal() {
-  document.getElementById('troupe-panel-overlay').classList.remove('open');
-  document.getElementById('troupe-side-panel').classList.remove('open');
+document.getElementById('troupe-panel-overlay').classList.remove('open');
+document.getElementById('troupe-side-panel').classList.remove('open');
 }
 
 function openPerformanceDetail(perfId) {
-  selectedPerformanceId = perfId;
-  const perf = performancesData.find(p => p.id === perfId);
-  if (!perf) return;
+selectedPerformanceId = perfId;
+const perf = performancesData.find(p => p.id === perfId);
+if (!perf) return;
 
-  const troupe = troupesData.find(t => t.id === perf.troupeId);
-  const troupeNameStr = troupe ? troupe.name : "不明な劇団";
+const troupe = troupesData.find(t => t.id === perf.troupeId);
+const troupeNameStr = troupe ? troupe.name : "不明な劇団";
 
-  document.getElementById('detail-troupe-name').innerHTML = `<i class="ti ti-users" style="font-size:13px"></i> ${troupeNameStr} の詳細情報を表示`;
-  document.getElementById('detail-title').textContent = perf.title;
-  document.getElementById('detail-desc').textContent = perf.desc || "公演概要・補足テキストは未登録です。";
-  document.getElementById('detail-date').textContent = `${perf.start} ～ ${perf.end}`;
-  document.getElementById('detail-venue').textContent = perf.venue;
-  document.getElementById('detail-accept-period').textContent = `${perf.acceptStart} ～ ${perf.acceptEnd}`;
-  document.getElementById('detail-email').textContent = perf.email || "未設定";
+  document.getElementById('detail-troupe-name').innerHTML = `<i class="ti ti-users" style="font-size:13px"></i> ${escapeHtml(troupeNameStr)} の詳細情報を表示`;
+document.getElementById('detail-title').textContent = perf.title;
+document.getElementById('detail-desc').textContent = perf.desc || "公演概要・補足テキストは未登録です。";
+document.getElementById('detail-date').textContent = `${perf.start} ～ ${perf.end}`;
+document.getElementById('detail-venue').textContent = perf.venue;
+document.getElementById('detail-accept-period').textContent = `${perf.acceptStart} ～ ${perf.acceptEnd}`;
+document.getElementById('detail-email').textContent = perf.email || "未設定";
 
   // 部数・数値の設定
-  const maxQuota = perf.maxQuota || 300;
-  const totalQuota = perf.totalQuota || 1000;
+const maxQuota = perf.maxQuota || 300;
+const totalQuota = perf.totalQuota || 1000;
 
-  document.getElementById('detail-max-quota').textContent = `${maxQuota.toLocaleString()} 部/団体`;
-  document.getElementById('detail-total-quota').textContent = `${totalQuota.toLocaleString()} 部`;
+document.getElementById('detail-max-quota').textContent = `${maxQuota.toLocaleString()} 部/団体`;
+document.getElementById('detail-total-quota').textContent = `${totalQuota.toLocaleString()} 部`;
 
   // 申請中および承認済みの総部数を計算（辞退・拒否分は除く）
-  const relevantRequests = incomingRequests.filter(r => r.perfId === perfId && r.status !== 'declined');
-  const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
-  const remainingCopies = Math.max(0, totalQuota - usedCopies);
+const relevantRequests = incomingRequests.filter(r => r.perfId === perfId && r.status !== 'declined');
+const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
+const remainingCopies = Math.max(0, totalQuota - usedCopies);
 
   // インジケーター（パーセンテージ）計算
-  const percentage = Math.min(100, Math.round((usedCopies / totalQuota) * 100));
+const percentage = Math.min(100, Math.round((usedCopies / totalQuota) * 100));
 
-  const bar = document.getElementById('detail-quota-bar');
-  bar.style.width = `${percentage}%`;
-  
+const bar = document.getElementById('detail-quota-bar');
+bar.style.width = `${percentage}%`;
+
   // 満枠に近い場合のカラー変化（80%以上で警告色、100%で赤）
-  if (percentage >= 100) {
-    bar.style.background = '#A32D2D';
-  } else if (percentage >= 80) {
-    bar.style.background = '#B8892A';
-  } else {
-    bar.style.background = 'var(--crimson)';
-  }
+if (percentage >= 100) {
+bar.style.background = '#A32D2D';
+} else if (percentage >= 80) {
+bar.style.background = '#B8892A';
+} else {
+bar.style.background = 'var(--crimson)';
+}
 
-  document.getElementById('detail-quota-summary').textContent = `申請中・承認済み: ${usedCopies.toLocaleString()} 部`;
-  document.getElementById('detail-remaining-quota').textContent = `残り: ${remainingCopies.toLocaleString()} 部`;
+document.getElementById('detail-quota-summary').textContent = `申請中・承認済み: ${usedCopies.toLocaleString()} 部`;
+document.getElementById('detail-remaining-quota').textContent = `残り: ${remainingCopies.toLocaleString()} 部`;
 
-  const statusObj = getAcceptanceStatus(perf);
-  const badge = document.getElementById('detail-status-badge');
-  badge.textContent = statusObj.text;
-  badge.className = `status-badge ${statusObj.class}`;
+const statusObj = getAcceptanceStatus(perf);
+const badge = document.getElementById('detail-status-badge');
+badge.textContent = statusObj.text;
+badge.className = `status-badge ${statusObj.class}`;
 
-  const reqBtn = document.getElementById('detail-request-btn');
-  const isFull = remainingCopies <= 0;
+const reqBtn = document.getElementById('detail-request-btn');
+const isFull = remainingCopies <= 0;
 
-  if (!statusObj.accept) {
-    reqBtn.disabled = true;
-    reqBtn.textContent = `リクエスト受付不可（${statusObj.text}）`;
-  } else if (isFull) {
-    reqBtn.disabled = true;
-    reqBtn.textContent = '受付終了（定員・総部数に達しました）';
-  } else {
-    reqBtn.disabled = false;
-    reqBtn.textContent = 'この公演に折り込みを依頼する';
-  }
+if (!statusObj.accept) {
+reqBtn.disabled = true;
+reqBtn.textContent = `リクエスト受付不可（${statusObj.text}）`;
+} else if (isFull) {
+reqBtn.disabled = true;
+reqBtn.textContent = '受付終了（定員・総部数に達しました）';
+} else {
+reqBtn.disabled = false;
+reqBtn.textContent = 'この公演に折り込みを依頼する';
+}
 
-  const actionsBlock = document.getElementById('perf-my-actions');
-  actionsBlock.style.display = (currentUser && currentUser.id === perf.troupeId) ? 'flex' : 'none';
+const actionsBlock = document.getElementById('perf-my-actions');
+actionsBlock.style.display = (currentUser && currentUser.id === perf.troupeId) ? 'flex' : 'none';
 
-  showPage('perf-detail');
+showPage('perf-detail');
 }
 
 function handleDetailTroupeLinkClick() {
-  const perf = performancesData.find(p => p.id === selectedPerformanceId);
-  if (perf) openTroupeModal(perf.troupeId);
+const perf = performancesData.find(p => p.id === selectedPerformanceId);
+if (perf) openTroupeModal(perf.troupeId);
 }
 
 function startEditPerformance() {
-  if (!selectedPerformanceId) return;
-  const perf = performancesData.find(p => p.id === selectedPerformanceId);
-  if (!perf) return;
+if (!selectedPerformanceId) return;
+const perf = performancesData.find(p => p.id === selectedPerformanceId);
+if (!perf) return;
 
-  editingPerfId = perf.id;
-  document.getElementById('register-page-title').textContent = '公演情報の修正';
-  document.getElementById('register-submit-btn').innerHTML = '<i class="ti ti-device-floppy"></i> 変更内容を保存する';
+editingPerfId = perf.id;
+document.getElementById('register-page-title').textContent = '公演情報の修正';
+document.getElementById('register-submit-btn').innerHTML = '<i class="ti ti-device-floppy"></i> 変更内容を保存する';
 
-  document.getElementById('new-perf-title').value = perf.title || '';
-  document.getElementById('new-perf-start').value = perf.start || '';
-  document.getElementById('new-perf-end').value = perf.end || '';
-  document.getElementById('new-perf-accept-start').value = perf.acceptStart || '';
-  document.getElementById('new-perf-accept-end').value = perf.acceptEnd || '';
-  document.getElementById('new-perf-venue').value = perf.venue || '';
-  document.getElementById('new-perf-quota').value = perf.maxQuota || 300;
+document.getElementById('new-perf-title').value = perf.title || '';
+document.getElementById('new-perf-start').value = perf.start || '';
+document.getElementById('new-perf-end').value = perf.end || '';
+document.getElementById('new-perf-accept-start').value = perf.acceptStart || '';
+document.getElementById('new-perf-accept-end').value = perf.acceptEnd || '';
+document.getElementById('new-perf-venue').value = perf.venue || '';
+document.getElementById('new-perf-quota').value = perf.maxQuota || 300;
   // 🌟 総部数（totalQuota）の入力反映を追加
-  document.getElementById('new-perf-total-quota').value = perf.totalQuota || 1000;
-  document.getElementById('new-perf-desc').value = perf.desc || '';
+document.getElementById('new-perf-total-quota').value = perf.totalQuota || 1000;
+document.getElementById('new-perf-desc').value = perf.desc || '';
 
-  showPage('register');
+showPage('register');
 }
 
 function openRequestForm() {
-  document.getElementById('success-banner').classList.remove('show');
-  document.getElementById('request-form-body').style.display = 'block';
+document.getElementById('success-banner').classList.remove('show');
+document.getElementById('request-form-body').style.display = 'block';
 
-  const perf = performancesData.find(p => p.id === selectedPerformanceId);
-  if (perf) document.getElementById('req-form-title').textContent = `『${perf.title}』への折り込み申請`;
+const perf = performancesData.find(p => p.id === selectedPerformanceId);
+if (perf) document.getElementById('req-form-title').textContent = `『${perf.title}』への折り込み申請`;
 
-  if (currentUser) {
-    document.getElementById('req-from-name').value = currentUser.name;
-    document.getElementById('req-from-email').value = currentUser.email;
-  } else {
-    document.getElementById('req-from-name').value = '';
-    document.getElementById('req-from-email').value = '';
+if (currentUser) {
+document.getElementById('req-from-name').value = currentUser.name;
+document.getElementById('req-from-email').value = currentUser.email;
+} else {
+document.getElementById('req-from-name').value = '';
+document.getElementById('req-from-email').value = '';
+}
+
+showPage('request-form');
+}
+
+// 【修正】依頼の保存後、Google Apps Script を呼んで受け取り側のLINEに通知する
+// 送り先はGAS側で requests → line_accounts から引くので、ここでは依頼IDだけ渡す
+async function notifyRequest(requestId) {
+  try {
+    if (!NOTIFY_GAS_URL.startsWith('https://')) throw new Error('NOTIFY_GAS_URL が未設定です');
+    // text/plain で送るとブラウザの事前確認(CORS)が不要になる。返事は読まずに送りっぱなし
+    await fetch(NOTIFY_GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'request', requestId })
+    });
+    return true;
+  } catch (e) {
+    console.error('LINE通知エラー（依頼自体は保存済み）:', e);
+    return false;
   }
+}
 
-  showPage('request-form');
+// 【追加】メッセージ送信後、相手のLINEに通知する（30分以内の連続通知はGAS側で止める）
+// 送信者の画面を待たせないよう、結果は待たずに送りっぱなしにする
+function notifyMessage(messageId) {
+  if (!NOTIFY_GAS_URL.startsWith('https://')) return;
+  fetch(NOTIFY_GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ type: 'message', messageId })
+  }).catch(e => console.error('LINE通知エラー（メッセージ自体は保存済み）:', e));
+}
+
+// 【追加】LINE連携コードを発行する（6桁・有効期限30分）
+async function issueLineLinkCode() {
+  if (!currentUser) return;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    const code = String(arr[0] % 1000000).padStart(6, '0');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+    const { error } = await db.from('line_link_codes').insert([{ code, troupe_id: currentUser.id, expires_at: expiresAt }]);
+    if (!error) {
+      showLineLinkCode(code);
+      return;
+    }
+    if (error.code !== '23505') { // 23505 = コードの重複。それ以外は本当のエラー
+      console.error('連携コード発行エラー:', error);
+      alert('連携コードの発行に失敗しました: ' + error.message);
+      return;
+    }
+  }
+  alert('連携コードの発行に失敗しました。もう一度お試しください。');
+}
+
+function showLineLinkCode(code) {
+  const box = document.getElementById('line-link-code-box');
+  const friendStep = LINE_FRIEND_URL.startsWith('https://')
+    ? `<a href="${escapeHtml(LINE_FRIEND_URL)}" target="_blank" style="color:#06C755; font-weight:600;">ビラネットワーク公式LINE</a> を友だち追加（劇団のLINEグループに招待してもOK）`
+    : 'ビラネットワーク公式LINEを友だち追加（劇団のLINEグループに招待してもOK）';
+  box.innerHTML = `
+    <div style="font-size:12px; color:var(--muted);">連携コード（30分間有効）</div>
+    <div style="font-size:30px; font-weight:700; letter-spacing:0.2em; color:var(--ink); margin:4px 0 10px;">${code}</div>
+    <ol style="margin-left:20px; font-size:13px; color:var(--ink-mid); display:flex; flex-direction:column; gap:4px;">
+      <li>${friendStep}</li>
+      <li>トーク画面にこの6桁のコードを送信</li>
+      <li>「連携しました！」と返ってきたら、下の「連携状況を更新」を押す</li>
+    </ol>`;
+  box.style.display = 'block';
+}
+
+// 【追加】連携状況をDBから取り直す
+async function refreshLineStatus() {
+  if (!currentUser) return;
+  const { data, error } = await db.from('troupes').select('*').eq('id', currentUser.id);
+  if (error || !data || data.length === 0) {
+    alert('連携状況の取得に失敗しました。');
+    return;
+  }
+  currentUser = data[0];
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  if (currentUser.line_linked) document.getElementById('line-link-code-box').style.display = 'none';
+  renderLineLinkCard();
+}
+
+function renderLineLinkCard() {
+  const status = document.getElementById('line-link-status');
+  if (!status || !currentUser) return;
+  status.innerHTML = currentUser.line_linked
+    ? `<span class="status-badge status-open" style="margin:0;">連携済み</span>
+       <span style="font-size:12px; color:var(--muted); margin-left:8px;">解除するときは公式LINEに「解除」と送ってください</span>`
+    : `<span class="status-badge status-soon" style="margin:0;">未連携</span>`;
+}
+
+// 【追加】LINE通知のボタンから開いたとき（?page=chat&with=劇団ID / ?page=mypage）に該当画面を開く
+let pendingDeepLink = null;
+
+function readDeepLink() {
+  const p = new URLSearchParams(location.search);
+  const page = p.get('page');
+  if (page !== 'chat' && page !== 'mypage') return null;
+  return { page, withId: p.get('with') };
+}
+
+async function applyDeepLink() {
+  if (!pendingDeepLink) return;
+  if (!currentUser) {
+    showPage('mypage'); // 未ログインならまずログイン画面へ。ログイン後に続きを開く
+    return;
+  }
+  const { page, withId } = pendingDeepLink;
+  pendingDeepLink = null;
+  history.replaceState(null, '', location.pathname);
+  showPage(page);
+  if (page === 'chat' && withId && troupesData.some(t => t.id === withId)) {
+    await selectChatPartner(withId);
+  }
 }
 
 async function submitRequestForm() {
-  const perf = performancesData.find(p => p.id === selectedPerformanceId);
-  if (!perf) return;
+const perf = performancesData.find(p => p.id === selectedPerformanceId);
+if (!perf) return;
 
-  const fromName = document.getElementById('req-from-name').value.trim();
-  const fromEmail = document.getElementById('req-from-email').value.trim();
-  const address = document.getElementById('req-address').value.trim();
-  const copies = parseInt(document.getElementById('req-copies').value);
-  const size = document.getElementById('req-size').value;
-  const notes = document.getElementById('req-notes').value;
+const fromName = document.getElementById('req-from-name').value.trim();
+const fromEmail = document.getElementById('req-from-email').value.trim();
+const address = document.getElementById('req-address').value.trim();
+const copies = parseInt(document.getElementById('req-copies').value);
+const size = document.getElementById('req-size').value;
+const notes = document.getElementById('req-notes').value;
 
-  const radioMethods = document.getElementsByName('req-delivery-method');
-  let deliveryMethod = "対面";
-  for (let i = 0; i < radioMethods.length; i++) {
-    if (radioMethods[i].checked) { deliveryMethod = radioMethods[i].value; break; }
-  }
+const radioMethods = document.getElementsByName('req-delivery-method');
+let deliveryMethod = "対面";
+for (let i = 0; i < radioMethods.length; i++) {
+if (radioMethods[i].checked) { deliveryMethod = radioMethods[i].value; break; }
+}
 
-  if (!fromName || !fromEmail || isNaN(copies) || copies <= 0) {
-    alert('必須項目をすべて入力し、部数は正しく入力してください。');
-    return;
-  }
+if (!fromName || !fromEmail || isNaN(copies) || copies <= 0) {
+alert('必須項目をすべて入力し、部数は正しく入力してください。');
+return;
+}
 
   // 🌟 部数上限・残り部数のバリデーションチェックを追加 🌟
-  const maxQuota = perf.maxQuota || 300;
-  const totalQuota = perf.totalQuota || 1000;
+const maxQuota = perf.maxQuota || 300;
+const totalQuota = perf.totalQuota || 1000;
 
   // 現在の申請中・承認済み合計部数の算出
-  const relevantRequests = incomingRequests.filter(r => r.perfId === selectedPerformanceId && r.status !== 'declined');
-  const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
-  const remainingCopies = Math.max(0, totalQuota - usedCopies);
+  // 【修正】判定直前にDBの最新の依頼を取り直す（他団体の申請と重複して枠を超えないように）
+  await refreshRequests();
+const relevantRequests = incomingRequests.filter(r => r.perfId === selectedPerformanceId && r.status !== 'declined');
+const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
+const remainingCopies = Math.max(0, totalQuota - usedCopies);
 
-  if (copies > maxQuota) {
-    alert(`1団体あたりの上限部数（${maxQuota.toLocaleString()}部）を超えています。部数を調整してください。`);
-    return;
-  }
+if (copies > maxQuota) {
+alert(`1団体あたりの上限部数（${maxQuota.toLocaleString()}部）を超えています。部数を調整してください。`);
+return;
+}
 
-  if (copies > remainingCopies) {
-    alert(`申請部数（${copies.toLocaleString()}部）が残り受け入れ枠（${remainingCopies.toLocaleString()}部）を超えています。`);
-    return;
-  }
+if (copies > remainingCopies) {
+alert(`申請部数（${copies.toLocaleString()}部）が残り受け入れ枠（${remainingCopies.toLocaleString()}部）を超えています。`);
+return;
+}
 
-  const newRequest = {
-    id: 'req_' + Date.now(),
-    perfId: selectedPerformanceId,
-    toTroupeId: perf.troupeId,
-    fromTroupeId: currentUser ? currentUser.id : null,
-    fromName,
-    fromEmail,
-    address,
-    deliveryMethod,
-    copies,
-    size,
-    notes,
-    timestamp: new Date().toLocaleString('ja-JP'),
-    status: 'pending'
-  };
+const newRequest = {
+id: 'req_' + Date.now(),
+perfId: selectedPerformanceId,
+toTroupeId: perf.troupeId,
+fromTroupeId: currentUser ? currentUser.id : null,
+fromName,
+fromEmail,
+address,
+deliveryMethod,
+copies,
+size,
+notes,
+    // 【修正】"2026/10/30 19:05:00" ではなくDBが確実に解釈できるISO形式で保存
+    timestamp: new Date().toISOString(),
+status: 'pending'
+};
 
-  try {
-    const { error } = await db.from('requests').insert([newRequest]);
-    if (error) throw error;
+try {
+    // 【修正】.select() で保存結果を受け取り、本当に行が作られたか確認する
+    const { data, error } = await db.from('requests').insert([newRequest]).select();
+if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('依頼がデータベースに保存されませんでした（RLSポリシーを確認してください）');
+    }
 
-    incomingRequests.push(newRequest);
-    document.getElementById('success-banner').classList.add('show');
-    document.getElementById('request-form-body').style.display = 'none';
+    incomingRequests.push(data[0]);
 
-    setTimeout(() => { openPerformanceDetail(selectedPerformanceId); }, 1800);
-  } catch (error) {
-    console.error('折り込み依頼送信エラー:', error);
-    alert('送信に失敗しました: ' + (error.message || JSON.stringify(error)));
-  }
+    // 【修正】受け取り側へのLINE通知
+    const notified = await notifyRequest(newRequest.id);
+    if (!notified) {
+      console.warn('依頼は保存されましたが、LINE通知は送信できませんでした。');
+    }
+
+document.getElementById('success-banner').classList.add('show');
+document.getElementById('request-form-body').style.display = 'none';
+
+setTimeout(() => { openPerformanceDetail(selectedPerformanceId); }, 1800);
+} catch (error) {
+console.error('折り込み依頼送信エラー:', error);
+alert('送信に失敗しました: ' + (error.message || JSON.stringify(error)));
+}
 }
 
 function prepareRegisterPage() {
-  document.getElementById('register-page-title').textContent = "新しい公演情報の公開登録";
-  const submitBtn = document.getElementById('register-submit-btn');
-  submitBtn.innerHTML = '<i class="ti ti-check"></i>この公演をカレンダーに登録する';
-  if (!editingPerfId) {
-    resetRegisterForm();
-  }
+document.getElementById('register-page-title').textContent = "新しい公演情報の公開登録";
+const submitBtn = document.getElementById('register-submit-btn');
+submitBtn.innerHTML = '<i class="ti ti-check"></i>この公演をカレンダーに登録する';
+if (!editingPerfId) {
+resetRegisterForm();
+}
 }
 
 function cancelEditPerformance() {
-  resetRegisterForm();
-  showPage('calendar');
+resetRegisterForm();
+showPage('calendar');
 }
 
 function resetRegisterForm() {
-  editingPerfId = null;
-  
-  // エラー表示バナーを非表示化
-  const errorBanner = document.getElementById('register-error-banner');
-  if (errorBanner) errorBanner.style.display = 'none';
+editingPerfId = null;
 
-  document.getElementById('new-perf-title').value = '';
-  document.getElementById('new-perf-start').value = '';
-  document.getElementById('new-perf-end').value = '';
-  document.getElementById('new-perf-accept-start').value = '';
-  document.getElementById('new-perf-accept-end').value = '';
-  document.getElementById('new-perf-venue').value = '';
-  document.getElementById('new-perf-quota').value = '300';
-  document.getElementById('new-perf-desc').value = '';
+  // エラー表示バナーを非表示化
+const errorBanner = document.getElementById('register-error-banner');
+if (errorBanner) errorBanner.style.display = 'none';
+
+document.getElementById('new-perf-title').value = '';
+document.getElementById('new-perf-start').value = '';
+document.getElementById('new-perf-end').value = '';
+document.getElementById('new-perf-accept-start').value = '';
+document.getElementById('new-perf-accept-end').value = '';
+document.getElementById('new-perf-venue').value = '';
+document.getElementById('new-perf-quota').value = '300';
+document.getElementById('new-perf-desc').value = '';
 }
 
 async function handleRegisterPerformance() {
-  if (!currentUser) {
-    alert('公演情報を登録・修正するにはログインが必要です。');
-    return;
-  }
+if (!currentUser) {
+alert('公演情報を登録・修正するにはログインが必要です。');
+return;
+}
 
   // エラーバナーとリストの初期化
-  const errorBanner = document.getElementById('register-error-banner');
-  const errorList = document.getElementById('register-error-list');
-  errorList.innerHTML = '';
-  errorBanner.style.display = 'none';
+const errorBanner = document.getElementById('register-error-banner');
+const errorList = document.getElementById('register-error-list');
+errorList.innerHTML = '';
+errorBanner.style.display = 'none';
 
-  const errors = [];
+const errors = [];
 
   // 入力値の取得
-  const title = document.getElementById('new-perf-title').value.trim();
-  const start = document.getElementById('new-perf-start').value;
-  const end = document.getElementById('new-perf-end').value;
-  const acceptStart = document.getElementById('new-perf-accept-start').value;
-  const acceptEnd = document.getElementById('new-perf-accept-end').value;
-  const venue = document.getElementById('new-perf-venue').value.trim();
-  const quotaInput = document.getElementById('new-perf-quota').value;
-  const desc = document.getElementById('new-perf-desc').value.trim();
+const title = document.getElementById('new-perf-title').value.trim();
+const start = document.getElementById('new-perf-start').value;
+const end = document.getElementById('new-perf-end').value;
+const acceptStart = document.getElementById('new-perf-accept-start').value;
+const acceptEnd = document.getElementById('new-perf-accept-end').value;
+const venue = document.getElementById('new-perf-venue').value.trim();
+const quotaInput = document.getElementById('new-perf-quota').value;
+const desc = document.getElementById('new-perf-desc').value.trim();
 
   // ----------------【バリデーションチェック】----------------
   // 1. 必須項目の空チェック
-  if (!title) errors.push('公演タイトルを入力してください。');
-  if (!start) errors.push('公演開始日を選択してください。');
-  if (!end) errors.push('公演終了日を選択してください。');
-  if (!acceptStart) errors.push('折り込み受付開始日を選択してください。');
-  if (!acceptEnd) errors.push('折り込み受付終了日を選択してください。');
-  if (!venue) errors.push('会場名を入力してください。');
-  if (!quotaInput || parseInt(quotaInput) <= 0) errors.push('折り込み上限部数は1部以上の数値を入力してください。');
+if (!title) errors.push('公演タイトルを入力してください。');
+if (!start) errors.push('公演開始日を選択してください。');
+if (!end) errors.push('公演終了日を選択してください。');
+if (!acceptStart) errors.push('折り込み受付開始日を選択してください。');
+if (!acceptEnd) errors.push('折り込み受付終了日を選択してください。');
+if (!venue) errors.push('会場名を入力してください。');
+if (!quotaInput || parseInt(quotaInput) <= 0) errors.push('折り込み上限部数は1部以上の数値を入力してください。');
 
   // 2. 日付の逆転・整合性チェック
-  if (start && end && start > end) {
-    errors.push('公演開始日は公演終了日より前の日付に設定してください。');
-  }
-  if (acceptStart && acceptEnd && acceptStart > acceptEnd) {
-    errors.push('折り込み受付開始日は受付終了日より前の日付に設定してください。');
-  }
-  if (acceptEnd && start && acceptEnd > start) {
-    errors.push('折り込み受付終了日は公演開始日以前に設定してください（公演開始後の受付はできません）。');
-  }
+if (start && end && start > end) {
+errors.push('公演開始日は公演終了日より前の日付に設定してください。');
+}
+if (acceptStart && acceptEnd && acceptStart > acceptEnd) {
+errors.push('折り込み受付開始日は受付終了日より前の日付に設定してください。');
+}
+if (acceptEnd && start && acceptEnd > start) {
+errors.push('折り込み受付終了日は公演開始日以前に設定してください（公演開始後の受付はできません）。');
+}
 
   // エラーが存在する場合は赤文字リストを表示して送信をブロック
-  if (errors.length > 0) {
-    errors.forEach(err => {
-      const li = document.createElement('li');
-      li.textContent = err;
-      errorList.appendChild(li);
-    });
-    errorBanner.style.display = 'block';
-    errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
+if (errors.length > 0) {
+errors.forEach(err => {
+const li = document.createElement('li');
+li.textContent = err;
+errorList.appendChild(li);
+});
+errorBanner.style.display = 'block';
+errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+return;
+}
   // --------------------------------------------------------
 
-  const perfPayload = {
-    troupeId: currentUser.id,
-    title,
-    start,
-    end,
-    acceptStart,
-    acceptEnd,
-    venue,
-    maxQuota: parseInt(quotaInput),
-    desc,
-    email: currentUser.email
-  };
+const perfPayload = {
+troupeId: currentUser.id,
+title,
+start,
+end,
+acceptStart,
+acceptEnd,
+venue,
+maxQuota: parseInt(quotaInput),
+desc,
+email: currentUser.email
+};
 
-  try {
-    if (editingPerfId) {
-      const { data, error } = await db.from('performances').update(perfPayload).eq('id', editingPerfId).select();
-      if (error) throw error;
-      const idx = performancesData.findIndex(p => p.id === editingPerfId);
-      if (idx !== -1 && data) performancesData[idx] = data[0];
-      alert('公演情報を更新しました。');
-    } else {
-      perfPayload.id = 'perf_' + Date.now();
-      const { data, error } = await db.from('performances').insert([perfPayload]).select();
-      if (error) throw error;
-      performancesData.push(data ? data[0] : perfPayload);
-      alert('新しい公演を登録しました。');
-    }
-    resetRegisterForm();
-    showPage('calendar');
-  } catch (error) {
-    console.error('公演登録/更新エラー:', error);
-    alert('処理に失敗しました: ' + error.message);
-  }
+try {
+if (editingPerfId) {
+const { data, error } = await db.from('performances').update(perfPayload).eq('id', editingPerfId).select();
+if (error) throw error;
+const idx = performancesData.findIndex(p => p.id === editingPerfId);
+if (idx !== -1 && data) performancesData[idx] = data[0];
+alert('公演情報を更新しました。');
+} else {
+perfPayload.id = 'perf_' + Date.now();
+const { data, error } = await db.from('performances').insert([perfPayload]).select();
+if (error) throw error;
+performancesData.push(data ? data[0] : perfPayload);
+alert('新しい公演を登録しました。');
+}
+resetRegisterForm();
+showPage('calendar');
+} catch (error) {
+console.error('公演登録/更新エラー:', error);
+alert('処理に失敗しました: ' + error.message);
+}
 }
 
 function renderMyPage() {
-  if (!currentUser) {
-    document.getElementById('auth-section').style.display = 'block';
-    document.getElementById('dashboard-section').style.display = 'none';
-    return;
-  }
+if (!currentUser) {
+document.getElementById('auth-section').style.display = 'block';
+document.getElementById('dashboard-section').style.display = 'none';
+return;
+}
 
-  document.getElementById('auth-section').style.display = 'none';
-  document.getElementById('dashboard-section').style.display = 'block';
+document.getElementById('auth-section').style.display = 'none';
+document.getElementById('dashboard-section').style.display = 'block';
 
-  document.getElementById('welcome-message').textContent = `こんにちは、${currentUser.name} さん`;
-  document.getElementById('account-status-info').textContent = `通知用メールアドレス: ${currentUser.email}`;
+document.getElementById('welcome-message').textContent = `こんにちは、${currentUser.name} さん`;
+document.getElementById('account-status-info').textContent = `通知用メールアドレス: ${currentUser.email}`;
 
-  const incoming = incomingRequests.filter(r => r.toTroupeId === currentUser.id);
-  const sent = incomingRequests.filter(r => r.fromTroupeId === currentUser.id);
+const incoming = incomingRequests.filter(r => r.toTroupeId === currentUser.id);
+const sent = incomingRequests.filter(r => r.fromTroupeId === currentUser.id);
 
-  document.getElementById('stat-incoming-count').textContent = incoming.length;
-  document.getElementById('stat-sent-count').textContent = sent.length;
+document.getElementById('stat-incoming-count').textContent = incoming.length;
+document.getElementById('stat-sent-count').textContent = sent.length;
 
-  const inboxList = document.getElementById('dashboard-inbox');
-  inboxList.innerHTML = '';
-  if (incoming.length === 0) {
-    inboxList.innerHTML = '<div class="empty-state"><i class="ti ti-inbox-off"></i>届いた折り込み依頼はありません</div>';
-  } else {
-    incoming.forEach(req => {
-      const item = document.createElement('div');
-      item.className = `inbox-item ${req.status === 'pending' ? 'unread' : ''}`;
-      item.innerHTML = `
-        <div class="inbox-body">
-          <div class="inbox-from">${escapeHtml(req.fromName)}（${escapeHtml(req.fromEmail)}）</div>
-          <div class="inbox-preview">${escapeHtml(req.notes || '備考なし')}</div>
-          <div class="inbox-meta">
-            <span class="inbox-copies">${req.copies} 部 (${req.size})</span>
-            <span style="font-size:11px; color:var(--muted);">${req.deliveryMethod} / ${req.timestamp}</span>
-            <span class="status-badge ${req.status === 'accepted' ? 'status-open' : req.status === 'declined' ? 'status-closed' : 'status-soon'}">${req.status === 'accepted' ? '承認済み' : req.status === 'declined' ? '辞退' : '保留中'}</span>
-          </div>
-        </div>
-        <div class="inbox-actions">
-          ${req.status === 'pending' ? `
-            <button class="inbox-btn inbox-btn-accept" onclick="handleRequestStatus('${req.id}', 'accepted')">承認</button>
-            <button class="inbox-btn inbox-btn-decline" onclick="handleRequestStatus('${req.id}', 'declined')">辞退</button>
-          ` : ''}
-        </div>`;
-      inboxList.appendChild(item);
-    });
-  }
+const inboxList = document.getElementById('dashboard-inbox');
+inboxList.innerHTML = '';
+if (incoming.length === 0) {
+inboxList.innerHTML = '<div class="empty-state"><i class="ti ti-inbox-off"></i>届いた折り込み依頼はありません</div>';
+} else {
+incoming.forEach(req => {
+const item = document.createElement('div');
+item.className = `inbox-item ${req.status === 'pending' ? 'unread' : ''}`;
+item.innerHTML = `
+       <div class="inbox-body">
+         <div class="inbox-from">${escapeHtml(req.fromName)}（${escapeHtml(req.fromEmail)}）</div>
+         <div class="inbox-preview">${escapeHtml(req.notes || '備考なし')}</div>
+         <div class="inbox-meta">
+            <span class="inbox-copies">${req.copies} 部 (${escapeHtml(req.size)})</span>
+            <span style="font-size:11px; color:var(--muted);">${escapeHtml(req.deliveryMethod)} / ${escapeHtml(formatTimestamp(req.timestamp))}</span>
+           <span class="status-badge ${req.status === 'accepted' ? 'status-open' : req.status === 'declined' ? 'status-closed' : 'status-soon'}">${req.status === 'accepted' ? '承認済み' : req.status === 'declined' ? '辞退' : '保留中'}</span>
+         </div>
+       </div>
+       <div class="inbox-actions">
+         ${req.status === 'pending' ? `
+           <button class="inbox-btn inbox-btn-accept" onclick="handleRequestStatus('${req.id}', 'accepted')">承認</button>
+           <button class="inbox-btn inbox-btn-decline" onclick="handleRequestStatus('${req.id}', 'declined')">辞退</button>
+         ` : ''}
+       </div>`;
+inboxList.appendChild(item);
+});
+}
 
-  fillProfileForm();
+fillProfileForm();
+  renderLineLinkCard(); // 【追加】
 }
 
 // 1. 新規アカウント作成
 async function handleRegisterTroupe() {
 const name = document.getElementById('reg-troupe-name').value.trim();
-  const email = document.getElementById('reg-troupe-email').value.trim();
-  const password = document.getElementById('reg-troupe-password').value.trim();
+const email = document.getElementById('reg-troupe-email').value.trim();
+const password = document.getElementById('reg-troupe-password').value.trim();
 
-  if (!name || !email || !password) {
-    alert('すべての項目を入力してください。');
-    return;
-  }
+if (!name || !email || !password) {
+alert('すべての項目を入力してください。');
+return;
+}
 
   // 追加した全カラムの初期値を空文字('')で定義して送信する
-  const newTroupe = {
-    id: 'troupe_' + Date.now(),
-    name: name,
-    email: email,
-    password: password,
-    affiliation: '早稲田大学', // デフォルト値
-    description: '',
-    homepage: '',
-    instagram: '',
-    sns: '',
-    avatar_url: ''
-  };
+const newTroupe = {
+id: 'troupe_' + Date.now(),
+name: name,
+email: email,
+password: password,
+    affiliation: '早稲田大学',
+description: '',
+homepage: '',
+instagram: '',
+sns: '',
+avatar_url: ''
+};
 
-  try {
+try {
     // .select() はつけずに単純な insert のみにする
-    const { error } = await db.from('troupes').insert([newTroupe]);
-    if (error) throw error;
+const { error } = await db.from('troupes').insert([newTroupe]);
+if (error) throw error;
 
-    troupesData.push(newTroupe);
-    currentUser = newTroupe;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    
-    updateAuthUI();
-    renderMyPage();
-    renderTroupes(troupesData); // 劇団一覧画面も更新
-    alert('アカウントが作成されました。');
-  } catch (error) {
-    console.error('アカウント登録エラー:', error);
-    alert('登録に失敗しました: ' + (error.message || JSON.stringify(error)));
-  }
+troupesData.push(newTroupe);
+currentUser = newTroupe;
+localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+updateAuthUI();
+renderMyPage();
+    renderTroupes(troupesData);
+alert('アカウントが作成されました。');
+} catch (error) {
+console.error('アカウント登録エラー:', error);
+alert('登録に失敗しました: ' + (error.message || JSON.stringify(error)));
+}
 }
 
 // 2. ログイン処理 (Supabaseから検索)
 async function handleLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value.trim();
+const email = document.getElementById('login-email').value.trim();
+const pass = document.getElementById('login-password').value.trim();
 
-  if (!email || !pass) {
-    alert('メールアドレスとパスワードを入力してください。');
-    return;
-  }
+if (!email || !pass) {
+alert('メールアドレスとパスワードを入力してください。');
+return;
+}
 
-  try {
-    const { data, error } = await db
-      .from('troupes')
-      .select('*')
-      .eq('email', email)
-      .eq('password', pass)
-      .single();
+try {
+const { data, error } = await db
+.from('troupes')
+.select('*')
+.eq('email', email)
+.eq('password', pass)
+.single();
 
-    if (error || !data) {
-      alert('メールアドレスまたはパスワードが正しくありません。');
-      return;
-    }
+if (error || !data) {
+alert('メールアドレスまたはパスワードが正しくありません。');
+return;
+}
 
-    currentUser = data;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    updateAuthUI();
-    renderMyPage();
-    updateUnreadBadges();
-    alert(`ログインしました: ${currentUser.name} さん`);
-  } catch (err) {
-    alert('ログイン処理でエラーが発生しました。');
-  }
+currentUser = data;
+localStorage.setItem('currentUser', JSON.stringify(currentUser));
+updateAuthUI();
+    // 【修正】ログイン直後に最新の依頼・メッセージを取得
+    await Promise.all([refreshRequests(), refreshMessages()]);
+renderMyPage();
+alert(`ログインしました: ${currentUser.name} さん`);
+    await applyDeepLink(); // 【追加】LINE通知から来ていた場合は続きの画面を開く
+} catch (err) {
+alert('ログイン処理でエラーが発生しました。');
+}
 }
 
 function handleLogout() {
-  currentUser = null;
-  localStorage.removeItem('currentUser');
-  updateAuthUI();
-  renderMyPage();
-  updateUnreadBadges();
+currentUser = null;
+  activeChatPartnerId = null;
+  stopChatPolling();
+localStorage.removeItem('currentUser');
+updateAuthUI();
+renderMyPage();
 }
 
 function updateAuthUI() {
-  const loginBtn = document.getElementById('nav-login-btn');
-  if (currentUser) {
-    loginBtn.innerHTML = `<i class="ti ti-layout-dashboard"></i> ${escapeHtml(currentUser.name)}`;
-  } else {
-    loginBtn.innerHTML = `<i class="ti ti-user"></i> ログイン`;
-  }
+const loginBtn = document.getElementById('nav-login-btn');
+if (currentUser) {
+loginBtn.innerHTML = `<i class="ti ti-layout-dashboard"></i> ${escapeHtml(currentUser.name)}`;
+} else {
+loginBtn.innerHTML = `<i class="ti ti-user"></i> ログイン`;
+}
 }
 
 async function handleRequestStatus(reqId, newStatus) {
-  try {
-    const { error } = await db.from('requests').update({ status: newStatus }).eq('id', reqId);
-    if (error) throw error;
+try {
+    // 【修正】.select() で実際に更新されたか確認
+    const { data, error } = await db.from('requests').update({ status: newStatus }).eq('id', reqId).select();
+if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('更新対象が見つからないか、更新が許可されていません（RLSポリシーを確認してください）');
+    }
 
-    const req = incomingRequests.find(r => r.id === reqId);
-    if (req) req.status = newStatus;
-    renderMyPage();
-  } catch (error) {
-    alert('ステータスの更新に失敗しました: ' + error.message);
+const req = incomingRequests.find(r => r.id === reqId);
+if (req) req.status = newStatus;
+renderMyPage();
+} catch (error) {
+alert('ステータスの更新に失敗しました: ' + error.message);
+}
+}
+
+// ===================== チャット機能 =====================
+// 【修正】チャット画面を開いている間、DBから新着を定期取得する
+function startChatPolling() {
+  stopChatPolling();
+  chatPollTimer = setInterval(async () => {
+    if (!currentUser) return;
+    const changed = await refreshMessages();
+    if (!changed) return;
+    if (activeChatPartnerId) await markConversationRead(activeChatPartnerId);
+    renderChatConversations();
+    if (activeChatPartnerId) renderChatMessages();
+  }, CHAT_POLL_INTERVAL);
+}
+
+function stopChatPolling() {
+  if (chatPollTimer) {
+    clearInterval(chatPollTimer);
+    chatPollTimer = null;
   }
 }
 
-// チャット機能
-function initChat() {
-  const prompt = document.getElementById('chat-login-prompt');
-  const layout = document.getElementById('chat-layout');
-
-  if (!currentUser) {
-    prompt.style.display = 'block';
-    layout.style.display = 'none';
+// 【修正】開いた会話の未読を既読にする
+async function markConversationRead(partnerId) {
+  if (!currentUser) return;
+  const unread = messagesData.filter(m => m.fromTroupeId === partnerId && m.toTroupeId === currentUser.id && !m.read);
+  if (unread.length === 0) return;
+  const { error } = await db.from('messages').update({ read: true })
+    .eq('fromTroupeId', partnerId).eq('toTroupeId', currentUser.id).eq('read', false);
+  if (error) {
+    console.error('既読更新エラー:', error);
     return;
   }
+  unread.forEach(m => { m.read = true; });
+}
 
-  prompt.style.display = 'none';
-  layout.style.display = 'flex';
+async function initChat() {
+const prompt = document.getElementById('chat-login-prompt');
+const layout = document.getElementById('chat-layout');
+
+if (!currentUser) {
+prompt.style.display = 'block';
+layout.style.display = 'none';
+return;
+}
+
+prompt.style.display = 'none';
+layout.style.display = 'flex';
+renderChatConversations();
+
+  // 【修正】開いた時点で最新メッセージを取得し、以後は定期的に確認
+  await refreshMessages();
   renderChatConversations();
+  if (activeChatPartnerId) renderChatMessages();
+  startChatPolling();
 }
 
 function renderChatConversations() {
-  const list = document.getElementById('conv-list');
-  list.innerHTML = '';
+const list = document.getElementById('conv-list');
+list.innerHTML = '';
 
-  const partners = troupesData.filter(t => t.id !== currentUser.id);
+const partners = troupesData.filter(t => t.id !== currentUser.id);
 
-  if (partners.length === 0) {
-    list.innerHTML = '<div style="padding:16px; font-size:12px; color:#9A9B9E;">メッセージ可能な劇団がありません</div>';
-    return;
-  }
+if (partners.length === 0) {
+list.innerHTML = '<div style="padding:16px; font-size:12px; color:#9A9B9E;">メッセージ可能な劇団がありません</div>';
+return;
+}
 
-  partners.forEach(partner => {
-    const unreadCount = messagesData.filter(m => m.fromTroupeId === partner.id && m.toTroupeId === currentUser.id && !m.read).length;
+partners.forEach(partner => {
+const unreadCount = messagesData.filter(m => m.fromTroupeId === partner.id && m.toTroupeId === currentUser.id && !m.read).length;
 
-    const item = document.createElement('div');
-    item.className = `chat-conv-item ${activeChatPartnerId === partner.id ? 'active' : ''}`;
-    item.onclick = () => selectChatPartner(partner.id);
+const item = document.createElement('div');
+item.className = `chat-conv-item ${activeChatPartnerId === partner.id ? 'active' : ''}`;
+item.onclick = () => selectChatPartner(partner.id);
 
-    item.innerHTML = `
-      <div class="chat-conv-avatar">${partner.name.charAt(0)}</div>
-      <div class="chat-conv-meta">
-        <div class="chat-conv-name"># ${escapeHtml(partner.name)}</div>
-        ${unreadCount > 0 ? `<div class="chat-unread">${unreadCount}</div>` : ''}
-      </div>`;
-    list.appendChild(item);
-  });
+item.innerHTML = `
+      <div class="chat-conv-avatar">${escapeHtml(partner.name.charAt(0))}</div>
+     <div class="chat-conv-meta">
+       <div class="chat-conv-name"># ${escapeHtml(partner.name)}</div>
+       ${unreadCount > 0 ? `<div class="chat-unread">${unreadCount}</div>` : ''}
+     </div>`;
+list.appendChild(item);
+});
 }
 
 async function selectChatPartner(partnerId) {
-  activeChatPartnerId = partnerId;
-  const partner = troupesData.find(t => t.id === partnerId);
-  if (!partner) return;
+activeChatPartnerId = partnerId;
+const partner = troupesData.find(t => t.id === partnerId);
+if (!partner) return;
 
-  // 1. 選択した相手から自分宛の未読メッセージを「既読（read: true）」にする
-  const unreadMsgs = messagesData.filter(m => m.fromTroupeId === partnerId && m.toTroupeId === currentUser.id && !m.read);
-  if (unreadMsgs.length > 0) {
-    unreadMsgs.forEach(m => m.read = true);
-    
-    // Supabase側のDBも既読に更新
-    try {
-      await db.from('messages')
-        .update({ read: true })
-        .eq('fromTroupeId', partnerId)
-        .eq('toTroupeId', currentUser.id);
-    } catch (e) {
-      console.warn('既読更新エラー:', e);
-    }
-  }
+renderChatConversations();
 
-  // 2. ヘッダーの赤い通知バッチと左側のチャットリストを再描画して既読を反映
-  updateUnreadBadges();
+document.getElementById('chat-empty-state').style.display = 'none';
+document.getElementById('chat-view').style.display = 'flex';
+
+const avatar = document.getElementById('chat-header-avatar');
+avatar.textContent = partner.name.charAt(0);
+document.getElementById('chat-header-name').textContent = `# ${partner.name}`;
+
+renderChatMessages();
+
+  // 【修正】相手を選んだら最新を取得して既読化
+  await refreshMessages();
+  await markConversationRead(partnerId);
   renderChatConversations();
-
-  // 3. チャット画面の切り替えと表示
-  document.getElementById('chat-empty-state').style.display = 'none';
-  document.getElementById('chat-view').style.display = 'flex';
-
-  const avatar = document.getElementById('chat-header-avatar');
-  avatar.textContent = partner.name.charAt(0);
-  document.getElementById('chat-header-name').textContent = `# ${partner.name}`;
-
   renderChatMessages();
 }
 
 function renderChatMessages() {
-  const container = document.getElementById('chat-messages');
-  container.innerHTML = '';
+const container = document.getElementById('chat-messages');
+container.innerHTML = '';
 
-  if (!activeChatPartnerId) return;
+if (!activeChatPartnerId) return;
 
-  const msgs = messagesData.filter(m => 
-    (m.fromTroupeId === currentUser.id && m.toTroupeId === activeChatPartnerId) ||
-    (m.fromTroupeId === activeChatPartnerId && m.toTroupeId === currentUser.id)
-  ).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  // 【修正】"19:05" のような時刻文字列は new Date() で解釈できず並びが崩れるため、ID由来の時刻で並べる
+const msgs = messagesData.filter(m => 
+  (m.fromTroupeId === currentUser.id && m.toTroupeId === activeChatPartnerId) ||
+  (m.fromTroupeId === activeChatPartnerId && m.toTroupeId === currentUser.id)
+).sort((a,b) => messageSortKey(a) - messageSortKey(b));
 
-  if (msgs.length === 0) {
-    container.innerHTML = `
-      <div style="text-align:left; padding:20px 0; color:#616061;">
-        <h3 style="font-size:18px; color:#1D1C1D; font-weight:900; margin-bottom:6px;"># ${escapeHtml(troupesData.find(t=>t.id===activeChatPartnerId)?.name)} へのダイレクトメッセージ</h3>
-        <p style="font-size:14px;">ここが会話のスタート地点です。</p>
-      </div>`;
-    return;
-  }
+if (msgs.length === 0) {
+container.innerHTML = `
+     <div style="text-align:left; padding:20px 0; color:#616061;">
+       <h3 style="font-size:18px; color:#1D1C1D; font-weight:900; margin-bottom:6px;"># ${escapeHtml(troupesData.find(t=>t.id===activeChatPartnerId)?.name)} へのダイレクトメッセージ</h3>
+       <p style="font-size:14px;">ここが会話のスタート地点です。</p>
+     </div>`;
+return;
+}
 
-  msgs.forEach(msg => {
-    const isMine = msg.fromTroupeId === currentUser.id;
-    const authorName = isMine ? currentUser.name : (troupesData.find(t => t.id === msg.fromTroupeId)?.name || '相手');
+msgs.forEach(msg => {
+const isMine = msg.fromTroupeId === currentUser.id;
+const authorName = isMine ? currentUser.name : (troupesData.find(t => t.id === msg.fromTroupeId)?.name || '相手');
 
-    const group = document.createElement('div');
-    group.className = 'chat-msg-group';
-    group.innerHTML = `
-      <div class="chat-msg-avatar">${authorName.charAt(0)}</div>
-      <div class="chat-msg-content">
-        <div class="chat-msg-header">
-          <span class="chat-msg-author">${escapeHtml(authorName)}</span>
-          <span class="chat-msg-time">${escapeHtml(msg.timestamp)}</span>
-        </div>
-        <div class="chat-msg-text">${escapeHtml(msg.text)}</div>
-      </div>`;
-    container.appendChild(group);
-  });
+const group = document.createElement('div');
+group.className = 'chat-msg-group';
+group.innerHTML = `
+      <div class="chat-msg-avatar">${escapeHtml(authorName.charAt(0))}</div>
+     <div class="chat-msg-content">
+       <div class="chat-msg-header">
+         <span class="chat-msg-author">${escapeHtml(authorName)}</span>
+          <span class="chat-msg-time">${escapeHtml(formatTimestamp(msg.timestamp, true))}</span>
+       </div>
+       <div class="chat-msg-text">${escapeHtml(msg.text)}</div>
+     </div>`;
+container.appendChild(group);
+});
 
-  container.scrollTop = container.scrollHeight;
+container.scrollTop = container.scrollHeight;
 }
 
 async function sendChatMessage() {
-  const input = document.getElementById('chat-text-input');
-  const text = input.value.trim();
+const input = document.getElementById('chat-text-input');
+const text = input.value.trim();
 
-  if (!text || !activeChatPartnerId || !currentUser) return;
+if (!text || !activeChatPartnerId || !currentUser) return;
 
-  const newMsg = {
-    id: 'msg_' + Date.now(),
-    fromTroupeId: currentUser.id,
-    toTroupeId: activeChatPartnerId,
-    text,
-    timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
-    read: false
-  };
+const newMsg = {
+id: 'msg_' + Date.now(),
+fromTroupeId: currentUser.id,
+toTroupeId: activeChatPartnerId,
+text,
+    // 【修正】"19:05" だけでは日付型カラムに保存できないためISO形式で保存（表示は時刻に整形）
+    timestamp: new Date().toISOString(),
+read: false
+};
 
-  try {
-    const { error } = await db.from('messages').insert([newMsg]);
-    if (error) console.warn('DBメッセージ保存失敗:', error);
+try {
+    // 【修正】保存失敗を握りつぶして「送れたように見える」状態をやめる
+    const { data, error } = await db.from('messages').insert([newMsg]).select();
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('メッセージがデータベースに保存されませんでした（RLSポリシーを確認してください）');
+    }
 
-    messagesData.push(newMsg);
-    input.value = '';
-    renderChatMessages();
-    updateUnreadBadges();
-  } catch (e) {
-    console.error('メッセージ送信エラー:', e);
-  }
+    messagesData.push(data[0]);
+input.value = '';
+renderChatMessages();
+    notifyMessage(newMsg.id); // 【追加】相手のLINEに通知
+} catch (e) {
+console.error('メッセージ送信エラー:', e);
+    alert('メッセージの送信に失敗しました: ' + (e.message || JSON.stringify(e)));
+}
 }
 
 function initEmojiPicker() {
-  const popup = document.getElementById('chat-emoji-picker');
-  const emojis = ['👍', '🙌', '✨', '😊', '😭', '🙏', '🎭', '🎟️', '👏', '🔥', '🎉', '👌', '👀', '💯', '❤️', '✅'];
-  popup.innerHTML = '';
-  emojis.forEach(e => {
-    const span = document.createElement('span');
-    span.textContent = e;
-    span.onclick = () => {
-      document.getElementById('chat-text-input').value += e;
-      popup.classList.remove('open');
-    };
-    popup.appendChild(span);
-  });
+const popup = document.getElementById('chat-emoji-picker');
+const emojis = ['👍', '🙌', '✨', '😊', '😭', '🙏', '🎭', '🎟️', '👏', '🔥', '🎉', '👌', '👀', '💯', '❤️', '✅'];
+popup.innerHTML = '';
+emojis.forEach(e => {
+const span = document.createElement('span');
+span.textContent = e;
+span.onclick = () => {
+document.getElementById('chat-text-input').value += e;
+popup.classList.remove('open');
+};
+popup.appendChild(span);
+});
 }
 
 function toggleEmojiPicker() {
-  document.getElementById('chat-emoji-picker').classList.toggle('open');
+document.getElementById('chat-emoji-picker').classList.toggle('open');
 }
 
 // 劇団の直接削除処理（管理者権限用）
 async function deleteTroupeDirect(event, troupeId, troupeName) {
   // カードクリックのイベントバブリング（モーダル開放）を防止
-  event.stopPropagation();
+event.stopPropagation();
 
-  if (!confirm(`【管理者操作】\n本当に「${troupeName}」を削除しますか？\n※関連するデータも削除されます。`)) {
-    return;
-  }
+if (!confirm(`【管理者操作】\n本当に「${troupeName}」を削除しますか？\n※関連するデータも削除されます。`)) {
+return;
+}
 
-  try {
+try {
     // 1. SupabaseのDBから削除
-    const { error } = await db.from('troupes').delete().eq('id', troupeId);
-    if (error) throw error;
+const { error } = await db.from('troupes').delete().eq('id', troupeId);
+if (error) throw error;
 
     // 2. ローカルデータ配列から除外
-    troupesData = troupesData.filter(t => t.id !== troupeId);
-    performancesData = performancesData.filter(p => p.troupeId !== troupeId);
+troupesData = troupesData.filter(t => t.id !== troupeId);
+performancesData = performancesData.filter(p => p.troupeId !== troupeId);
 
     // 3. UIの再描画
-    renderTroupes(troupesData);
-    renderCalendar();
-    updateFilterDropdown();
+renderTroupes(troupesData);
+renderCalendar();
+updateFilterDropdown();
 
-    alert(`劇団「${troupeName}」を削除しました。`);
-  } catch (error) {
-    console.error('削除エラー:', error);
-    alert('削除処理に失敗しました: ' + (error.message || JSON.stringify(error)));
-  }
+alert(`劇団「${troupeName}」を削除しました。`);
+} catch (error) {
+console.error('削除エラー:', error);
+alert('削除処理に失敗しました: ' + (error.message || JSON.stringify(error)));
+}
 }
 
 // プロフィール情報の更新処理
 async function handleUpdateProfile() {
-  if (!currentUser) return;
+if (!currentUser) return;
 
-  const affiliation = document.getElementById('edit-troupe-affiliation')?.value.trim() || '';
-  const homepage = document.getElementById('edit-troupe-homepage')?.value.trim() || '';
-  const instagram = document.getElementById('edit-troupe-instagram')?.value.trim() || '';
-  const sns = document.getElementById('edit-troupe-sns')?.value.trim() || '';
-  const description = document.getElementById('edit-troupe-desc')?.value.trim() || '';
+const affiliation = document.getElementById('edit-troupe-affiliation')?.value.trim() || '';
+const homepage = document.getElementById('edit-troupe-homepage')?.value.trim() || '';
+const instagram = document.getElementById('edit-troupe-instagram')?.value.trim() || '';
+const sns = document.getElementById('edit-troupe-sns')?.value.trim() || '';
+const description = document.getElementById('edit-troupe-desc')?.value.trim() || '';
 
-  const updatePayload = {
-    avatar_url: selectedAvatarDataUrl,
-    affiliation: affiliation,
-    homepage: homepage,
-    instagram: instagram,
-    sns: sns,
-    description: description
-  };
+const updatePayload = {
+avatar_url: selectedAvatarDataUrl,
+affiliation: affiliation,
+homepage: homepage,
+instagram: instagram,
+sns: sns,
+description: description
+};
 
-  try {
-    const { error } = await db.from('troupes').update(updatePayload).eq('id', currentUser.id);
-    if (error) throw error;
+try {
+const { error } = await db.from('troupes').update(updatePayload).eq('id', currentUser.id);
+if (error) throw error;
 
     // ローカルのデータ（currentUser および troupesData）を最新状態に更新
-    Object.assign(currentUser, updatePayload);
-    const idx = troupesData.findIndex(t => t.id === currentUser.id);
-    if (idx !== -1) {
-      troupesData[idx] = { ...troupesData[idx], ...updatePayload };
-    }
+Object.assign(currentUser, updatePayload);
+const idx = troupesData.findIndex(t => t.id === currentUser.id);
+if (idx !== -1) {
+troupesData[idx] = { ...troupesData[idx], ...updatePayload };
+}
 
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
     // 画面の再描画
-    renderTroupes(troupesData);
-    updateAuthUI();
-    alert('劇団プロフィールおよび画像を更新しました！');
-  } catch (error) {
-    console.error('プロフィール更新エラー:', error);
-    alert('保存に失敗しました: ' + (error.message || JSON.stringify(error)));
-  }
+renderTroupes(troupesData);
+updateAuthUI();
+alert('劇団プロフィールおよび画像を更新しました！');
+} catch (error) {
+console.error('プロフィール更新エラー:', error);
+alert('保存に失敗しました: ' + (error.message || JSON.stringify(error)));
+}
 }
 
 // 選択中の画像データ（Data URL形式）を保持する変数
@@ -2268,74 +2719,49 @@ let selectedAvatarDataUrl = '';
 
 // ファイルが選択された時にプレビューを表示する処理
 function previewSelectedImage(event) {
-  const file = event.target.files[0];
-  const previewBox = document.getElementById('avatar-preview-box');
+const file = event.target.files[0];
+const previewBox = document.getElementById('avatar-preview-box');
 
-  if (!file) return;
+if (!file) return;
 
-  if (file.size > 2 * 1024 * 1024) {
-    alert('画像サイズが大きすぎます。2MB以下の画像を選択してください。');
-    event.target.value = '';
-    return;
-  }
+if (file.size > 2 * 1024 * 1024) {
+alert('画像サイズが大きすぎます。2MB以下の画像を選択してください。');
+event.target.value = '';
+return;
+}
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    selectedAvatarDataUrl = e.target.result;
-    previewBox.innerHTML = `<img src="${selectedAvatarDataUrl}" style="width:100%; height:100%; object-fit:cover;">`;
-  };
-  reader.readAsDataURL(file);
+const reader = new FileReader();
+reader.onload = function(e) {
+selectedAvatarDataUrl = e.target.result;
+previewBox.innerHTML = `<img src="${selectedAvatarDataUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+};
+reader.readAsDataURL(file);
 }
 
 // マイページ表示時に既存データをフォームに反映する関数（1つに統合）
 function fillProfileForm() {
-  if (!currentUser) return;
-  
-  selectedAvatarDataUrl = currentUser.avatar_url || '';
-  const previewBox = document.getElementById('avatar-preview-box');
-  
-  if (currentUser.avatar_url) {
-    previewBox.innerHTML = `<img src="${escapeHtml(currentUser.avatar_url)}" style="width:100%; height:100%; object-fit:cover;">`;
-  } else {
-    previewBox.innerHTML = `<span style="font-size: 11px; color: var(--muted);">なし</span>`;
-  }
+if (!currentUser) return;
 
-  const affEl = document.getElementById('edit-troupe-affiliation');
-  const hpEl = document.getElementById('edit-troupe-homepage');
-  const instaEl = document.getElementById('edit-troupe-instagram');
-  const snsEl = document.getElementById('edit-troupe-sns');
-  const descEl = document.getElementById('edit-troupe-desc');
+selectedAvatarDataUrl = currentUser.avatar_url || '';
+const previewBox = document.getElementById('avatar-preview-box');
 
-  if (affEl) affEl.value = currentUser.affiliation || '';
-  if (hpEl) hpEl.value = currentUser.homepage || '';
-  if (instaEl) instaEl.value = currentUser.instagram || '';
-  if (snsEl) snsEl.value = currentUser.sns || '';
-  if (descEl) descEl.value = currentUser.description || '';
+if (currentUser.avatar_url) {
+previewBox.innerHTML = `<img src="${escapeHtml(currentUser.avatar_url)}" style="width:100%; height:100%; object-fit:cover;">`;
+} else {
+previewBox.innerHTML = `<span style="font-size: 11px; color: var(--muted);">なし</span>`;
 }
 
-// 未読メッセージ件数を計算してヘッダーに赤い通知バッチを表示する
-function updateUnreadBadges() {
-  const chatTab = document.getElementById('tab-chat');
-  if (!chatTab) return;
+const affEl = document.getElementById('edit-troupe-affiliation');
+const hpEl = document.getElementById('edit-troupe-homepage');
+const instaEl = document.getElementById('edit-troupe-instagram');
+const snsEl = document.getElementById('edit-troupe-sns');
+const descEl = document.getElementById('edit-troupe-desc');
 
-  // 既存のバッチがあれば一旦削除
-  const oldBadge = chatTab.querySelector('.nav-badge-dot');
-  if (oldBadge) oldBadge.remove();
-
-  if (!currentUser) return;
-
-  // 自分宛の未読メッセージ総数をカウント
-  const totalUnread = messagesData.filter(m => m.toTroupeId === currentUser.id && !m.read).length;
-
-  if (totalUnread > 0) {
-    chatTab.classList.add('nav-tab-badge');
-    const badge = document.createElement('span');
-    badge.className = 'nav-badge-dot';
-    badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-    chatTab.appendChild(badge);
-  } else {
-    chatTab.classList.remove('nav-tab-badge');
-  }
+if (affEl) affEl.value = currentUser.affiliation || '';
+if (hpEl) hpEl.value = currentUser.homepage || '';
+if (instaEl) instaEl.value = currentUser.instagram || '';
+if (snsEl) snsEl.value = currentUser.sns || '';
+if (descEl) descEl.value = currentUser.description || '';
 }
 
 // ===================== TUTORIAL MODAL LOGIC =====================
@@ -2415,6 +2841,7 @@ function changeTutorialStep(delta) {
   if (nextStep < 0) return;
   if (nextStep >= TUTORIAL_STEPS.length) {
     closeTutorial();
+    startGuideTour('onboarding', 0); // ★最初のツアー「まず登録したら」を開始
     return;
   }
   currentTutorialStep = nextStep;
@@ -2430,7 +2857,6 @@ function renderTutorialStep() {
   document.getElementById('tut-title').textContent = step.title;
   document.getElementById('tut-body').innerHTML = step.html;
 
-  // ドットインジケーター生成
   const dotsWrap = document.getElementById('tut-dots');
   dotsWrap.innerHTML = '';
   for (let i = 0; i < total; i++) {
@@ -2443,17 +2869,241 @@ function renderTutorialStep() {
     dotsWrap.appendChild(dot);
   }
 
-  // ボタンの表示制御
   const prevBtn = document.getElementById('tut-prev-btn');
   const nextBtn = document.getElementById('tut-next-btn');
 
   prevBtn.style.visibility = currentTutorialStep === 0 ? 'hidden' : 'visible';
   if (currentTutorialStep === total - 1) {
-    nextBtn.innerHTML = 'はじめる <i class="ti ti-check"></i>';
+    nextBtn.innerHTML = '<i class="ti ti-compass"></i> ガイドツアーを開始する';
   } else {
     nextBtn.innerHTML = '次へ <i class="ti ti-arrow-right"></i>';
   }
 }
+
+// ===================== INTERACTIVE GUIDE TOUR LOGIC =====================
+const GUIDE_TOURS = {
+  onboarding: {
+    name: 'まず登録したら',
+    steps: [
+      {
+        page: 'mypage',
+        selector: '#tab-mypage',
+        title: '1. マイページを開こう',
+        desc: 'まずは上部メニューの「マイページ」からログイン・アカウント作成を行います。ログインすると劇団の管理画面が表示されます。'
+      },
+      {
+        page: 'mypage',
+        selector: '#dashboard-section .form-card:first-of-type',
+        fallbackSelector: '#auth-section',
+        title: '2. マイページの編集をしよう',
+        desc: 'ログイン後、こちらのプロフィール編集フォームから劇団アイコン画像・所属大学・SNSリンク・紹介文を設定して保存できます。'
+      },
+      {
+        page: 'calendar',
+        selector: '#cal-grid',
+        title: '3. 今月の公演を確認してみよう',
+        desc: '「カレンダー」タブでは、参加劇団の公演日程が色分けして表示されます。気になる公演をクリックすると詳細を確認できます。'
+      },
+      {
+        page: 'mypage',
+        selector: '#line-link-status',
+        fallbackSelector: '#tab-mypage',
+        title: '4. LINE連携をしよう（折り込み通知🔔）',
+        desc: 'マイページ内の「LINE通知の連携」から連携コードを発行して公式LINEに送ると、折り込み依頼やチャットが届いた際にリアルタイムでLINE通知を受け取れます！'
+      }
+    ]
+  },
+  send_request: {
+    name: '折り込み依頼を送る',
+    steps: [
+      {
+        page: 'calendar',
+        selector: '#cal-filter',
+        title: '1. スケジュールから探す方法（劇団絞り込み）',
+        desc: 'カレンダー上部で特定の劇団に絞り込んだり、月を切り替えたりして時期の合う公演を探します。'
+      },
+      {
+        page: 'calendar',
+        selector: '#cal-grid',
+        title: '2. カレンダーの公演バーをクリック',
+        desc: 'カレンダー上の公演タイトルをクリックすると詳細画面が開き、「この公演に折り込みを依頼する」ボタンから部数や受け渡し方法を指定して申請できます。'
+      },
+      {
+        page: 'troupes',
+        selector: '#accept-filter',
+        title: '3. 劇団一覧から探す方法',
+        desc: '「劇団一覧」では大学名や「受付中のみ」のフィルターを使って検索できます。劇団カードをクリックすると開催予定の公演一覧が見られます。'
+      }
+    ]
+  },
+  receive_request: {
+    name: '折り込み依頼を受けたら',
+    steps: [
+      {
+        page: 'mypage',
+        selector: '#dashboard-inbox',
+        fallbackSelector: '#tab-mypage',
+        title: '1. 届いた依頼を確認・承認する',
+        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」に表示されます。「承認」ボタンを押すと受け入れが確定します。'
+      },
+      {
+        page: 'chat',
+        selector: '#tab-chat',
+        title: '2. メッセージでやり取りする',
+        desc: '承認後は「チャット」タブから相手劇団とダイレクトメッセージで具体的な搬入日時や受け渡し場所を調整しましょう。'
+      },
+      {
+        page: 'mypage',
+        selector: '#dashboard-inbox',
+        fallbackSelector: '#tab-mypage',
+        title: '3. 依頼を拒否（辞退）する場合',
+        desc: '受け入れ上限に達した場合や条件が合わない場合は、インボックス内の「辞退」ボタンから断ることができます（辞退分は残り部数枠に戻ります）。'
+      }
+    ]
+  },
+  setup_perf: {
+    name: '公演の設定',
+    steps: [
+      {
+        page: 'register',
+        selector: '#new-perf-title',
+        title: '1. 公演タイトル・日程の入力',
+        desc: '「公演登録」タブから公演タイトルと公演開始日・終了日を入力します。'
+      },
+      {
+        page: 'register',
+        selector: '#new-perf-accept-start',
+        title: '2. 折り込み受付期間の設定',
+        desc: 'ビラ折り込みを受け付ける開始日と終了日を設定します。この期間内のみ他劇団から申請が可能になります。'
+      },
+      {
+        page: 'register',
+        selector: '#new-perf-total-quota',
+        title: '3. 上限部数・受け渡し方法の設定',
+        desc: '1団体あたりの上限部数と、公演全体の受け入れ総部数、対面／郵送の可否を設定して「登録する」を押せばカレンダーに公開されます。'
+      }
+    ]
+  },
+  chat_guide: {
+    name: '他劇団へのメッセージ方法',
+    steps: [
+      {
+        page: 'chat',
+        selector: '#tab-chat',
+        title: '1. チャット画面を開く',
+        desc: '上部ナビゲーションの「チャット」をクリックすると、Slack風のダイレクトメッセージ画面が開きます（ログインが必要です）。'
+      },
+      {
+        page: 'chat',
+        selector: '#chat-layout',
+        fallbackSelector: '#chat-login-prompt',
+        title: '2. 相手劇団を選んで送信',
+        desc: '左側のリストから連絡したい劇団を選択し、下部の入力欄からメッセージを送信できます。新着メッセージがあるとバッジやLINEでお知らせします。'
+      }
+    ]
+  }
+};
+
+let activeTourKey = null;
+let activeTourStepIndex = 0;
+
+function startGuideTour(tourKey, startIndex = 0) {
+  const tour = GUIDE_TOURS[tourKey];
+  if (!tour) return;
+  activeTourKey = tourKey;
+  activeTourStepIndex = startIndex;
+  renderGuideTourStep();
+}
+
+function endGuideTour() {
+  activeTourKey = null;
+  document.getElementById('tour-highlight-ring').classList.remove('active');
+  document.getElementById('tour-popover').classList.remove('active');
+}
+
+function moveGuideTour(delta) {
+  if (!activeTourKey) return;
+  const tour = GUIDE_TOURS[activeTourKey];
+  const nextIdx = activeTourStepIndex + delta;
+  if (nextIdx < 0) return;
+  if (nextIdx >= tour.steps.length) {
+    endGuideTour();
+    return;
+  }
+  activeTourStepIndex = nextIdx;
+  renderGuideTourStep();
+}
+
+function renderGuideTourStep() {
+  const tour = GUIDE_TOURS[activeTourKey];
+  const step = tour.steps[activeTourStepIndex];
+
+  // 該当ページへ移動
+  if (step.page) {
+    showPage(step.page, false);
+  }
+
+  document.getElementById('tour-category-label').textContent = `ガイド：${tour.name}`;
+  document.getElementById('tour-step-title').textContent = step.title;
+  document.getElementById('tour-step-desc').textContent = step.desc;
+  document.getElementById('tour-step-count').textContent = `${activeTourStepIndex + 1} / ${tour.steps.length}`;
+
+  const prevBtn = document.getElementById('tour-prev-btn');
+  const nextBtn = document.getElementById('tour-next-btn');
+  prevBtn.style.visibility = activeTourStepIndex === 0 ? 'hidden' : 'visible';
+  nextBtn.textContent = activeTourStepIndex === tour.steps.length - 1 ? '完了' : '次へ';
+
+  // DOM描画後にターゲット要素の位置を計算してハイライト
+  setTimeout(() => {
+    let targetEl = document.querySelector(step.selector);
+    if (!targetEl || targetEl.offsetParent === null) {
+      if (step.fallbackSelector) {
+        targetEl = document.querySelector(step.fallbackSelector);
+      }
+    }
+
+    const ring = document.getElementById('tour-highlight-ring');
+    const popover = document.getElementById('tour-popover');
+
+    if (targetEl && targetEl.offsetParent !== null) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        const rect = targetEl.getBoundingClientRect();
+        const pad = 6;
+        ring.style.top = `${rect.top - pad}px`;
+        ring.style.left = `${rect.left - pad}px`;
+        ring.style.width = `${rect.width + pad * 2}px`;
+        ring.style.height = `${rect.height + pad * 2}px`;
+        ring.classList.add('active');
+
+        // 吹き出しの位置調整（画面下に収まらなければ上へ配置）
+        const popHeight = 200;
+        const popWidth = 340;
+        let topPos = rect.bottom + 14;
+        if (topPos + popHeight > window.innerHeight) {
+          topPos = Math.max(16, rect.top - popHeight - 14);
+        }
+        let leftPos = Math.min(Math.max(12, rect.left), window.innerWidth - popWidth - 12);
+
+        popover.style.top = `${topPos}px`;
+        popover.style.left = `${leftPos}px`;
+        popover.classList.add('active');
+      }, 220);
+    } else {
+      // ターゲットが非表示の場合は画面中央に吹き出しを表示
+      ring.classList.remove('active');
+      popover.style.top = '50%';
+      popover.style.left = '50%';
+      popover.style.transform = 'translate(-50%, -50%)';
+      popover.classList.add('active');
+    }
+  }, 50);
+}
+
+// ウィンドウリサイズ時にハイライト位置を再計算
+window.addEventListener('resize', () => {
+  if (activeTourKey) renderGuideTourStep();
+});
 </script>
 </body>
 </html>
