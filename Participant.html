@@ -232,90 +232,67 @@ gap: 4px;
 .tutorial-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(26, 20, 16, 0.6);
-  backdrop-filter: blur(2px);
+  background: rgba(26, 20, 16, 0.5);
   z-index: 1000;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  opacity: 0;
-  transition: opacity 0.25s ease;
 }
 .tutorial-overlay.open {
   display: flex;
-  opacity: 1;
 }
 .tutorial-modal {
   background: var(--white);
   width: 100%;
-  max-width: 520px;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 20px 48px rgba(26, 20, 16, 0.25);
+  max-width: 480px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(26, 20, 16, 0.16);
   overflow: hidden;
-  border: 1px solid var(--border);
-  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes modalSlideUp {
-  from { transform: translateY(16px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  border: 1px solid var(--border-neutral);
 }
 .tutorial-header {
-  background: var(--crimson);
-  color: var(--white);
-  padding: 1.5rem;
-  text-align: center;
+  background: var(--surface2);
+  color: var(--ink);
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-neutral);
   position: relative;
 }
 .tutorial-close-top {
   position: absolute;
-  top: 12px;
+  top: 14px;
   right: 14px;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 20px;
+  color: var(--muted);
+  font-size: 18px;
   cursor: pointer;
 }
 .tutorial-close-top:hover {
-  color: var(--white);
+  color: var(--ink);
 }
 .tutorial-step-badge {
   display: inline-block;
   font-size: 11px;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 2px 10px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
-}
-.tutorial-icon-circle {
-  width: 56px;
-  height: 56px;
-  background: var(--white);
+  font-weight: 600;
   color: var(--crimson);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin: 0 auto 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
 }
 .tutorial-title {
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 700;
+  color: var(--ink);
 }
 .tutorial-body {
-  padding: 1.5rem 1.75rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   color: var(--ink-mid);
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.75;
-  min-height: 145px;
+  min-height: 135px;
 }
 .tutorial-body ul {
-  margin-left: 1.2rem;
+  margin-left: 1.15rem;
   margin-top: 8px;
   display: flex;
   flex-direction: column;
@@ -324,25 +301,22 @@ gap: 4px;
 .tutorial-dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 1rem;
 }
 .tutorial-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--border-neutral);
-  transition: all 0.2s;
   cursor: pointer;
 }
 .tutorial-dot.active {
-  width: 22px;
-  border-radius: 4px;
   background: var(--crimson);
 }
 .tutorial-footer {
-  padding: 1rem 1.5rem;
-  background: var(--surface2);
+  padding: 0.85rem 1.5rem;
+  background: var(--surface);
   border-top: 1px solid var(--border-neutral);
   display: flex;
   align-items: center;
@@ -354,15 +328,15 @@ gap: 4px;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
   cursor: pointer;
   user-select: none;
 }
 .tutorial-dont-show input {
   accent-color: var(--crimson);
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 .tutorial-nav-btns {
@@ -372,24 +346,13 @@ gap: 4px;
 }
 
 /* ===================== SPOTLIGHT GUIDE TOUR ===================== */
-.tour-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(26, 20, 16, 0.52);
-  z-index: 1100;
-  display: none;
-  pointer-events: auto;
-}
-.tour-backdrop.active {
-  display: block;
-}
 .tour-highlight-ring {
   position: fixed;
   z-index: 1101;
-  border-radius: 10px;
-  box-shadow: 0 0 0 4px var(--gold-light), 0 0 0 9999px rgba(26, 20, 16, 0.55);
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--crimson), 0 0 0 9999px rgba(26, 20, 16, 0.45);
   pointer-events: none;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
   display: none;
 }
 .tour-highlight-ring.active {
@@ -398,42 +361,46 @@ gap: 4px;
 .tour-popover {
   position: fixed;
   z-index: 1102;
-  width: 340px;
+  width: 330px;
   max-width: calc(100vw - 24px);
   background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 16px 40px rgba(26, 20, 16, 0.3);
-  border: 1.5px solid var(--crimson);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 28px rgba(26, 20, 16, 0.22);
+  border: 1px solid var(--border-neutral);
   overflow: hidden;
   display: none;
-  transition: top 0.25s ease, left 0.25s ease;
+  transition: top 0.2s ease, left 0.2s ease;
 }
 .tour-popover.active {
   display: block;
 }
 .tour-popover-header {
-  background: var(--crimson);
-  color: var(--white);
-  padding: 10px 14px;
+  background: var(--surface2);
+  color: var(--ink-mid);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-neutral);
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .tour-popover-close {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 18px;
+  color: var(--muted);
+  font-size: 16px;
   cursor: pointer;
   line-height: 1;
+}
+.tour-popover-close:hover {
+  color: var(--ink);
 }
 .tour-popover-body {
   padding: 14px 16px;
 }
 .tour-popover-title {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 6px;
@@ -444,8 +411,8 @@ gap: 4px;
   line-height: 1.65;
 }
 .tour-popover-footer {
-  padding: 10px 14px;
-  background: var(--surface2);
+  padding: 9px 14px;
+  background: var(--surface);
   border-top: 1px solid var(--border-neutral);
   display: flex;
   align-items: center;
@@ -453,59 +420,66 @@ gap: 4px;
 }
 .tour-step-count {
   font-size: 12px;
-  font-weight: 600;
   color: var(--muted);
 }
 
-/* 使い方ページ内のガイドツアーメニュー */
+/* 使い方ページ内の操作ガイド一覧 */
 .guide-tour-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
   margin-bottom: 1.5rem;
 }
 .guide-tour-card {
   background: var(--white);
-  border: 1px solid var(--border-neutral);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
+  border: 0.5px solid var(--border-neutral);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.guide-tour-card:hover {
-  border-color: var(--crimson);
-  box-shadow: 0 4px 16px rgba(139, 26, 47, 0.08);
+  gap: 8px;
 }
 .guide-tour-card-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--crimson);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--border-neutral);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+.guide-tour-card-title i {
+  color: var(--crimson);
 }
 .guide-tour-sublist {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   font-size: 13px;
   color: var(--ink-mid);
-  flex: 1;
 }
 .guide-tour-sublist li {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  background: var(--surface);
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 .guide-tour-sublist li:hover {
   background: var(--crimson-pale);
+  color: var(--crimson);
+}
+.guide-tour-sublist li span.guide-jump-label {
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.guide-tour-sublist li:hover span.guide-jump-label {
   color: var(--crimson);
 }
 
@@ -719,61 +693,46 @@ gap: 4px;
   </button>
 </div>
 
-<!-- ガイドツアーメニュー一覧 -->
-<div class="section-title"><i class="ti ti-compass"></i>画面を動かしながら学ぶ「ガイドツアー」</div>
+<!-- 画面操作ガイド一覧 -->
+<div class="section-title"><i class="ti ti-map-pin"></i>画面を見ながら手順を確認する</div>
 <div class="guide-tour-grid">
   <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-sparkles"></i> まず登録したら</div>
+    <div class="guide-tour-card-title"><i class="ti ti-user-check"></i> 登録後の初期設定</div>
     <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('onboarding', 0)"><i class="ti ti-chevron-right"></i> マイページの編集をしよう</li>
-      <li onclick="startGuideTour('onboarding', 2)"><i class="ti ti-chevron-right"></i> 今月の公演を確認してみよう</li>
-      <li onclick="startGuideTour('onboarding', 3)"><i class="ti ti-chevron-right"></i> LINE連携をしよう（折り込み通知🔔）</li>
+      <li onclick="startGuideTour('onboarding', 0)"><span>マイページのプロフィール編集</span><span class="guide-jump-label">表示 →</span></li>
+      <li onclick="startGuideTour('onboarding', 2)"><span>今月の公演スケジュール確認</span><span class="guide-jump-label">表示 →</span></li>
+      <li onclick="startGuideTour('onboarding', 3)"><span>LINE通知の連携設定</span><span class="guide-jump-label">表示 →</span></li>
     </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('onboarding', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
   </div>
 
   <div class="guide-tour-card">
     <div class="guide-tour-card-title"><i class="ti ti-send"></i> 折り込み依頼を送る</div>
     <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('send_request', 0)"><i class="ti ti-chevron-right"></i> スケジュールから探す方法</li>
-      <li onclick="startGuideTour('send_request', 2)"><i class="ti ti-chevron-right"></i> 劇団一覧から探す方法</li>
+      <li onclick="startGuideTour('send_request', 0)"><span>カレンダーから公演を探す</span><span class="guide-jump-label">表示 →</span></li>
+      <li onclick="startGuideTour('send_request', 2)"><span>劇団一覧から探す</span><span class="guide-jump-label">表示 →</span></li>
     </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('send_request', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
   </div>
 
   <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-inbox"></i> 折り込み依頼を受けたら</div>
+    <div class="guide-tour-card-title"><i class="ti ti-inbox"></i> 折り込み依頼を受けたとき</div>
     <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('receive_request', 0)"><i class="ti ti-chevron-right"></i> 依頼を承認してメッセージでやり取りする</li>
-      <li onclick="startGuideTour('receive_request', 2)"><i class="ti ti-chevron-right"></i> 依頼を拒否する</li>
+      <li onclick="startGuideTour('receive_request', 0)"><span>依頼の承認と連絡手順</span><span class="guide-jump-label">表示 →</span></li>
+      <li onclick="startGuideTour('receive_request', 2)"><span>依頼を辞退する場合</span><span class="guide-jump-label">表示 →</span></li>
     </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('receive_request', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
   </div>
 
   <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-calendar-plus"></i> 公演の設定</div>
+    <div class="guide-tour-card-title"><i class="ti ti-calendar-plus"></i> 公演情報の登録</div>
     <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('setup_perf', 0)"><i class="ti ti-chevron-right"></i> 公演日程・受付期間・上限部数を登録する</li>
+      <li onclick="startGuideTour('setup_perf', 0)"><span>日程・受付期間・上限部数の設定</span><span class="guide-jump-label">表示 →</span></li>
     </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('setup_perf', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
   </div>
 
   <div class="guide-tour-card">
-    <div class="guide-tour-card-title"><i class="ti ti-messages"></i> 他劇団へのメッセージ方法</div>
+    <div class="guide-tour-card-title"><i class="ti ti-messages"></i> 劇団間の連絡</div>
     <ul class="guide-tour-sublist">
-      <li onclick="startGuideTour('chat_guide', 0)"><i class="ti ti-chevron-right"></i> ダイレクトメッセージの送り方</li>
+      <li onclick="startGuideTour('chat_guide', 0)"><span>ダイレクトメッセージの使い方</span><span class="guide-jump-label">表示 →</span></li>
     </ul>
-    <button class="btn-primary" style="width:100%; justify-content:center; padding:8px; font-size:13px;" onclick="startGuideTour('chat_guide', 0)">
-      <i class="ti ti-player-play"></i> このツアーを開始
-    </button>
   </div>
 </div>
 
@@ -1316,11 +1275,8 @@ onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.pr
       <button class="tutorial-close-top" onclick="closeTutorial()" title="閉じる">
         <i class="ti ti-x"></i>
       </button>
-      <div class="tutorial-step-badge" id="tut-step-badge">STEP 1 / 3</div>
-      <div class="tutorial-icon-circle" id="tut-icon">
-        <i class="ti ti-ticket"></i>
-      </div>
-      <div class="tutorial-title" id="tut-title">ビラネットワークへようこそ！</div>
+      <div class="tutorial-step-badge" id="tut-step-badge">1 / 3</div>
+      <div class="tutorial-title" id="tut-title">ビラネットワークの概要</div>
     </div>
 
     <div class="tutorial-body" id="tut-body"></div>
@@ -1333,8 +1289,8 @@ onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.pr
         次回から表示しない
       </label>
       <div class="tutorial-nav-btns">
-        <button class="btn-secondary" id="tut-prev-btn" onclick="changeTutorialStep(-1)" style="padding: 7px 14px; font-size: 13px;">戻る</button>
-        <button class="btn-primary" id="tut-next-btn" onclick="changeTutorialStep(1)" style="padding: 7px 18px; font-size: 13px;">次へ</button>
+        <button class="btn-secondary" id="tut-prev-btn" onclick="changeTutorialStep(-1)" style="padding: 6px 12px; font-size: 13px;">戻る</button>
+        <button class="btn-primary" id="tut-next-btn" onclick="changeTutorialStep(1)" style="padding: 6px 16px; font-size: 13px;">次へ</button>
       </div>
     </div>
   </div>
@@ -2770,38 +2726,35 @@ let currentTutorialStep = 0;
 
 const TUTORIAL_STEPS = [
   {
-    icon: 'ti-ticket',
-    title: 'ビラネットワークへようこそ！',
+    title: 'ビラネットワークについて',
     html: `
-      <p><strong>ビラネットワーク</strong>は、早慶演劇祭に参加する劇団同士で「ビラ（チラシ）の折り込み」をスムーズに依頼・受付できる共有プラットフォームです。</p>
+      <p>早慶演劇祭に参加する団体間で、公演パンフレット等へのビラ（チラシ）折り込みを依頼・管理するためのシステムです。</p>
       <ul>
-        <li>他劇団の公演スケジュールと受付状況をカレンダーで一覧確認</li>
-        <li>Web上から部数・サイズを指定してワンクリックで折り込み申請</li>
-        <li>ダイレクトメッセージで受け渡し日時や場所を直接相談</li>
+        <li>各劇団の公演日程と折り込み受付状況をカレンダーで確認できます</li>
+        <li>希望部数・サイズ・受け渡し方法を指定して依頼を送れます</li>
+        <li>承認後はチャット機能で搬入日時や場所を直接やり取りできます</li>
       </ul>
     `
   },
   {
-    icon: 'ti-send',
-    title: 'ビラの折り込みを「依頼する」',
+    title: '他劇団へ折り込みを依頼する場合',
     html: `
-      <p>自劇団のチラシを他劇団の公演パンフレット等に挟んでもらいたいときの手順です。</p>
+      <p>自劇団のチラシを他団体の公演に折り込んでもらう場合の手順です。</p>
       <ul>
-        <li><strong>カレンダー</strong>または<strong>劇団一覧</strong>から「折り込み受付中」の公演を探します。</li>
-        <li>公演詳細ページの<strong>「この公演に折り込みを依頼する」</strong>から希望部数や受け渡し方法（対面・郵送）を入力して申請します。</li>
-        <li>申請後は<strong>チャット</strong>から相手劇団と細かい搬入調整が可能です。</li>
+        <li><strong>カレンダー</strong>または<strong>劇団一覧</strong>から「折り込み受付中」の公演を選びます。</li>
+        <li>公演詳細の<strong>「この公演に折り込みを依頼する」</strong>から部数・受け渡し方法を入力して送信します。</li>
+        <li>申請後は<strong>チャット</strong>から相手劇団の担当者と搬入方法を調整してください。</li>
       </ul>
     `
   },
   {
-    icon: 'ti-calendar-plus',
-    title: '公演を登録して「受け入れる」',
+    title: '自劇団の公演で折り込みを受け入れる場合',
     html: `
-      <p>自劇団の公演で他団体のビラを受け入れる場合の手順です。</p>
+      <p>他劇団のチラシを自劇団の公演で受け入れる場合の手順です。</p>
       <ul>
-        <li>まずは<strong>マイページ</strong>から団体アカウントを作成・ログインします。</li>
-        <li><strong>公演登録</strong>タブから公演日程・折り込み受付期間・総受け入れ部数を設定して公開します。</li>
-        <li>依頼が届いたらマイページの<strong>インボックス</strong>から「承認 / 辞退」を管理できます。</li>
+        <li><strong>マイページ</strong>から団体アカウントを作成・ログインします。</li>
+        <li><strong>公演登録</strong>から公演日程・受付期間・受け入れ総部数を登録します。</li>
+        <li>届いた依頼はマイページの<strong>インボックス</strong>から承認または辞退できます。</li>
       </ul>
     `
   }
@@ -2841,7 +2794,7 @@ function changeTutorialStep(delta) {
   if (nextStep < 0) return;
   if (nextStep >= TUTORIAL_STEPS.length) {
     closeTutorial();
-    startGuideTour('onboarding', 0); // ★最初のツアー「まず登録したら」を開始
+    startGuideTour('onboarding', 0);
     return;
   }
   currentTutorialStep = nextStep;
@@ -2852,8 +2805,7 @@ function renderTutorialStep() {
   const step = TUTORIAL_STEPS[currentTutorialStep];
   const total = TUTORIAL_STEPS.length;
 
-  document.getElementById('tut-step-badge').textContent = `STEP ${currentTutorialStep + 1} / ${total}`;
-  document.getElementById('tut-icon').innerHTML = `<i class="ti ${step.icon}"></i>`;
+  document.getElementById('tut-step-badge').textContent = `${currentTutorialStep + 1} / ${total}`;
   document.getElementById('tut-title').textContent = step.title;
   document.getElementById('tut-body').innerHTML = step.html;
 
@@ -2873,43 +2825,39 @@ function renderTutorialStep() {
   const nextBtn = document.getElementById('tut-next-btn');
 
   prevBtn.style.visibility = currentTutorialStep === 0 ? 'hidden' : 'visible';
-  if (currentTutorialStep === total - 1) {
-    nextBtn.innerHTML = '<i class="ti ti-compass"></i> ガイドツアーを開始する';
-  } else {
-    nextBtn.innerHTML = '次へ <i class="ti ti-arrow-right"></i>';
-  }
+  nextBtn.textContent = currentTutorialStep === total - 1 ? '操作ガイドを見る' : '次へ';
 }
 
 // ===================== INTERACTIVE GUIDE TOUR LOGIC =====================
 const GUIDE_TOURS = {
   onboarding: {
-    name: 'まず登録したら',
+    name: '登録後の初期設定',
     steps: [
       {
         page: 'mypage',
         selector: '#tab-mypage',
-        title: '1. マイページを開こう',
-        desc: 'まずは上部メニューの「マイページ」からログイン・アカウント作成を行います。ログインすると劇団の管理画面が表示されます。'
+        title: 'マイページを開く',
+        desc: '上部メニューの「マイページ」からログイン・アカウント作成を行います。ログインすると管理画面が表示されます。'
       },
       {
         page: 'mypage',
         selector: '#dashboard-section .form-card:first-of-type',
         fallbackSelector: '#auth-section',
-        title: '2. マイページの編集をしよう',
-        desc: 'ログイン後、こちらのプロフィール編集フォームから劇団アイコン画像・所属大学・SNSリンク・紹介文を設定して保存できます。'
+        title: '劇団プロフィールの編集',
+        desc: 'ログイン後、プロフィール編集欄から劇団アイコン画像・所属大学・SNSリンク・紹介文を登録できます。'
       },
       {
         page: 'calendar',
         selector: '#cal-grid',
-        title: '3. 今月の公演を確認してみよう',
-        desc: '「カレンダー」タブでは、参加劇団の公演日程が色分けして表示されます。気になる公演をクリックすると詳細を確認できます。'
+        title: '今月の公演を確認する',
+        desc: '「カレンダー」では参加劇団の公演日程が一覧で表示されます。公演名をクリックすると受付条件の詳細が開きます。'
       },
       {
         page: 'mypage',
         selector: '#line-link-status',
         fallbackSelector: '#tab-mypage',
-        title: '4. LINE連携をしよう（折り込み通知🔔）',
-        desc: 'マイページ内の「LINE通知の連携」から連携コードを発行して公式LINEに送ると、折り込み依頼やチャットが届いた際にリアルタイムでLINE通知を受け取れます！'
+        title: 'LINE通知の連携',
+        desc: 'マイページの「LINE通知の連携」から連携コードを発行して公式LINEに送信すると、依頼や新着メッセージの通知を受け取れます。'
       }
     ]
   },
@@ -2919,86 +2867,86 @@ const GUIDE_TOURS = {
       {
         page: 'calendar',
         selector: '#cal-filter',
-        title: '1. スケジュールから探す方法（劇団絞り込み）',
-        desc: 'カレンダー上部で特定の劇団に絞り込んだり、月を切り替えたりして時期の合う公演を探します。'
+        title: 'カレンダーで劇団を絞り込む',
+        desc: '上部のプルダウンから特定の劇団を選択したり、月を切り替えたりして時期の合う公演を探します。'
       },
       {
         page: 'calendar',
         selector: '#cal-grid',
-        title: '2. カレンダーの公演バーをクリック',
-        desc: 'カレンダー上の公演タイトルをクリックすると詳細画面が開き、「この公演に折り込みを依頼する」ボタンから部数や受け渡し方法を指定して申請できます。'
+        title: '公演詳細から依頼を申請する',
+        desc: 'カレンダー上の公演名をクリックすると詳細画面が開き、「この公演に折り込みを依頼する」から部数や受け渡し方法を送信できます。'
       },
       {
         page: 'troupes',
         selector: '#accept-filter',
-        title: '3. 劇団一覧から探す方法',
-        desc: '「劇団一覧」では大学名や「受付中のみ」のフィルターを使って検索できます。劇団カードをクリックすると開催予定の公演一覧が見られます。'
+        title: '劇団一覧から探す',
+        desc: '「劇団一覧」では大学名や「受付中のみ」の条件で絞り込めます。劇団カードを選択すると開催予定の公演一覧が確認できます。'
       }
     ]
   },
   receive_request: {
-    name: '折り込み依頼を受けたら',
+    name: '折り込み依頼を受けたとき',
     steps: [
       {
         page: 'mypage',
         selector: '#dashboard-inbox',
         fallbackSelector: '#tab-mypage',
-        title: '1. 届いた依頼を確認・承認する',
-        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」に表示されます。「承認」ボタンを押すと受け入れが確定します。'
+        title: '届いた依頼を確認・承認する',
+        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」に表示されます。内容を確認して「承認」を押すと受け入れが確定します。'
       },
       {
         page: 'chat',
         selector: '#tab-chat',
-        title: '2. メッセージでやり取りする',
-        desc: '承認後は「チャット」タブから相手劇団とダイレクトメッセージで具体的な搬入日時や受け渡し場所を調整しましょう。'
+        title: 'チャットで受け渡しを調整する',
+        desc: '承認後は「チャット」タブから相手劇団と直接メッセージで搬入日時や受け渡し場所を調整できます。'
       },
       {
         page: 'mypage',
         selector: '#dashboard-inbox',
         fallbackSelector: '#tab-mypage',
-        title: '3. 依頼を拒否（辞退）する場合',
-        desc: '受け入れ上限に達した場合や条件が合わない場合は、インボックス内の「辞退」ボタンから断ることができます（辞退分は残り部数枠に戻ります）。'
+        title: '依頼を辞退する場合',
+        desc: '受け入れ上限に達した場合や条件が合わない場合は、インボックス内の「辞退」ボタンから断ることができます（辞退分は残り枠に戻ります）。'
       }
     ]
   },
   setup_perf: {
-    name: '公演の設定',
+    name: '公演情報の登録',
     steps: [
       {
         page: 'register',
         selector: '#new-perf-title',
-        title: '1. 公演タイトル・日程の入力',
+        title: '公演タイトル・日程の入力',
         desc: '「公演登録」タブから公演タイトルと公演開始日・終了日を入力します。'
       },
       {
         page: 'register',
         selector: '#new-perf-accept-start',
-        title: '2. 折り込み受付期間の設定',
-        desc: 'ビラ折り込みを受け付ける開始日と終了日を設定します。この期間内のみ他劇団から申請が可能になります。'
+        title: '折り込み受付期間の設定',
+        desc: 'ビラ折り込みを受け付ける開始日と終了日を設定します。この期間内のみ他劇団からの申請を受け付けます。'
       },
       {
         page: 'register',
         selector: '#new-perf-total-quota',
-        title: '3. 上限部数・受け渡し方法の設定',
-        desc: '1団体あたりの上限部数と、公演全体の受け入れ総部数、対面／郵送の可否を設定して「登録する」を押せばカレンダーに公開されます。'
+        title: '上限部数・受け渡し方法の設定',
+        desc: '1団体あたりの上限部数と公演全体の受け入れ総部数、対面・郵送の可否を設定して登録するとカレンダーに反映されます。'
       }
     ]
   },
   chat_guide: {
-    name: '他劇団へのメッセージ方法',
+    name: '劇団間の連絡',
     steps: [
       {
         page: 'chat',
         selector: '#tab-chat',
-        title: '1. チャット画面を開く',
-        desc: '上部ナビゲーションの「チャット」をクリックすると、Slack風のダイレクトメッセージ画面が開きます（ログインが必要です）。'
+        title: 'チャット画面を開く',
+        desc: '上部メニューの「チャット」をクリックすると、ダイレクトメッセージ画面が開きます（ログインが必要です）。'
       },
       {
         page: 'chat',
         selector: '#chat-layout',
         fallbackSelector: '#chat-login-prompt',
-        title: '2. 相手劇団を選んで送信',
-        desc: '左側のリストから連絡したい劇団を選択し、下部の入力欄からメッセージを送信できます。新着メッセージがあるとバッジやLINEでお知らせします。'
+        title: '相手劇団を選んで送信する',
+        desc: '左側のリストから連絡したい劇団を選択し、下部の入力欄からメッセージを送信します。'
       }
     ]
   }
@@ -3038,12 +2986,11 @@ function renderGuideTourStep() {
   const tour = GUIDE_TOURS[activeTourKey];
   const step = tour.steps[activeTourStepIndex];
 
-  // 該当ページへ移動
   if (step.page) {
     showPage(step.page, false);
   }
 
-  document.getElementById('tour-category-label').textContent = `ガイド：${tour.name}`;
+  document.getElementById('tour-category-label').textContent = tour.name;
   document.getElementById('tour-step-title').textContent = step.title;
   document.getElementById('tour-step-desc').textContent = step.desc;
   document.getElementById('tour-step-count').textContent = `${activeTourStepIndex + 1} / ${tour.steps.length}`;
@@ -3051,9 +2998,8 @@ function renderGuideTourStep() {
   const prevBtn = document.getElementById('tour-prev-btn');
   const nextBtn = document.getElementById('tour-next-btn');
   prevBtn.style.visibility = activeTourStepIndex === 0 ? 'hidden' : 'visible';
-  nextBtn.textContent = activeTourStepIndex === tour.steps.length - 1 ? '完了' : '次へ';
+  nextBtn.textContent = activeTourStepIndex === tour.steps.length - 1 ? '閉じる' : '次へ';
 
-  // DOM描画後にターゲット要素の位置を計算してハイライト
   setTimeout(() => {
     let targetEl = document.querySelector(step.selector);
     if (!targetEl || targetEl.offsetParent === null) {
@@ -3069,28 +3015,27 @@ function renderGuideTourStep() {
       targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => {
         const rect = targetEl.getBoundingClientRect();
-        const pad = 6;
+        const pad = 4;
         ring.style.top = `${rect.top - pad}px`;
         ring.style.left = `${rect.left - pad}px`;
         ring.style.width = `${rect.width + pad * 2}px`;
         ring.style.height = `${rect.height + pad * 2}px`;
         ring.classList.add('active');
 
-        // 吹き出しの位置調整（画面下に収まらなければ上へ配置）
-        const popHeight = 200;
-        const popWidth = 340;
-        let topPos = rect.bottom + 14;
+        const popHeight = 190;
+        const popWidth = 330;
+        let topPos = rect.bottom + 12;
         if (topPos + popHeight > window.innerHeight) {
-          topPos = Math.max(16, rect.top - popHeight - 14);
+          topPos = Math.max(16, rect.top - popHeight - 12);
         }
         let leftPos = Math.min(Math.max(12, rect.left), window.innerWidth - popWidth - 12);
 
         popover.style.top = `${topPos}px`;
         popover.style.left = `${leftPos}px`;
+        popover.style.transform = 'none';
         popover.classList.add('active');
-      }, 220);
+      }, 200);
     } else {
-      // ターゲットが非表示の場合は画面中央に吹き出しを表示
       ring.classList.remove('active');
       popover.style.top = '50%';
       popover.style.left = '50%';
@@ -3100,7 +3045,6 @@ function renderGuideTourStep() {
   }, 50);
 }
 
-// ウィンドウリサイズ時にハイライト位置を再計算
 window.addEventListener('resize', () => {
   if (activeTourKey) renderGuideTourStep();
 });
