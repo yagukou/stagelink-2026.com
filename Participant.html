@@ -1689,7 +1689,7 @@ grid.appendChild(card);
 }
 
 function filterTroupes() {
-const keyword = document.querySelector('.search-input').value.toLowerCase();
+const keyword = document.querySelector('.search-input').value.trim().toLowerCase();
 const univ = document.getElementById('univ-filter').value;
 const acceptOnly = document.getElementById('accept-filter').value;
 
