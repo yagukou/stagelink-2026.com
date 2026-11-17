@@ -643,6 +643,13 @@ gap: 4px;
 .emoji-picker-popup span:hover { background: var(--surface2); }
 .chat-empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #616061; gap: 10px; font-size: 15px; }
 .chat-empty-state i { font-size: 48px; color: #DDDDDD; display: block; }
+
+/* ===================== 完了通知バナー（トースト） ===================== */
+.toast { position: fixed; left: 50%; top: 80px; transform: translate(-50%, -12px); z-index: 1000; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; box-shadow: 0 6px 24px rgba(26,20,16,0.16); opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast-success { background: #E5F3EE; border: 0.5px solid #9FDFC6; color: #1A6B4A; }
+.toast-neutral { background: var(--surface2); border: 0.5px solid var(--border-neutral); color: var(--ink-mid); }
+.toast i { font-size: 20px; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -947,7 +954,7 @@ gap: 4px;
 <textarea class="form-textarea" id="req-notes" placeholder="搬入日時や具体的な配送手順のご相談などがあれば記載してください"></textarea>
 </div>
 </div>
-<button class="btn-primary" onclick="submitRequestForm()"><i class="ti ti-send"></i>この内容で折り込みを申請する</button>
+<button class="btn-primary" id="req-submit-btn" onclick="submitRequestForm()"><i class="ti ti-send"></i>この内容で折り込みを申請する</button>
 </div>
 </div>
 </div>
@@ -1902,35 +1909,37 @@ document.getElementById('req-from-email').value = '';
 showPage('request-form');
 }
 
-// 【修正】依頼の保存後、Google Apps Script を呼んで受け取り側のLINEに通知する
-// 送り先はGAS側で requests → line_accounts から引くので、ここでは依頼IDだけ渡す
-async function notifyRequest(requestId) {
-  try {
-    if (!NOTIFY_GAS_URL.startsWith('https://')) throw new Error('NOTIFY_GAS_URL が未設定です');
-    // text/plain で送るとブラウザの事前確認(CORS)が不要になる。返事は読まずに送りっぱなし
-    await fetch(NOTIFY_GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ type: 'request', requestId })
-    });
-    return true;
-  } catch (e) {
-    console.error('LINE通知エラー（依頼自体は保存済み）:', e);
-    return false;
+// 【修正】LINE通知の呼び出し（共通）
+// GASの処理には数秒かかるため、結果は待たずに送りっぱなしにする（画面を待たせない）。
+// keepalive を付けているので、直後に画面が切り替わっても呼び出しは途中で切れない。
+// 万一届かなくても、GAS側の5分ごとの見回りで後から通知される。
+function callNotifyGas(payload) {
+  if (!NOTIFY_GAS_URL.startsWith('https://')) {
+    console.warn('[LINE通知] NOTIFY_GAS_URL が未設定です');
+    return;
   }
-}
-
-// 【追加】メッセージ送信後、相手のLINEに通知する（30分以内の連続通知はGAS側で止める）
-// 送信者の画面を待たせないよう、結果は待たずに送りっぱなしにする
-function notifyMessage(messageId) {
-  if (!NOTIFY_GAS_URL.startsWith('https://')) return;
   fetch(NOTIFY_GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
+    keepalive: true,
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ type: 'message', messageId })
-  }).catch(e => console.error('LINE通知エラー（メッセージ自体は保存済み）:', e));
+    body: JSON.stringify(payload)
+  }).catch(e => console.error('[LINE通知] GASを呼び出せませんでした（データ自体は保存済み）:', e));
+}
+
+// 折り込み依頼が届いたことを、受け取り側のLINEに通知
+function notifyRequest(requestId) {
+  callNotifyGas({ type: 'request', requestId });
+}
+
+// 【追加】承認・辞退したことを、依頼した側のLINEに通知
+function notifyRequestStatus(requestId) {
+  callNotifyGas({ type: 'status', requestId });
+}
+
+// メッセージが届いたことを、相手のLINEに通知（30分以内の連続通知はGAS側で止める）
+function notifyMessage(messageId) {
+  callNotifyGas({ type: 'message', messageId });
 }
 
 // 【追加】LINE連携コードを発行する（6桁・有効期限30分）
@@ -2046,19 +2055,33 @@ return;
 const maxQuota = perf.maxQuota || 300;
 const totalQuota = perf.totalQuota || 1000;
 
-  // 現在の申請中・承認済み合計部数の算出
-  // 【修正】判定直前にDBの最新の依頼を取り直す（他団体の申請と重複して枠を超えないように）
-  await refreshRequests();
-const relevantRequests = incomingRequests.filter(r => r.perfId === selectedPerformanceId && r.status !== 'declined');
-const usedCopies = relevantRequests.reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
-const remainingCopies = Math.max(0, totalQuota - usedCopies);
-
 if (copies > maxQuota) {
 alert(`1団体あたりの上限部数（${maxQuota.toLocaleString()}部）を超えています。部数を調整してください。`);
 return;
 }
 
+  // 【修正】二重送信防止：ボタンを押した瞬間に「送信中…」にして押せなくする
+  if (isSubmittingRequest) return;
+  isSubmittingRequest = true;
+  setRequestSubmitting(true);
+
+  // 現在の申請中・承認済み合計部数の算出
+  // 【修正】全依頼ではなく、この公演の依頼の部数と状態だけをDBから取る（通信量を減らして高速化）
+  const { data: perfReqs, error: quotaError } = await db.from('requests')
+    .select('copies,status').eq('perfId', selectedPerformanceId);
+  if (quotaError) {
+    isSubmittingRequest = false;
+    setRequestSubmitting(false);
+    alert('残り部数の確認に失敗しました: ' + quotaError.message);
+    return;
+  }
+const usedCopies = (perfReqs || []).filter(r => r.status !== 'declined')
+  .reduce((sum, r) => sum + (parseInt(r.copies) || 0), 0);
+const remainingCopies = Math.max(0, totalQuota - usedCopies);
+
 if (copies > remainingCopies) {
+  isSubmittingRequest = false;
+  setRequestSubmitting(false);
 alert(`申請部数（${copies.toLocaleString()}部）が残り受け入れ枠（${remainingCopies.toLocaleString()}部）を超えています。`);
 return;
 }
@@ -2090,20 +2113,58 @@ if (error) throw error;
 
     incomingRequests.push(data[0]);
 
-    // 【修正】受け取り側へのLINE通知
-    const notified = await notifyRequest(newRequest.id);
-    if (!notified) {
-      console.warn('依頼は保存されましたが、LINE通知は送信できませんでした。');
-    }
+    // 【修正】LINE通知は待たない（以前はここで数秒止まっていたのが遅さの主な原因）
+    notifyRequest(newRequest.id);
 
+    // 保存できた瞬間に完了表示。画面上部のバナーが見えるようにスクロールする
 document.getElementById('success-banner').classList.add('show');
 document.getElementById('request-form-body').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-setTimeout(() => { openPerformanceDetail(selectedPerformanceId); }, 1800);
+setTimeout(() => {
+      isSubmittingRequest = false;
+      setRequestSubmitting(false);
+      openPerformanceDetail(selectedPerformanceId);
+      // 【追加】公演ページに戻ったあとも完了がわかるようにバナーを出す
+      showToast('折り込み依頼を送信しました');
+    }, 1500);
 } catch (error) {
+    isSubmittingRequest = false;
+    setRequestSubmitting(false);
 console.error('折り込み依頼送信エラー:', error);
 alert('送信に失敗しました: ' + (error.message || JSON.stringify(error)));
 }
+}
+
+// 【追加】完了通知バナー（画面上部に3秒間表示）
+let toastTimer = null;
+function showToast(message, kind = 'success') {
+  let el = document.getElementById('app-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'app-toast';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+  }
+  const icon = kind === 'success' ? 'ti-circle-check' : 'ti-info-circle';
+  el.className = `toast toast-${kind}`;
+  el.innerHTML = `<i class="ti ${icon}"></i><span>${escapeHtml(message)}</span>`;
+  requestAnimationFrame(() => el.classList.add('show'));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// 【追加】依頼送信ボタンの「送信中…」表示の切り替え
+let isSubmittingRequest = false;
+function setRequestSubmitting(on) {
+  const btn = document.getElementById('req-submit-btn');
+  if (!btn) return;
+  btn.disabled = on;
+  btn.style.opacity = on ? '0.6' : '';
+  btn.style.cursor = on ? 'wait' : '';
+  btn.innerHTML = on
+    ? '<i class="ti ti-loader-2"></i>送信中…'
+    : '<i class="ti ti-send"></i>この内容で折り込みを申請する';
 }
 
 function prepareRegisterPage() {
@@ -2380,6 +2441,8 @@ loginBtn.innerHTML = `<i class="ti ti-user"></i> ログイン`;
 }
 
 async function handleRequestStatus(reqId, newStatus) {
+  // 【追加】二重押し防止：押した依頼のボタンをすぐ押せなくする
+  document.querySelectorAll(`.inbox-btn[onclick*="'${reqId}'"]`).forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
 try {
     // 【修正】.select() で実際に更新されたか確認
     const { data, error } = await db.from('requests').update({ status: newStatus }).eq('id', reqId).select();
@@ -2391,7 +2454,12 @@ if (error) throw error;
 const req = incomingRequests.find(r => r.id === reqId);
 if (req) req.status = newStatus;
 renderMyPage();
+    notifyRequestStatus(reqId); // 【追加】依頼した側のLINEに承認・辞退を通知
+    // 【追加】完了通知バナー
+    showToast(newStatus === 'accepted' ? '依頼を承認しました' : '依頼を辞退しました',
+      newStatus === 'accepted' ? 'success' : 'neutral');
 } catch (error) {
+    renderMyPage(); // ボタンを元に戻す
 alert('ステータスの更新に失敗しました: ' + error.message);
 }
 }
