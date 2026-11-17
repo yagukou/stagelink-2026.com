@@ -3722,7 +3722,6 @@ function endGuideTour() {
   activeTourKey = null;
   tourTargetEl = null;
   tourRenderToken++;
-  if (tourResizeObserver) { tourResizeObserver.disconnect(); tourResizeObserver = null; }
   document.getElementById('tour-highlight-ring').classList.remove('active');
   document.getElementById('tour-popover').classList.remove('active');
 }
@@ -3776,13 +3775,14 @@ function renderGuideTourStep() {
 
     if (targetEl && targetEl.offsetParent !== null) {
       tourTargetEl = targetEl;
+      tourUserScrolled = false;
       scrollTourTargetIntoView(targetEl);
       waitForScrollSettle(() => {
         if (myToken !== tourRenderToken) return;
         positionTourOverlay();
         ring.classList.add('active');
         popover.classList.add('active');
-        watchTourTarget(targetEl);
+        startTourTracking(step, myToken);
       });
     } else {
       tourTargetEl = null;
@@ -3798,7 +3798,6 @@ function renderGuideTourStep() {
 // 【追加】ガイドの枠を正しい位置に合わせるための補助
 let tourRenderToken = 0;
 let tourTargetEl = null;
-let tourResizeObserver = null;
 
 // 画面上部に固定されているもの（ヘッダー、スマホのマイページメニュー）の下端
 function tourTopInset() {
@@ -3874,31 +3873,57 @@ function positionTourOverlay() {
   popover.style.left = `${popLeft}px`;
 }
 
-// 表示中はスクロールや中身の変化に追従させる
-function watchTourTarget(el) {
-  if (tourResizeObserver) tourResizeObserver.disconnect();
-  if ('ResizeObserver' in window) {
-    tourResizeObserver = new ResizeObserver(() => { if (activeTourKey) positionTourOverlay(); });
-    tourResizeObserver.observe(el);
-    tourResizeObserver.observe(document.body);
-  }
+// 【修正】表示中は毎フレーム、案内先の位置を確かめて枠を合わせる。
+//   データの読み込みやアイコン・フォントの読み込みで、スクロールしなくても中身がずれることがあるため。
+//   （以前はスクロールと画面サイズ変更のときしか合わせ直していなかった）
+let tourUserScrolled = false;  // 利用者が自分でスクロールしたら、自動で戻さない
+let tourAutoScrollUntil = 0;
+let tourLastRectKey = '';
+
+function resolveTourTarget(step) {
+  let el = document.querySelector(step.selector);
+  if ((!el || el.offsetParent === null) && step.fallbackSelector) el = document.querySelector(step.fallbackSelector);
+  return el && el.offsetParent !== null ? el : null;
 }
 
-let tourFollowFrame = 0;
-function followTourTarget() {
-  if (!activeTourKey || !tourTargetEl || tourFollowFrame) return;
-  tourFollowFrame = requestAnimationFrame(() => {
-    tourFollowFrame = 0;
-    const ring = document.getElementById('tour-highlight-ring');
-    ring.style.transition = 'none'; // スクロール中は遅れずにぴったり付いていく
-    positionTourOverlay();
-    requestAnimationFrame(() => { ring.style.transition = ''; });
-  });
-}
-window.addEventListener('scroll', followTourTarget, { passive: true });
+function startTourTracking(step, token) {
+  const startedAt = performance.now();
+  tourLastRectKey = '';
+  const ring = document.getElementById('tour-highlight-ring');
+  const loop = () => {
+    if (!activeTourKey || token !== tourRenderToken) return;
+    const el = resolveTourTarget(step); // 再描画で要素が作り直されても追いかける
+    if (!el) { ring.classList.remove('active'); requestAnimationFrame(loop); return; }
+    tourTargetEl = el;
+    ring.classList.add('active');
 
-// 【修正】画面サイズが変わったときは、ページを開き直さず位置だけ合わせ直す
-window.addEventListener('resize', followTourTarget);
+    const r = el.getBoundingClientRect();
+    const key = [r.top, r.left, r.width, r.height, window.innerWidth, window.innerHeight].map(Math.round).join(',');
+    if (key !== tourLastRectKey) {
+      tourLastRectKey = key;
+      ring.style.transition = 'none';
+      positionTourOverlay();
+    }
+
+    // 読み込み後に中身がずれて案内先が見えなくなったら、もう一度スクロールして見せる
+    // （開いてから6秒以内で、利用者が自分でスクロールしていないときだけ）
+    const now = performance.now();
+    const top = tourTopInset();
+    const visibleH = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, top);
+    const needed = Math.min(r.height, window.innerHeight - top) * 0.5;
+    if (!tourUserScrolled && now - startedAt < 6000 && now > tourAutoScrollUntil && visibleH < needed) {
+      tourAutoScrollUntil = now + 900;
+      scrollTourTargetIntoView(el);
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+['wheel', 'touchmove'].forEach(type => window.addEventListener(type, () => { if (activeTourKey) tourUserScrolled = true; }, { passive: true }));
+window.addEventListener('keydown', e => {
+  if (activeTourKey && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) tourUserScrolled = true;
+});
 </script>
 </body>
 </html>
