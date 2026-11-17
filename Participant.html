@@ -3609,7 +3609,7 @@ const GUIDE_TOURS = {
       },
       {
         page: 'mypage',
-        selector: '#line-link-status',
+        selector: '#mp-line',
         fallbackSelector: '#tab-mypage',
         title: 'LINE通知の連携',
         desc: 'マイページの「LINE通知の連携」から連携コードを発行して公式LINEに送信すると、依頼や新着メッセージの通知を受け取れます。'
@@ -3644,10 +3644,10 @@ const GUIDE_TOURS = {
     steps: [
       {
         page: 'mypage',
-        selector: '#dashboard-inbox',
+        selector: '#action-box',
         fallbackSelector: '#tab-mypage',
         title: '届いた依頼を確認・承認する',
-        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」に表示されます。内容を確認して「承認」を押すと受け入れが確定します。'
+        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」の一番上「対応が必要なもの」に表示されます。内容を確認して「承認」を押すと受け入れが確定します。'
       },
       {
         page: 'chat',
@@ -3657,7 +3657,7 @@ const GUIDE_TOURS = {
       },
       {
         page: 'mypage',
-        selector: '#dashboard-inbox',
+        selector: '#action-box',
         fallbackSelector: '#tab-mypage',
         title: '依頼を辞退する場合',
         desc: '受け入れ上限に達した場合や条件が合わない場合は、インボックス内の「辞退」ボタンから断ることができます（辞退分は残り枠に戻ります）。'
@@ -3720,6 +3720,9 @@ function startGuideTour(tourKey, startIndex = 0) {
 
 function endGuideTour() {
   activeTourKey = null;
+  tourTargetEl = null;
+  tourRenderToken++;
+  if (tourResizeObserver) { tourResizeObserver.disconnect(); tourResizeObserver = null; }
   document.getElementById('tour-highlight-ring').classList.remove('active');
   document.getElementById('tour-popover').classList.remove('active');
 }
@@ -3755,7 +3758,12 @@ function renderGuideTourStep() {
   prevBtn.style.visibility = activeTourStepIndex === 0 ? 'hidden' : 'visible';
   nextBtn.textContent = activeTourStepIndex === tour.steps.length - 1 ? '閉じる' : '次へ';
 
+  // 【修正】枠のズレ対策
+  //   以前はスクロールを始めて0.2秒後に位置を測っていたため、スクロールの途中の位置で枠が固定されていた。
+  //   → スクロールが止まるのを待ってから測り、その後もスクロール・画面サイズ変更・中身の変化に追従させる。
+  const myToken = ++tourRenderToken;
   setTimeout(() => {
+    if (myToken !== tourRenderToken) return; // 次のステップに進んでいたら何もしない
     let targetEl = document.querySelector(step.selector);
     if (!targetEl || targetEl.offsetParent === null) {
       if (step.fallbackSelector) {
@@ -3767,30 +3775,17 @@ function renderGuideTourStep() {
     const popover = document.getElementById('tour-popover');
 
     if (targetEl && targetEl.offsetParent !== null) {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => {
-        const rect = targetEl.getBoundingClientRect();
-        const pad = 4;
-        ring.style.top = `${rect.top - pad}px`;
-        ring.style.left = `${rect.left - pad}px`;
-        ring.style.width = `${rect.width + pad * 2}px`;
-        ring.style.height = `${rect.height + pad * 2}px`;
+      tourTargetEl = targetEl;
+      scrollTourTargetIntoView(targetEl);
+      waitForScrollSettle(() => {
+        if (myToken !== tourRenderToken) return;
+        positionTourOverlay();
         ring.classList.add('active');
-
-        const popHeight = 190;
-        const popWidth = 330;
-        let topPos = rect.bottom + 12;
-        if (topPos + popHeight > window.innerHeight) {
-          topPos = Math.max(16, rect.top - popHeight - 12);
-        }
-        let leftPos = Math.min(Math.max(12, rect.left), window.innerWidth - popWidth - 12);
-
-        popover.style.top = `${topPos}px`;
-        popover.style.left = `${leftPos}px`;
-        popover.style.transform = 'none';
         popover.classList.add('active');
-      }, 200);
+        watchTourTarget(targetEl);
+      });
     } else {
+      tourTargetEl = null;
       ring.classList.remove('active');
       popover.style.top = '50%';
       popover.style.left = '50%';
@@ -3800,9 +3795,110 @@ function renderGuideTourStep() {
   }, 50);
 }
 
-window.addEventListener('resize', () => {
-  if (activeTourKey) renderGuideTourStep();
-});
+// 【追加】ガイドの枠を正しい位置に合わせるための補助
+let tourRenderToken = 0;
+let tourTargetEl = null;
+let tourResizeObserver = null;
+
+// 画面上部に固定されているもの（ヘッダー、スマホのマイページメニュー）の下端
+function tourTopInset() {
+  let inset = 0;
+  document.querySelectorAll('.nav, .mp-nav').forEach(el => {
+    if (el.offsetParent === null) return;
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+    const r = el.getBoundingClientRect();
+    if (r.top <= 1 + inset && r.width >= window.innerWidth * 0.6) inset = Math.max(inset, r.bottom);
+  });
+  return inset || 64;
+}
+
+function scrollTourTargetIntoView(el) {
+  const rect = el.getBoundingClientRect();
+  const top = tourTopInset();
+  const avail = window.innerHeight - top;
+  let y;
+  if (rect.height + 220 <= avail) {
+    // 枠と説明が両方入るなら、見える範囲の中央に
+    y = window.scrollY + rect.top - top - (avail - rect.height) / 2;
+  } else {
+    // 大きい要素は、上端をヘッダーのすぐ下に
+    y = window.scrollY + rect.top - top - 16;
+  }
+  const maxY = document.documentElement.scrollHeight - window.innerHeight;
+  window.scrollTo({ top: Math.max(0, Math.min(y, maxY)), behavior: 'smooth' });
+}
+
+// スクロールが止まるまで待つ（数フレーム位置が変わらなければ止まったとみなす。最大1.5秒）
+function waitForScrollSettle(cb) {
+  const start = performance.now();
+  let lastY = window.scrollY, still = 0;
+  const tick = () => {
+    const y = window.scrollY;
+    still = Math.abs(y - lastY) < 0.5 ? still + 1 : 0;
+    lastY = y;
+    if (still >= 4 || performance.now() - start > 1500) cb();
+    else requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// 今の位置に合わせて枠と説明を置く
+function positionTourOverlay() {
+  const el = tourTargetEl;
+  const ring = document.getElementById('tour-highlight-ring');
+  const popover = document.getElementById('tour-popover');
+  if (!el || !activeTourKey || el.offsetParent === null) return;
+
+  const rect = el.getBoundingClientRect();
+  const pad = 4;
+  const topLimit = tourTopInset();
+  // 画面からはみ出す大きい要素は、見えている部分だけを囲む
+  const top = Math.max(rect.top - pad, topLimit + 2);
+  const bottom = Math.min(rect.bottom + pad, window.innerHeight - 2);
+  ring.style.top = `${top}px`;
+  ring.style.left = `${rect.left - pad}px`;
+  ring.style.width = `${rect.width + pad * 2}px`;
+  ring.style.height = `${Math.max(0, bottom - top)}px`;
+
+  // 説明の吹き出し：実際の大きさを測って、下→上→画面下部の順に入る場所へ
+  popover.style.transform = 'none';
+  const popH = popover.offsetHeight || 190;
+  const popW = popover.offsetWidth || 330;
+  let popTop;
+  if (bottom + 12 + popH <= window.innerHeight - 8) popTop = bottom + 12;
+  else if (top - 12 - popH >= topLimit + 8) popTop = top - 12 - popH;
+  else popTop = window.innerHeight - popH - 16;
+  const popLeft = Math.min(Math.max(12, rect.left), window.innerWidth - popW - 12);
+  popover.style.top = `${popTop}px`;
+  popover.style.left = `${popLeft}px`;
+}
+
+// 表示中はスクロールや中身の変化に追従させる
+function watchTourTarget(el) {
+  if (tourResizeObserver) tourResizeObserver.disconnect();
+  if ('ResizeObserver' in window) {
+    tourResizeObserver = new ResizeObserver(() => { if (activeTourKey) positionTourOverlay(); });
+    tourResizeObserver.observe(el);
+    tourResizeObserver.observe(document.body);
+  }
+}
+
+let tourFollowFrame = 0;
+function followTourTarget() {
+  if (!activeTourKey || !tourTargetEl || tourFollowFrame) return;
+  tourFollowFrame = requestAnimationFrame(() => {
+    tourFollowFrame = 0;
+    const ring = document.getElementById('tour-highlight-ring');
+    ring.style.transition = 'none'; // スクロール中は遅れずにぴったり付いていく
+    positionTourOverlay();
+    requestAnimationFrame(() => { ring.style.transition = ''; });
+  });
+}
+window.addEventListener('scroll', followTourTarget, { passive: true });
+
+// 【修正】画面サイズが変わったときは、ページを開き直さず位置だけ合わせ直す
+window.addEventListener('resize', followTourTarget);
 </script>
 </body>
 </html>
