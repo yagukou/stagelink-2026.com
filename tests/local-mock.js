@@ -37,7 +37,7 @@
       order(k){sort=k;return q},range(a,b){range=[a,b];return q},single(){single=true;return q},
       update(p){operation='update';payload=p;return q},insert(p){operation='insert';payload=p;return q},delete(){operation='delete';return q},
       then(resolve,reject){return new Promise(done=>setTimeout(()=>{
-        // Stage 1: main still selects all messages; allow local fixtures only.
+        if(table==='messages' && operation==='select' && !either){done({data:null,error:{message:'Unfiltered message query blocked by mock'}});return;}
         if(operation!=='select'&&api.failNext){api.failNext=false;done({data:null,error:{message:'テスト用の保存エラーです。再試行できます。'}});return;}
         let rows=(tables[table]||[]).filter(r=>filters.every(f=>f(r))&&(!either||either(r)));
         if(operation==='update')rows.forEach(r=>Object.assign(r,payload));
