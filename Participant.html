@@ -653,12 +653,108 @@ gap: 4px;
 .decline-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 20px; }
 .decline-dialog button:disabled { opacity: .6; cursor: wait; }
 
-/* ===================== 完了通知バナー（トースト） ===================== */
-.toast { position: fixed; left: 50%; top: 80px; transform: translate(-50%, -12px); z-index: 1000; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; box-shadow: 0 6px 24px rgba(26,20,16,0.16); opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; }
-.toast.show { opacity: 1; transform: translate(-50%, 0); }
+/* ===================== 通知バナー（トースト） ===================== */
+.toast-stack { position: fixed; left: 50%; top: 76px; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 8px; width: max-content; max-width: calc(100vw - 32px); pointer-events: none; }
+.toast { display: flex; align-items: center; gap: 10px; max-width: 100%; padding: 12px 14px 12px 18px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; box-shadow: 0 6px 24px rgba(26,20,16,0.16); opacity: 0; transform: translateY(-12px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: auto; }
+.toast.show { opacity: 1; transform: translateY(0); }
 .toast-success { background: #E5F3EE; border: 0.5px solid #9FDFC6; color: #1A6B4A; }
 .toast-neutral { background: var(--surface2); border: 0.5px solid var(--border-neutral); color: var(--ink-mid); }
+.toast-alert { background: var(--white); border: 1px solid rgba(139,26,47,0.35); border-left: 4px solid var(--crimson); color: var(--ink); }
+.toast-alert > i { color: var(--crimson); }
 .toast i { font-size: 20px; flex-shrink: 0; }
+.toast-action { margin-left: 6px; padding: 5px 12px; border: none; border-radius: var(--radius-sm); background: var(--crimson); color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.toast-action:hover { background: var(--crimson-light); }
+.toast-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 2px; display: flex; }
+.toast-close i { font-size: 16px; }
+
+/* ===================== バッジ ===================== */
+.nav-badge { display: none; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 2px; border-radius: 9px; background: var(--crimson); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; }
+.nav-badge.show { display: inline-block; }
+.nav-tab.active .nav-badge { background: #fff; color: var(--crimson); }
+@keyframes badge-pop { 0% { transform: scale(0.4); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.nav-badge.pop { animation: badge-pop 0.35s ease; }
+
+/* ===================== マイページ：左メニュー ===================== */
+.mp-layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 24px; align-items: start; }
+.mp-nav { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 2px; background: var(--white); border: 0.5px solid var(--border-neutral); border-radius: var(--radius-lg); padding: 8px; }
+.mp-nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: var(--radius-md); font-size: 13px; color: var(--ink-mid); cursor: pointer; transition: background 0.15s; }
+.mp-nav-item:hover { background: var(--surface2); }
+.mp-nav-item.active { background: var(--crimson-pale); color: var(--crimson); font-weight: 600; }
+.mp-nav-item i { font-size: 17px; flex-shrink: 0; }
+.mp-nav-item span:not(.nav-badge) { flex: 1; min-width: 0; }
+.mp-main { min-width: 0; }
+.mp-section { scroll-margin-top: 84px; margin-bottom: 2rem; }
+@media (max-width: 768px) {
+  .mp-layout { grid-template-columns: 1fr; gap: 12px; }
+  .mp-nav { top: 64px; z-index: 50; flex-direction: row; overflow-x: auto; border-radius: 0; margin: 0 -1.5rem; padding: 8px 1.5rem; border-width: 0 0 0.5px 0; }
+  .mp-nav-item { flex-shrink: 0; white-space: nowrap; }
+  .mp-section { scroll-margin-top: 124px; }
+}
+
+/* ===================== インボックス：対応が必要なもの ===================== */
+.action-box { background: var(--crimson-pale); border: 1px solid rgba(139,26,47,0.2); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 1.25rem; }
+.action-box.empty { background: var(--surface); border-color: var(--border-neutral); }
+.action-box-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--crimson); margin-bottom: 10px; }
+.action-box.empty .action-box-title { color: var(--muted); margin-bottom: 0; }
+.action-box-count { margin-left: auto; font-size: 12px; font-weight: 600; background: var(--white); border-radius: 10px; padding: 2px 10px; }
+.inbox-subtitle { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+.inbox-perf { font-size: 11px; color: var(--muted); }
+@keyframes inbox-new { from { background: #FFF4E5; } to { background: var(--white); } }
+.inbox-item.is-new { animation: inbox-new 2.4s ease; }
+
+/* ===================== これまでの公演 ===================== */
+.mp-perf-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.mp-perf-card { text-align: left; font-family: inherit; background: var(--white); border: 0.5px solid var(--border-neutral); border-radius: var(--radius-lg); padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; transition: border-color 0.2s, transform 0.2s; }
+.mp-perf-card:hover { border-color: var(--crimson-light); transform: translateY(-2px); }
+.mp-perf-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.mp-perf-date { font-size: 12px; color: var(--muted); }
+.mp-perf-mini { display: flex; gap: 12px; font-size: 12px; color: var(--ink-mid); border-top: 0.5px solid var(--border-neutral); padding-top: 8px; margin-top: 2px; }
+.mp-perf-mini strong { color: var(--ink); }
+
+/* ===================== 公演の折り込み実績（モーダル） ===================== */
+.ps-overlay { position: fixed; inset: 0; background: rgba(26,20,16,0.35); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+.ps-overlay.open { opacity: 1; pointer-events: auto; }
+.ps-modal { background: var(--white); border-radius: var(--radius-lg); width: 640px; max-width: 100%; max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 16px 48px rgba(26,20,16,0.24); transform: translateY(16px) scale(0.98); transition: transform 0.3s ease; }
+.ps-overlay.open .ps-modal { transform: none; }
+.ps-header { position: sticky; top: 0; background: var(--white); z-index: 1; display: flex; justify-content: space-between; gap: 12px; padding: 18px 20px 14px; border-bottom: 0.5px solid var(--border-neutral); }
+.ps-kicker { font-size: 11px; font-weight: 600; color: var(--crimson); letter-spacing: 0.06em; }
+.ps-title { font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.35; margin-top: 2px; }
+.ps-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.ps-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 22px; }
+.ps-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ps-tile { border: 0.5px solid var(--border-neutral); border-radius: var(--radius-md); padding: 12px 14px; background: var(--surface); }
+.ps-tile-label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.ps-tile-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.ps-tile-value { font-size: 26px; font-weight: 600; color: var(--ink); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.ps-tile-value small { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.ps-tile-sub { font-size: 11px; color: var(--muted); }
+.ps-block-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.ps-block-sub { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.ps-bar { display: flex; gap: 2px; height: 16px; border-radius: 4px; overflow: hidden; background: var(--surface2); }
+.ps-seg { height: 100%; width: 0; transition: width 0.9s cubic-bezier(.2,.8,.2,1); cursor: default; }
+.ps-seg:first-child { border-radius: 4px 0 0 4px; }
+.ps-seg:last-child { border-radius: 0 4px 4px 0; }
+.ps-seg:only-child { border-radius: 4px; }
+.ps-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 12px; color: var(--ink-mid); }
+.ps-legend-item { display: flex; align-items: center; gap: 6px; }
+.ps-legend-item strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.ps-compare { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; align-items: center; gap: 8px 10px; font-size: 12px; color: var(--ink-mid); }
+.ps-compare-track { height: 12px; border-radius: 0 4px 4px 0; position: relative; }
+.ps-compare-bar { height: 100%; width: 0; border-radius: 0 4px 4px 0; transition: width 0.9s cubic-bezier(.2,.8,.2,1); }
+.ps-compare-val { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; min-width: 56px; }
+.ps-compare-group { grid-column: 1 / -1; font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 6px; }
+.ps-compare-group:first-child { margin-top: 0; }
+.ps-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ps-table th { text-align: left; font-weight: 600; color: var(--muted); padding: 6px 8px; border-bottom: 0.5px solid var(--border-neutral); }
+.ps-table td { padding: 7px 8px; border-bottom: 0.5px solid var(--border-neutral); color: var(--ink); }
+.ps-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.ps-empty { font-size: 12px; color: var(--muted); padding: 10px 0; }
+.ps-note { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.ps-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+.ps-tooltip { position: fixed; z-index: 400; pointer-events: none; background: var(--ink); color: #fff; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); opacity: 0; transition: opacity 0.12s; white-space: nowrap; }
+.ps-tooltip.show { opacity: 1; }
+@media (max-width: 520px) { .ps-tiles { grid-template-columns: 1fr 1fr; } .ps-tile-value { font-size: 22px; } .ps-compare { grid-template-columns: 76px minmax(0, 1fr) auto; } }
+@media (prefers-reduced-motion: reduce) { .ps-seg, .ps-compare-bar, .ps-modal, .toast { transition: none; } .nav-badge.pop, .inbox-item.is-new { animation: none; } }
 </style>
 </head>
 <body>
@@ -681,13 +777,13 @@ gap: 4px;
 <i class="ti ti-users"></i>劇団一覧
 </button>
 <button class="nav-tab" onclick="showPage('mypage')" id="tab-mypage">
-<i class="ti ti-layout-dashboard"></i>マイページ
+<i class="ti ti-layout-dashboard"></i>マイページ<span class="nav-badge" id="badge-mypage" aria-label="対応が必要な依頼"></span>
 </button>
 <button class="nav-tab" onclick="showPage('register')" id="tab-register">
 <i class="ti ti-plus"></i>公演登録
 </button>
 <button class="nav-tab" onclick="showPage('chat')" id="tab-chat">
-<i class="ti ti-messages"></i>チャット
+<i class="ti ti-messages"></i>チャット<span class="nav-badge" id="badge-chat" aria-label="未読メッセージ"></span>
 </button>
 </div>
 
@@ -1113,8 +1209,67 @@ gap: 4px;
 <button class="btn-secondary" style="padding:6px 14px; font-size:12px; cursor: pointer;" onclick="handleLogout()"><i class="ti ti-logout"></i>ログアウト</button>
 </div>
 
-<!-- 劇団プロフィール編集フォーム -->
-<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
+<!-- 【追加】マイページ：左メニュー＋本文 -->
+<div class="mp-layout">
+<nav class="mp-nav" id="mp-nav" aria-label="マイページ内メニュー">
+  <a class="mp-nav-item" href="#mp-summary" data-target="mp-summary"><i class="ti ti-layout-dashboard"></i><span>サマリー</span></a>
+  <a class="mp-nav-item" href="#mp-inbox" data-target="mp-inbox"><i class="ti ti-inbox"></i><span>折り込みインボックス</span><span class="nav-badge" id="badge-mp-inbox"></span></a>
+  <a class="mp-nav-item" href="#mp-perfs" data-target="mp-perfs"><i class="ti ti-masks-theater"></i><span>これまでの公演</span></a>
+  <a class="mp-nav-item" href="#mp-line" data-target="mp-line"><i class="ti ti-brand-line"></i><span>LINE通知</span></a>
+  <a class="mp-nav-item" href="#mp-profile" data-target="mp-profile"><i class="ti ti-user-edit"></i><span>プロフィール</span></a>
+</nav>
+
+<div class="mp-main">
+
+<section class="mp-section" id="mp-summary">
+<div class="stat-grid">
+<div class="stat-card stat-card-red">
+<div class="stat-label">対応が必要な依頼</div>
+<div class="stat-value" id="stat-pending-count" style="color:var(--crimson)">0</div>
+</div>
+<div class="stat-card stat-card-neutral">
+<div class="stat-label">届いた依頼数</div>
+<div class="stat-value" id="stat-incoming-count">0</div>
+</div>
+<div class="stat-card stat-card-neutral">
+<div class="stat-label">送った依頼数</div>
+<div class="stat-value" id="stat-sent-count">0</div>
+</div>
+</div>
+</section>
+
+<section class="mp-section" id="mp-inbox">
+<div class="section-title"><i class="ti ti-inbox"></i>折り込み依頼インボックス</div>
+<div class="action-box" id="action-box">
+  <div class="action-box-title"><i class="ti ti-alert-circle"></i>対応が必要なもの<span class="action-box-count" id="action-box-count">0件</span></div>
+  <div class="inbox-list" id="dashboard-action-list" style="margin-bottom:0;"></div>
+</div>
+<div class="inbox-subtitle">すべての依頼（新しい順）</div>
+<div class="inbox-list" id="dashboard-inbox"></div>
+<h3 class="panel-section-title" style="margin-top:24px;">送信した折り込み依頼</h3>
+<div class="inbox-list" id="dashboard-sent"></div>
+</section>
+
+<section class="mp-section" id="mp-perfs">
+<div class="section-title"><i class="ti ti-masks-theater"></i>これまでの公演</div>
+<p style="font-size:13px; color:var(--muted); margin:-6px 0 12px;">公演をクリックすると、折り込みの実績が見られます。</p>
+<div class="mp-perf-list" id="mp-perf-list"></div>
+</section>
+
+<div class="form-card mp-section" id="mp-line" style="margin-bottom: 1.5rem; max-width: 100%;">
+  <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
+    <i class="ti ti-brand-line" style="color:#06C755;"></i> LINE通知の連携
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">折り込み依頼やメッセージが届いたとき、ビラネットワーク公式LINEからお知らせします。</p>
+  <div id="line-link-status" style="margin-bottom:12px;"></div>
+  <div id="line-link-code-box" style="display:none; background:var(--surface); border:0.5px solid var(--border-neutral); border-radius:var(--radius-md); padding:14px; margin-bottom:12px;"></div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="btn-primary" onclick="issueLineLinkCode()"><i class="ti ti-link"></i> 連携コードを発行する</button>
+    <button class="btn-secondary" onclick="refreshLineStatus()"><i class="ti ti-refresh"></i> 連携状況を更新</button>
+  </div>
+</div>
+
+<div class="form-card mp-section" id="mp-profile" style="margin-bottom: 1.5rem; max-width: 100%;">
 <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
 <i class="ti ti-edit"></i> 劇団プロフィールの編集
 </div>
@@ -1163,35 +1318,8 @@ gap: 4px;
 <button class="btn-primary" onclick="handleUpdateProfile()"><i class="ti ti-device-floppy"></i> プロフィールを保存する</button>
 </div>
 
-<!-- 【追加】LINE通知の連携 -->
-<div class="form-card" style="margin-bottom: 1.5rem; max-width: 100%;">
-  <div class="form-section-title" style="font-size: 15px; font-weight:600; color:var(--ink);">
-    <i class="ti ti-brand-line" style="color:#06C755;"></i> LINE通知の連携
-  </div>
-  <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">折り込み依頼やメッセージが届いたとき、ビラネットワーク公式LINEからお知らせします。</p>
-  <div id="line-link-status" style="margin-bottom:12px;"></div>
-  <div id="line-link-code-box" style="display:none; background:var(--surface); border:0.5px solid var(--border-neutral); border-radius:var(--radius-md); padding:14px; margin-bottom:12px;"></div>
-  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-    <button class="btn-primary" onclick="issueLineLinkCode()"><i class="ti ti-link"></i> 連携コードを発行する</button>
-    <button class="btn-secondary" onclick="refreshLineStatus()"><i class="ti ti-refresh"></i> 連携状況を更新</button>
-  </div>
-</div>
-
-<div class="stat-grid">
-<div class="stat-card stat-card-red">
-<div class="stat-label">届いた依頼数</div>
-<div class="stat-value" id="stat-incoming-count" style="color:var(--crimson)">0</div>
-</div>
-<div class="stat-card stat-card-neutral">
-<div class="stat-label">送った依頼数</div>
-<div class="stat-value" id="stat-sent-count">0</div>
 </div>
 </div>
-
-<div class="section-title"><i class="ti ti-inbox"></i>折り込み依頼インボックス</div>
-<div class="inbox-list" id="dashboard-inbox"></div>
-<h3 class="panel-section-title" style="margin-top:24px;">送信した折り込み依頼</h3>
-<div class="inbox-list" id="dashboard-sent"></div>
 </div>
 </div>
 
@@ -1256,6 +1384,22 @@ onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.pr
 </div>
 </div>
 </div>
+
+<!-- ===================== 【追加】公演の折り込み実績（モーダル） ===================== -->
+<div class="ps-overlay" id="ps-overlay" onclick="if(event.target===this) closePerfStats()">
+  <div class="ps-modal" role="dialog" aria-modal="true" aria-labelledby="ps-title">
+    <div class="ps-header">
+      <div style="min-width:0;">
+        <div class="ps-kicker">折り込み実績</div>
+        <div class="ps-title" id="ps-title">-</div>
+        <div class="ps-meta" id="ps-meta">-</div>
+      </div>
+      <button class="panel-close-btn" onclick="closePerfStats()" aria-label="閉じる"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="ps-body" id="ps-body"></div>
+  </div>
+</div>
+<div class="ps-tooltip" id="ps-tooltip" role="tooltip"></div>
 
 <!-- ===================== TROUPE SIDE PANEL ===================== -->
 <div class="panel-overlay" id="troupe-panel-overlay" onclick="closeTroupeModal()"></div>
@@ -1401,6 +1545,8 @@ let chatPollTimer = null; // 【修正】チャット新着確認用タイマー
 window.addEventListener('DOMContentLoaded', () => {
 initApp();
 initEmojiPicker();
+initMypageNav();        // 【追加】
+initPerfStatsTooltip(); // 【追加】
 });
 
 async function initApp() {
@@ -1430,6 +1576,8 @@ updateAuthUI();
   pendingDeepLink = readDeepLink();
   await applyDeepLink();
   // ★未読通知バッチの表示を更新
+  // 【追加】ログイン中なら、バッジ表示と新着の確認を始める
+  if (currentUser) startNotificationPolling();
 
   // ★初回アクセス時のチュートリアル表示判定
   checkAndOpenTutorial();
@@ -2213,22 +2361,46 @@ alert('送信に失敗しました: ' + (error.message || JSON.stringify(error))
 }
 }
 
-// 【追加】完了通知バナー（画面上部に3秒間表示）
-let toastTimer = null;
-function showToast(message, kind = 'success') {
-  let el = document.getElementById('app-toast');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'app-toast';
-    el.setAttribute('role', 'status');
-    document.body.appendChild(el);
+// 【追加】通知バナー（画面上部）。複数あれば縦に並ぶ
+//   kind: 'success'（完了）/ 'neutral'（お知らせ）/ 'alert'（届いた依頼・メッセージ）
+//   action: { label: 'ボタン名', onClick: 関数 } を渡すとボタン付きになる
+function showToast(message, kind = 'success', action = null) {
+  let stack = document.getElementById('toast-stack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'toast-stack';
+    stack.className = 'toast-stack';
+    stack.setAttribute('role', 'status');
+    stack.setAttribute('aria-live', 'polite');
+    document.body.appendChild(stack);
   }
-  const icon = kind === 'success' ? 'ti-circle-check' : 'ti-info-circle';
+  const icons = { success: 'ti-circle-check', neutral: 'ti-info-circle', alert: 'ti-bell-ringing' };
+  const el = document.createElement('div');
   el.className = `toast toast-${kind}`;
-  el.innerHTML = `<i class="ti ${icon}"></i><span>${escapeHtml(message)}</span>`;
+  el.innerHTML = `<i class="ti ${icons[kind] || icons.neutral}"></i><span>${escapeHtml(message)}</span>`;
+
+  const close = () => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  };
+  if (action) {
+    const btn = document.createElement('button');
+    btn.className = 'toast-action';
+    btn.textContent = action.label;
+    btn.onclick = () => { close(); action.onClick(); };
+    el.appendChild(btn);
+    const x = document.createElement('button');
+    x.className = 'toast-close';
+    x.setAttribute('aria-label', '閉じる');
+    x.innerHTML = '<i class="ti ti-x"></i>';
+    x.onclick = close;
+    el.appendChild(x);
+  }
+  // 古いものから消して、最大4件まで
+  while (stack.children.length >= 4) stack.firstChild.remove();
+  stack.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  setTimeout(close, action ? 7000 : 3000);
 }
 
 // 【追加】依頼送信ボタンの「送信中…」表示の切り替え
@@ -2381,23 +2553,74 @@ document.getElementById('dashboard-section').style.display = 'block';
 document.getElementById('welcome-message').textContent = `こんにちは、${currentUser.name} さん`;
 document.getElementById('account-status-info').textContent = `通知用メールアドレス: ${currentUser.email}`;
 
-const incoming = incomingRequests.filter(r => r.toTroupeId === currentUser.id);
+  // 【修正】新しい依頼が常に上に来るように並べる
+const incoming = incomingRequests.filter(r => r.toTroupeId === currentUser.id).sort(byNewestRequest);
 const sent = incomingRequests.filter(r => r.fromTroupeId === currentUser.id);
+  const pending = incoming.filter(r => r.status === 'pending');
 
+  document.getElementById('stat-pending-count').textContent = pending.length;
 document.getElementById('stat-incoming-count').textContent = incoming.length;
 document.getElementById('stat-sent-count').textContent = sent.length;
 
+  // 【追加】対応が必要なもの（保留中）を一番上に
+  const actionBox = document.getElementById('action-box');
+  const actionList = document.getElementById('dashboard-action-list');
+  actionList.innerHTML = '';
+  if (pending.length === 0) {
+    actionBox.classList.add('empty');
+    actionBox.querySelector('.action-box-title').innerHTML =
+      '<i class="ti ti-circle-check"></i>対応が必要な依頼はありません';
+  } else {
+    actionBox.classList.remove('empty');
+    actionBox.querySelector('.action-box-title').innerHTML =
+      `<i class="ti ti-alert-circle"></i>対応が必要なもの<span class="action-box-count" id="action-box-count">${pending.length}件</span>`;
+    pending.forEach(req => actionList.appendChild(buildInboxItem(req)));
+  }
+
+  // すべての依頼（新しい順）
 const inboxList = document.getElementById('dashboard-inbox');
 inboxList.innerHTML = '';
 if (incoming.length === 0) {
 inboxList.innerHTML = '<div class="empty-state"><i class="ti ti-inbox-off"></i>届いた折り込み依頼はありません</div>';
 } else {
-incoming.forEach(req => {
-const item = document.createElement('div');
-item.className = `inbox-item ${req.status === 'pending' ? 'unread' : ''}`;
-item.innerHTML = `
+    incoming.forEach(req => inboxList.appendChild(buildInboxItem(req)));
+}
+
+const sentList = document.getElementById('dashboard-sent');
+sentList.innerHTML = sent.length ? '' : '<div class="empty-state">送信した折り込み依頼はありません</div>';
+sent.forEach(req => {
+  const item = document.createElement('div');
+  item.className = 'inbox-item';
+  const recipient = troupesData.find(t => t.id === req.toTroupeId)?.name || '相手の劇団';
+  const performance = performancesData.find(p => p.id === req.perfId)?.title || '';
+  item.innerHTML = '<div class="inbox-body"><div class="inbox-from">' + escapeHtml(recipient) + ' / ' + escapeHtml(performance) + '</div><div class="inbox-preview">' + (req.status === 'declined' ? '辞退' : req.status === 'accepted' ? '承認済み' : '保留中') + '</div>' + renderDeclineReason(req) + '</div>';
+  sentList.appendChild(item);
+});
+
+  renderMyPerformances(); // 【追加】これまでの公演
+fillProfileForm();
+  renderLineLinkCard(); // 【追加】
+  updateBadges();       // 【追加】
+}
+
+// 【追加】依頼の並び順：IDに含まれる送信時刻（ミリ秒）で新しい順。古い形式のIDは日時で判断
+function requestTime(r) {
+  const n = parseInt(String(r.id || '').replace(/^req_/, ''), 10);
+  if (!isNaN(n) && n > 1e12) return n;
+  const t = new Date(String(r.timestamp || '').replace(/\//g, '-')).getTime();
+  return isNaN(t) ? 0 : t;
+}
+function byNewestRequest(a, b) { return requestTime(b) - requestTime(a); }
+
+// 【追加】依頼1件分の表示（インボックスと「対応が必要なもの」で共通）
+function buildInboxItem(req) {
+  const perf = performancesData.find(p => p.id === req.perfId);
+  const item = document.createElement('div');
+  item.className = `inbox-item ${req.status === 'pending' ? 'unread' : ''} ${recentlyArrivedRequestIds.has(req.id) ? 'is-new' : ''}`;
+  item.innerHTML = `
        <div class="inbox-body">
          <div class="inbox-from">${escapeHtml(req.fromName)}（${escapeHtml(req.fromEmail)}）</div>
+         ${perf ? `<div class="inbox-perf"><i class="ti ti-masks-theater"></i> 『${escapeHtml(perf.title)}』への依頼</div>` : ''}
          <div class="inbox-preview">${escapeHtml(req.notes || '備考なし')}</div>
          ${renderDeclineReason(req)}
          <div class="inbox-meta">
@@ -2412,22 +2635,7 @@ item.innerHTML = `
            <button class="inbox-btn inbox-btn-decline" onclick="handleRequestStatus('${req.id}', 'declined')">辞退</button>
          ` : ''}
        </div>`;
-inboxList.appendChild(item);
-});
-}
-
-const sentList = document.getElementById('dashboard-sent');
-sentList.innerHTML = sent.length ? '' : '<div class="empty-state">送信した折り込み依頼はありません</div>';
-sent.forEach(req => {
-  const item = document.createElement('div');
-  item.className = 'inbox-item';
-  const recipient = troupesData.find(t => t.id === req.toTroupeId)?.name || '相手の劇団';
-  const performance = performancesData.find(p => p.id === req.perfId)?.title || '';
-  item.innerHTML = '<div class="inbox-body"><div class="inbox-from">' + escapeHtml(recipient) + ' / ' + escapeHtml(performance) + '</div><div class="inbox-preview">' + (req.status === 'declined' ? '辞退' : req.status === 'accepted' ? '承認済み' : '保留中') + '</div>' + renderDeclineReason(req) + '</div>';
-  sentList.appendChild(item);
-});
-fillProfileForm();
-  renderLineLinkCard(); // 【追加】
+  return item;
 }
 
 // 1. 新規アカウント作成
@@ -2507,6 +2715,7 @@ updateAuthUI();
 renderMyPage();
 alert(`ログインしました: ${currentUser.name} さん`);
     await applyDeepLink(); // 【追加】LINE通知から来ていた場合は続きの画面を開く
+    startNotificationPolling(); // 【追加】バッジ表示と新着の確認を開始
 } catch (err) {
 alert('ログイン処理でエラーが発生しました。');
 }
@@ -2525,6 +2734,7 @@ currentUser = null;
   document.getElementById('chat-login-prompt').style.display = 'block';
   document.getElementById('chat-view').style.display = 'none';
   document.getElementById('chat-empty-state').style.display = 'flex';
+  stopNotificationPolling(); // 【追加】バッジを消して新着確認を止める
 localStorage.removeItem('currentUser');
 updateAuthUI();
 renderMyPage();
@@ -2638,6 +2848,485 @@ async function handleRequestStatus(reqId, newStatus, reason) {
   } catch (error) { console.error('依頼は保存済みですが画面更新に失敗しました:', error); }
 }
 
+// ===================== 【追加】サイト内通知（バナー・バッジ） =====================
+// ログイン中は20秒ごとに新着を確認し、届いた依頼・メッセージをバナーで知らせる
+const GLOBAL_POLL_INTERVAL = 20000;
+let globalPollTimer = null;
+let knownRequestIds = null;   // 把握済みの依頼ID（これ以外が「新着」）
+let knownMessageIds = null;   // 把握済みのメッセージID
+const recentlyArrivedRequestIds = new Set(); // インボックスで一瞬ハイライトする依頼
+
+function myPendingRequests() {
+  return currentUser ? incomingRequests.filter(r => r.toTroupeId === currentUser.id && r.status === 'pending') : [];
+}
+function myUnreadMessages() {
+  return currentUser ? messagesData.filter(m => m.toTroupeId === currentUser.id && !m.read) : [];
+}
+
+function setBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = count > 99 ? '99+' : String(count);
+  const changed = el.textContent !== text;
+  el.textContent = count > 0 ? text : '';
+  el.classList.toggle('show', count > 0);
+  if (count > 0 && changed) {
+    el.classList.remove('pop');
+    void el.offsetWidth; // アニメーションをやり直す
+    el.classList.add('pop');
+  }
+}
+
+function updateBadges() {
+  const pending = myPendingRequests().length;
+  const unread = myUnreadMessages().length;
+  setBadge('badge-mypage', pending);
+  setBadge('badge-mp-inbox', pending);
+  setBadge('badge-chat', unread);
+}
+
+function troupeLabel(troupeId, fallback, withAffiliation) {
+  const t = troupesData.find(x => x.id === troupeId);
+  if (!t) return fallback || 'ほかの劇団';
+  return withAffiliation && t.affiliation ? `${t.affiliation}・${t.name}` : t.name;
+}
+
+function gotoInbox() {
+  showPage('mypage');
+  setTimeout(() => scrollToMypageSection('mp-inbox'), 60);
+}
+function gotoChat(partnerId) {
+  showPage('chat');
+  if (partnerId) setTimeout(() => selectChatPartner(partnerId), 60);
+}
+
+function checkNotifications() {
+  if (!currentUser) return;
+  const myReqs = incomingRequests.filter(r => r.toTroupeId === currentUser.id);
+  const myMsgs = messagesData.filter(m => m.toTroupeId === currentUser.id);
+
+  // ログイン直後・ページを開いた直後は、件数のまとめだけ知らせる
+  if (knownRequestIds === null) {
+    knownRequestIds = new Set(myReqs.map(r => r.id));
+    knownMessageIds = new Set(myMsgs.map(m => m.id));
+    const pending = myPendingRequests().length;
+    const unread = myUnreadMessages();
+    if (pending > 0) {
+      showToast(`対応が必要な折り込み依頼が${pending}件あります`, 'alert', { label: '確認する', onClick: gotoInbox });
+    }
+    if (unread.length > 0) {
+      const senders = [...new Set(unread.map(m => m.fromTroupeId))];
+      showToast(`未読メッセージが${unread.length}件あります`, 'alert',
+        { label: '開く', onClick: () => gotoChat(senders.length === 1 ? senders[0] : null) });
+    }
+    updateBadges();
+    return;
+  }
+
+  // 新しく届いた依頼
+  const newReqs = myReqs.filter(r => !knownRequestIds.has(r.id)).sort(byNewestRequest);
+  newReqs.forEach(r => { knownRequestIds.add(r.id); recentlyArrivedRequestIds.add(r.id); });
+  newReqs.slice(0, 3).forEach(r => {
+    showToast(`${troupeLabel(r.fromTroupeId, r.fromName, true)}から折り込み依頼が届きました！`, 'alert',
+      { label: '確認する', onClick: gotoInbox });
+  });
+  if (newReqs.length > 3) {
+    showToast(`ほかにも${newReqs.length - 3}件の折り込み依頼が届いています`, 'alert', { label: '確認する', onClick: gotoInbox });
+  }
+  if (newReqs.length) setTimeout(() => newReqs.forEach(r => recentlyArrivedRequestIds.delete(r.id)), 5000);
+
+  // 新しく届いたメッセージ（相手ごとに1回。今まさに開いている会話は知らせない）
+  const newMsgs = myMsgs.filter(m => !knownMessageIds.has(m.id));
+  newMsgs.forEach(m => knownMessageIds.add(m.id));
+  const chatOpen = document.getElementById('page-chat').classList.contains('active');
+  const viewingPartner = chatOpen ? activeChatPartnerId : null;
+  const senders = [...new Set(newMsgs.filter(m => !m.read && m.fromTroupeId !== viewingPartner).map(m => m.fromTroupeId))];
+  senders.forEach(fid => {
+    showToast(`${troupeLabel(fid)}からメッセージが届きました！`, 'alert', { label: 'メッセージを見る', onClick: () => gotoChat(fid) });
+  });
+
+  updateBadges();
+  if (newReqs.length && document.getElementById('page-mypage').classList.contains('active')) renderMyPage();
+  if (newMsgs.length && chatOpen) renderChatConversations();
+}
+
+async function pollNotifications() {
+  if (!currentUser || document.hidden) return;
+  const session = messageSession;
+  const userId = currentUser.id;
+  await Promise.all([refreshRequests(), refreshMessages()]);
+  if (session !== messageSession || currentUser?.id !== userId) return;
+  checkNotifications();
+}
+
+function startNotificationPolling() {
+  stopNotificationPolling();
+  pollNotifications();
+  globalPollTimer = setInterval(pollNotifications, GLOBAL_POLL_INTERVAL);
+}
+
+function stopNotificationPolling() {
+  clearInterval(globalPollTimer);
+  globalPollTimer = null;
+  knownRequestIds = null;
+  knownMessageIds = null;
+  recentlyArrivedRequestIds.clear();
+  updateBadges();
+}
+
+// 別のタブから戻ってきたら、すぐに新着を確認する
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && currentUser && globalPollTimer) pollNotifications();
+});
+
+// ===================== 【追加】マイページの左メニュー =====================
+function setActiveMpNav(id) {
+  document.querySelectorAll('.mp-nav-item').forEach(a => {
+    const on = a.dataset.target === id;
+    a.classList.toggle('active', on);
+    if (on) {
+      // スマホ（横並びメニュー）のときは、選ばれた項目が見えるよう横にずらす
+      const nav = a.parentElement;
+      if (nav.scrollWidth > nav.clientWidth) {
+        nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' });
+      }
+    }
+  });
+}
+
+let mpNavLockUntil = 0;
+function scrollToMypageSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  mpNavLockUntil = Date.now() + 800; // スクロール中にハイライトが揺れないように
+  setActiveMpNav(id);
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initMypageNav() {
+  document.querySelectorAll('.mp-nav-item').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      scrollToMypageSection(a.dataset.target);
+    });
+  });
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking || Date.now() < mpNavLockUntil) return;
+    if (!document.getElementById('page-mypage').classList.contains('active')) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      const sections = [...document.querySelectorAll('#dashboard-section .mp-section')];
+      if (!sections.length) return;
+      let current = sections[0].id;
+      sections.forEach(s => { if (s.getBoundingClientRect().top <= 150) current = s.id; });
+      // 一番下までスクロールしたら最後の項目
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) current = sections[sections.length - 1].id;
+      setActiveMpNav(current);
+    });
+  }, { passive: true });
+  setActiveMpNav('mp-summary');
+}
+
+// ===================== 【追加】これまでの公演と折り込み実績 =====================
+const PS_COLORS = {
+  incoming: '#A62E46', // 届いた依頼
+  outgoing: '#2F62A8', // 送った依頼
+  accepted: '#2E8B62', // 承認
+  pending:  '#D49524', // 保留中
+  declined: '#7A7068'  // 辞退
+};
+const PS_STATUS = {
+  accepted: { label: '承認', icon: 'ti-circle-check' },
+  pending:  { label: '保留中', icon: 'ti-clock' },
+  declined: { label: '辞退', icon: 'ti-circle-x' }
+};
+
+function todayStr() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+}
+function perfPhase(p) {
+  const t = todayStr();
+  if (t > p.end) return { text: '公演終了', style: 'background:var(--surface2); color:var(--muted);' };
+  if (t >= p.start) return { text: '公演中', cls: 'status-open' };
+  return { text: '公演予定', cls: 'status-soon' };
+}
+function dayAfterMs(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + 1);
+  return d.getTime();
+}
+function fmtDay(ms) {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// 1公演分の集計
+//   届いた依頼：この公演あての依頼
+//   送った依頼：この公演の宣伝期間（前回の自分の公演の翌日〜この公演の最終日）に自分が送った依頼
+function computePerfStats(perf) {
+  const copiesOf = arr => arr.reduce((s, r) => s + (parseInt(r.copies) || 0), 0);
+  const summarize = list => {
+    const acc = list.filter(r => r.status === 'accepted');
+    const pen = list.filter(r => r.status === 'pending');
+    const dec = list.filter(r => r.status === 'declined');
+    return {
+      list: [...list].sort(byNewestRequest),
+      count: list.length,
+      accepted: acc.length, pending: pen.length, declined: dec.length,
+      acceptedCopies: copiesOf(acc), pendingCopies: copiesOf(pen)
+    };
+  };
+
+  const mine = performancesData.filter(p => p.troupeId === perf.troupeId)
+    .sort((a, b) => String(a.end).localeCompare(String(b.end)));
+  const idx = mine.findIndex(p => p.id === perf.id);
+  const prev = idx > 0 ? mine[idx - 1] : null;
+  const fromMs = prev ? dayAfterMs(prev.end) : 0;
+  const untilMs = dayAfterMs(perf.end);
+
+  const outgoing = incomingRequests.filter(r => {
+    if (r.fromTroupeId !== perf.troupeId || r.perfId === perf.id) return false;
+    const t = requestTime(r);
+    return t >= fromMs && t < untilMs;
+  });
+
+  return {
+    in: summarize(incomingRequests.filter(r => r.perfId === perf.id)),
+    out: summarize(outgoing),
+    quota: parseInt(perf.totalQuota) || 1000,
+    period: prev ? `${fmtDay(fromMs)} 〜 ${perf.end}` : `${perf.end} まで`
+  };
+}
+
+function renderMyPerformances() {
+  const wrap = document.getElementById('mp-perf-list');
+  if (!wrap || !currentUser) return;
+  const mine = performancesData.filter(p => p.troupeId === currentUser.id)
+    .sort((a, b) => String(b.start).localeCompare(String(a.start)));
+
+  if (mine.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <i class="ti ti-masks-theater"></i>まだ公演が登録されていません
+        <div><button class="btn-secondary" style="margin-top:12px;" onclick="showPage('register')">公演を登録する</button></div>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = '';
+  mine.forEach(p => {
+    const s = computePerfStats(p);
+    const ph = perfPhase(p);
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'mp-perf-card';
+    card.onclick = () => openPerfStats(p.id);
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; gap:8px; align-items:flex-start;">
+        <div class="mp-perf-title">${escapeHtml(p.title)}</div>
+        <span class="status-badge ${ph.cls || ''}" style="margin:0; ${ph.style || ''}">${ph.text}</span>
+      </div>
+      <div class="mp-perf-date"><i class="ti ti-calendar"></i> ${escapeHtml(p.start)} 〜 ${escapeHtml(p.end)}</div>
+      <div class="mp-perf-mini">
+        <span>届いた依頼 <strong>${s.in.count}</strong>件</span>
+        <span>送った依頼 <strong>${s.out.count}</strong>件</span>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+// 横棒（積み上げ）。segs: [{ value, color, tip }]、total: 全体の幅に当たる値
+function psStackedBar(segs, total) {
+  const parts = segs.filter(s => s.value > 0).map(s =>
+    `<div class="ps-seg" data-w="${Math.max(0.8, (s.value / total) * 100)}" style="background:${s.color}" data-tip="${escapeHtml(s.tip)}"></div>`
+  ).join('');
+  return `<div class="ps-bar" role="img" aria-label="${escapeHtml(segs.map(s => s.tip).join('、'))}">${parts}</div>`;
+}
+
+function psLegend(items) {
+  return `<div class="ps-legend">${items.map(i => `
+    <span class="ps-legend-item"><span class="ps-tile-dot" style="background:${i.color}"></span>${escapeHtml(i.label)} <strong>${escapeHtml(i.value)}</strong></span>`).join('')}</div>`;
+}
+
+function psStatusCell(status) {
+  const s = PS_STATUS[status] || PS_STATUS.pending;
+  return `<span class="ps-status" style="color:${PS_COLORS[status] || PS_COLORS.pending}"><i class="ti ${s.icon}"></i><span style="color:var(--ink)">${s.label}</span></span>`;
+}
+
+function psTile(label, color, value, unit, sub) {
+  return `
+    <div class="ps-tile">
+      <div class="ps-tile-label"><span class="ps-tile-dot" style="background:${color}"></span>${label}</div>
+      <div class="ps-tile-value"><span class="ps-count" data-to="${value}">0</span><small>${unit}</small></div>
+      <div class="ps-tile-sub">${sub}</div>
+    </div>`;
+}
+
+function openPerfStats(perfId) {
+  const perf = performancesData.find(p => p.id === perfId);
+  if (!perf) return;
+  const s = computePerfStats(perf);
+  const n = v => Number(v).toLocaleString();
+
+  document.getElementById('ps-title').textContent = perf.title;
+  document.getElementById('ps-meta').textContent = `${perf.start} 〜 ${perf.end}　${perf.venue || ''}`;
+
+  // ① 数字のまとめ
+  const tiles = `
+    <div class="ps-tiles">
+      ${psTile('届いた依頼', PS_COLORS.incoming, s.in.count, '件', `承認 ${s.in.accepted}・保留 ${s.in.pending}・辞退 ${s.in.declined}`)}
+      ${psTile('受け入れたビラ', PS_COLORS.incoming, s.in.acceptedCopies, '部', `承認済みの部数（保留中 ${n(s.in.pendingCopies)}部）`)}
+      ${psTile('送った依頼', PS_COLORS.outgoing, s.out.count, '件', `承認 ${s.out.accepted}・保留 ${s.out.pending}・辞退 ${s.out.declined}`)}
+      ${psTile('折り込まれた自分のビラ', PS_COLORS.outgoing, s.out.acceptedCopies, '部', `承認済みの部数（保留中 ${n(s.out.pendingCopies)}部）`)}
+    </div>`;
+
+  // ② 届いた依頼の内訳
+  const breakdown = s.in.count === 0
+    ? '<div class="ps-empty">この公演への折り込み依頼はまだありません。</div>'
+    : psStackedBar([
+        { value: s.in.accepted, color: PS_COLORS.accepted, tip: `承認 ${s.in.accepted}件` },
+        { value: s.in.pending, color: PS_COLORS.pending, tip: `保留中 ${s.in.pending}件` },
+        { value: s.in.declined, color: PS_COLORS.declined, tip: `辞退 ${s.in.declined}件` }
+      ], s.in.count) + psLegend([
+        { label: '承認', value: `${s.in.accepted}件`, color: PS_COLORS.accepted },
+        { label: '保留中', value: `${s.in.pending}件`, color: PS_COLORS.pending },
+        { label: '辞退', value: `${s.in.declined}件`, color: PS_COLORS.declined }
+      ]);
+
+  // ③ 受け入れ枠の使用状況
+  const free = Math.max(0, s.quota - s.in.acceptedCopies - s.in.pendingCopies);
+  const usedTotal = Math.max(s.quota, s.in.acceptedCopies + s.in.pendingCopies);
+  const quotaBar = psStackedBar([
+      { value: s.in.acceptedCopies, color: PS_COLORS.accepted, tip: `承認済み ${n(s.in.acceptedCopies)}部` },
+      { value: s.in.pendingCopies, color: PS_COLORS.pending, tip: `保留中 ${n(s.in.pendingCopies)}部` }
+    ], usedTotal) + psLegend([
+      { label: '承認済み', value: `${n(s.in.acceptedCopies)}部`, color: PS_COLORS.accepted },
+      { label: '保留中', value: `${n(s.in.pendingCopies)}部`, color: PS_COLORS.pending },
+      { label: '空き', value: `${n(free)}部`, color: 'var(--surface2)' }
+    ]);
+
+  // ④ 届いた依頼と送った依頼の比較（指標ごとに目盛りを分ける）
+  const cmpRows = (title, a, b, unit) => {
+    const max = Math.max(a, b, 1);
+    const row = (label, v, color) => `
+      <div>${label}</div>
+      <div class="ps-compare-track"><div class="ps-compare-bar" data-w="${(v / max) * 100}" style="background:${color}" data-tip="${label} ${n(v)}${unit}"></div></div>
+      <div class="ps-compare-val">${n(v)}${unit}</div>`;
+    return `<div class="ps-compare-group">${title}</div>` +
+      row('届いた依頼', a, PS_COLORS.incoming) + row('送った依頼', b, PS_COLORS.outgoing);
+  };
+  const compare = `
+    ${psLegend([
+      { label: '届いた依頼', value: '', color: PS_COLORS.incoming },
+      { label: '送った依頼', value: '', color: PS_COLORS.outgoing }
+    ])}
+    <div class="ps-compare" style="margin-top:10px;">
+      ${cmpRows('依頼の件数', s.in.count, s.out.count, '件')}
+      ${cmpRows('折り込みが決まった部数（承認済み）', s.in.acceptedCopies, s.out.acceptedCopies, '部')}
+    </div>`;
+
+  // ⑤ 一覧（表）
+  const inTable = s.in.count === 0 ? '<div class="ps-empty">ありません</div>' : `
+    <table class="ps-table">
+      <thead><tr><th>依頼した団体</th><th style="text-align:right;">部数</th><th>状態</th></tr></thead>
+      <tbody>${s.in.list.map(r => `
+        <tr><td>${escapeHtml(troupeLabel(r.fromTroupeId, r.fromName, false))}</td><td class="num">${n(r.copies)}部</td><td>${psStatusCell(r.status)}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  const outTable = s.out.count === 0 ? '<div class="ps-empty">ありません</div>' : `
+    <table class="ps-table">
+      <thead><tr><th>送り先の公演</th><th style="text-align:right;">部数</th><th>状態</th></tr></thead>
+      <tbody>${s.out.list.map(r => {
+        const target = performancesData.find(p => p.id === r.perfId);
+        const label = `${troupeLabel(r.toTroupeId, '', false)}${target ? '『' + target.title + '』' : ''}`;
+        return `<tr><td>${escapeHtml(label)}</td><td class="num">${n(r.copies)}部</td><td>${psStatusCell(r.status)}</td></tr>`;
+      }).join('')}
+      </tbody>
+    </table>`;
+
+  document.getElementById('ps-body').innerHTML = `
+    ${tiles}
+    <div>
+      <div class="ps-block-title">届いた依頼の内訳</div>
+      <div class="ps-block-sub">この公演に届いた ${s.in.count}件 の依頼の状態</div>
+      ${breakdown}
+    </div>
+    <div>
+      <div class="ps-block-title">受け入れ枠の使用状況</div>
+      <div class="ps-block-sub">受け入れ総部数 ${n(s.quota)}部 のうち</div>
+      ${quotaBar}
+    </div>
+    <div>
+      <div class="ps-block-title">届いた依頼と送った依頼</div>
+      <div class="ps-block-sub">送った依頼は、宣伝期間（${escapeHtml(s.period)}）に自分たちが送ったものです</div>
+      ${compare}
+    </div>
+    <div>
+      <div class="ps-block-title">届いた依頼の一覧</div>
+      ${inTable}
+    </div>
+    <div>
+      <div class="ps-block-title">送った依頼の一覧</div>
+      ${outTable}
+    </div>
+    <div class="ps-note">※「送った依頼」は、前回の公演の翌日からこの公演の最終日までに送った折り込み依頼を、この公演の宣伝として数えています。</div>`;
+
+  document.getElementById('ps-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  animatePerfStats();
+}
+
+function animatePerfStats() {
+  const body = document.getElementById('ps-body');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 棒グラフを0から伸ばす
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    body.querySelectorAll('[data-w]').forEach(el => { el.style.width = el.dataset.w + '%'; });
+  }));
+
+  // 数字をカウントアップ
+  body.querySelectorAll('.ps-count').forEach(el => {
+    const to = parseInt(el.dataset.to) || 0;
+    if (reduce || to === 0) { el.textContent = to.toLocaleString(); return; }
+    const start = performance.now();
+    const dur = 900;
+    const step = now => {
+      const t = Math.min(1, (now - start) / dur);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - t, 3))).toLocaleString();
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+function closePerfStats() {
+  document.getElementById('ps-overlay').classList.remove('open');
+  document.getElementById('ps-tooltip').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// グラフにマウスを乗せたときの吹き出し
+function initPerfStatsTooltip() {
+  const body = document.getElementById('ps-body');
+  const tip = document.getElementById('ps-tooltip');
+  body.addEventListener('mousemove', e => {
+    const target = e.target.closest('[data-tip]');
+    if (!target) { tip.classList.remove('show'); return; }
+    tip.textContent = target.dataset.tip;
+    tip.style.left = Math.min(e.clientX + 12, window.innerWidth - tip.offsetWidth - 8) + 'px';
+    tip.style.top = (e.clientY - 34) + 'px';
+    tip.classList.add('show');
+  });
+  body.addEventListener('mouseleave', () => tip.classList.remove('show'));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('ps-overlay').classList.contains('open')) closePerfStats();
+  });
+}
+
 // ===================== チャット機能 =====================
 // 【修正】チャット画面を開いている間、DBから新着を定期取得する
 function startChatPolling() {
@@ -2649,6 +3338,7 @@ function startChatPolling() {
     if (activeChatPartnerId) await markConversationRead(activeChatPartnerId);
     renderChatConversations();
     if (activeChatPartnerId) renderChatMessages();
+    checkNotifications(); // 【追加】ほかの劇団からの新着はバナーで知らせ、バッジも更新
   }, CHAT_POLL_INTERVAL);
 }
 
@@ -2675,6 +3365,7 @@ async function markConversationRead(partnerId) {
   messageRevision++;
   const readIds = new Set(unread.map(m => m.id));
   messagesData.forEach(m => { if (readIds.has(m.id)) m.read = true; });
+  updateBadges();
 }
 
 async function initChat() {
@@ -3095,7 +3786,7 @@ const GUIDE_TOURS = {
       },
       {
         page: 'mypage',
-        selector: '#dashboard-section .form-card:first-of-type',
+        selector: '#mp-profile',
         fallbackSelector: '#auth-section',
         title: '劇団プロフィールの編集',
         desc: 'ログイン後、プロフィール編集欄から劇団アイコン画像・所属大学・SNSリンク・紹介文を登録できます。'
@@ -3108,7 +3799,7 @@ const GUIDE_TOURS = {
       },
       {
         page: 'mypage',
-        selector: '#line-link-status',
+        selector: '#mp-line',
         fallbackSelector: '#tab-mypage',
         title: 'LINE通知の連携',
         desc: 'マイページの「LINE通知の連携」から連携コードを発行して公式LINEに送信すると、依頼や新着メッセージの通知を受け取れます。'
@@ -3143,10 +3834,10 @@ const GUIDE_TOURS = {
     steps: [
       {
         page: 'mypage',
-        selector: '#dashboard-inbox',
+        selector: '#action-box',
         fallbackSelector: '#tab-mypage',
         title: '届いた依頼を確認・承認する',
-        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」に表示されます。内容を確認して「承認」を押すと受け入れが確定します。'
+        desc: '他劇団から申請が届くと、マイページの「折り込み依頼インボックス」の一番上「対応が必要なもの」に表示されます。内容を確認して「承認」を押すと受け入れが確定します。'
       },
       {
         page: 'chat',
@@ -3156,7 +3847,7 @@ const GUIDE_TOURS = {
       },
       {
         page: 'mypage',
-        selector: '#dashboard-inbox',
+        selector: '#action-box',
         fallbackSelector: '#tab-mypage',
         title: '依頼を辞退する場合',
         desc: '受け入れ上限に達した場合や条件が合わない場合は、インボックス内の「辞退」ボタンから断ることができます（辞退分は残り枠に戻ります）。'
@@ -3219,6 +3910,8 @@ function startGuideTour(tourKey, startIndex = 0) {
 
 function endGuideTour() {
   activeTourKey = null;
+  tourTargetEl = null;
+  tourRenderToken++;
   document.getElementById('tour-highlight-ring').classList.remove('active');
   document.getElementById('tour-popover').classList.remove('active');
 }
@@ -3254,7 +3947,12 @@ function renderGuideTourStep() {
   prevBtn.style.visibility = activeTourStepIndex === 0 ? 'hidden' : 'visible';
   nextBtn.textContent = activeTourStepIndex === tour.steps.length - 1 ? '閉じる' : '次へ';
 
+  // 【修正】枠のズレ対策
+  //   以前はスクロールを始めて0.2秒後に位置を測っていたため、スクロールの途中の位置で枠が固定されていた。
+  //   → スクロールが止まるのを待ってから測り、その後もスクロール・画面サイズ変更・中身の変化に追従させる。
+  const myToken = ++tourRenderToken;
   setTimeout(() => {
+    if (myToken !== tourRenderToken) return; // 次のステップに進んでいたら何もしない
     let targetEl = document.querySelector(step.selector);
     if (!targetEl || targetEl.offsetParent === null) {
       if (step.fallbackSelector) {
@@ -3266,30 +3964,18 @@ function renderGuideTourStep() {
     const popover = document.getElementById('tour-popover');
 
     if (targetEl && targetEl.offsetParent !== null) {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => {
-        const rect = targetEl.getBoundingClientRect();
-        const pad = 4;
-        ring.style.top = `${rect.top - pad}px`;
-        ring.style.left = `${rect.left - pad}px`;
-        ring.style.width = `${rect.width + pad * 2}px`;
-        ring.style.height = `${rect.height + pad * 2}px`;
+      tourTargetEl = targetEl;
+      tourUserScrolled = false;
+      scrollTourTargetIntoView(targetEl);
+      waitForScrollSettle(() => {
+        if (myToken !== tourRenderToken) return;
+        positionTourOverlay();
         ring.classList.add('active');
-
-        const popHeight = 190;
-        const popWidth = 330;
-        let topPos = rect.bottom + 12;
-        if (topPos + popHeight > window.innerHeight) {
-          topPos = Math.max(16, rect.top - popHeight - 12);
-        }
-        let leftPos = Math.min(Math.max(12, rect.left), window.innerWidth - popWidth - 12);
-
-        popover.style.top = `${topPos}px`;
-        popover.style.left = `${leftPos}px`;
-        popover.style.transform = 'none';
         popover.classList.add('active');
-      }, 200);
+        startTourTracking(step, myToken);
+      });
     } else {
+      tourTargetEl = null;
       ring.classList.remove('active');
       popover.style.top = '50%';
       popover.style.left = '50%';
@@ -3299,8 +3985,134 @@ function renderGuideTourStep() {
   }, 50);
 }
 
-window.addEventListener('resize', () => {
-  if (activeTourKey) renderGuideTourStep();
+// 【追加】ガイドの枠を正しい位置に合わせるための補助
+let tourRenderToken = 0;
+let tourTargetEl = null;
+
+// 画面上部に固定されているもの（ヘッダー、スマホのマイページメニュー）の下端
+function tourTopInset() {
+  let inset = 0;
+  document.querySelectorAll('.nav, .mp-nav').forEach(el => {
+    if (el.offsetParent === null) return;
+    const cs = getComputedStyle(el);
+    if (cs.position !== 'sticky' && cs.position !== 'fixed') return;
+    const r = el.getBoundingClientRect();
+    if (r.top <= 1 + inset && r.width >= window.innerWidth * 0.6) inset = Math.max(inset, r.bottom);
+  });
+  return inset || 64;
+}
+
+function scrollTourTargetIntoView(el) {
+  const rect = el.getBoundingClientRect();
+  const top = tourTopInset();
+  const avail = window.innerHeight - top;
+  let y;
+  if (rect.height + 220 <= avail) {
+    // 枠と説明が両方入るなら、見える範囲の中央に
+    y = window.scrollY + rect.top - top - (avail - rect.height) / 2;
+  } else {
+    // 大きい要素は、上端をヘッダーのすぐ下に
+    y = window.scrollY + rect.top - top - 16;
+  }
+  const maxY = document.documentElement.scrollHeight - window.innerHeight;
+  window.scrollTo({ top: Math.max(0, Math.min(y, maxY)), behavior: 'smooth' });
+}
+
+// スクロールが止まるまで待つ（数フレーム位置が変わらなければ止まったとみなす。最大1.5秒）
+function waitForScrollSettle(cb) {
+  const start = performance.now();
+  let lastY = window.scrollY, still = 0;
+  const tick = () => {
+    const y = window.scrollY;
+    still = Math.abs(y - lastY) < 0.5 ? still + 1 : 0;
+    lastY = y;
+    if (still >= 4 || performance.now() - start > 1500) cb();
+    else requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// 今の位置に合わせて枠と説明を置く
+function positionTourOverlay() {
+  const el = tourTargetEl;
+  const ring = document.getElementById('tour-highlight-ring');
+  const popover = document.getElementById('tour-popover');
+  if (!el || !activeTourKey || el.offsetParent === null) return;
+
+  const rect = el.getBoundingClientRect();
+  const pad = 4;
+  const topLimit = tourTopInset();
+  // 画面からはみ出す大きい要素は、見えている部分だけを囲む
+  const top = Math.max(rect.top - pad, topLimit + 2);
+  const bottom = Math.min(rect.bottom + pad, window.innerHeight - 2);
+  ring.style.top = `${top}px`;
+  ring.style.left = `${rect.left - pad}px`;
+  ring.style.width = `${rect.width + pad * 2}px`;
+  ring.style.height = `${Math.max(0, bottom - top)}px`;
+
+  // 説明の吹き出し：実際の大きさを測って、下→上→画面下部の順に入る場所へ
+  popover.style.transform = 'none';
+  const popH = popover.offsetHeight || 190;
+  const popW = popover.offsetWidth || 330;
+  let popTop;
+  if (bottom + 12 + popH <= window.innerHeight - 8) popTop = bottom + 12;
+  else if (top - 12 - popH >= topLimit + 8) popTop = top - 12 - popH;
+  else popTop = window.innerHeight - popH - 16;
+  const popLeft = Math.min(Math.max(12, rect.left), window.innerWidth - popW - 12);
+  popover.style.top = `${popTop}px`;
+  popover.style.left = `${popLeft}px`;
+}
+
+// 【修正】表示中は毎フレーム、案内先の位置を確かめて枠を合わせる。
+//   データの読み込みやアイコン・フォントの読み込みで、スクロールしなくても中身がずれることがあるため。
+//   （以前はスクロールと画面サイズ変更のときしか合わせ直していなかった）
+let tourUserScrolled = false;  // 利用者が自分でスクロールしたら、自動で戻さない
+let tourAutoScrollUntil = 0;
+let tourLastRectKey = '';
+
+function resolveTourTarget(step) {
+  let el = document.querySelector(step.selector);
+  if ((!el || el.offsetParent === null) && step.fallbackSelector) el = document.querySelector(step.fallbackSelector);
+  return el && el.offsetParent !== null ? el : null;
+}
+
+function startTourTracking(step, token) {
+  const startedAt = performance.now();
+  tourLastRectKey = '';
+  const ring = document.getElementById('tour-highlight-ring');
+  const loop = () => {
+    if (!activeTourKey || token !== tourRenderToken) return;
+    const el = resolveTourTarget(step); // 再描画で要素が作り直されても追いかける
+    if (!el) { ring.classList.remove('active'); requestAnimationFrame(loop); return; }
+    tourTargetEl = el;
+    ring.classList.add('active');
+
+    const r = el.getBoundingClientRect();
+    const key = [r.top, r.left, r.width, r.height, window.innerWidth, window.innerHeight].map(Math.round).join(',');
+    if (key !== tourLastRectKey) {
+      tourLastRectKey = key;
+      ring.style.transition = 'none';
+      positionTourOverlay();
+    }
+
+    // 読み込み後に中身がずれて案内先が見えなくなったら、もう一度スクロールして見せる
+    // （開いてから6秒以内で、利用者が自分でスクロールしていないときだけ）
+    const now = performance.now();
+    const top = tourTopInset();
+    const visibleH = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, top);
+    const needed = Math.min(r.height, window.innerHeight - top) * 0.5;
+    if (!tourUserScrolled && now - startedAt < 6000 && now > tourAutoScrollUntil && visibleH < needed) {
+      tourAutoScrollUntil = now + 900;
+      scrollTourTargetIntoView(el);
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+['wheel', 'touchmove'].forEach(type => window.addEventListener(type, () => { if (activeTourKey) tourUserScrolled = true; }, { passive: true }));
+window.addEventListener('keydown', e => {
+  if (activeTourKey && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) tourUserScrolled = true;
 });
 </script>
 </body>

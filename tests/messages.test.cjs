@@ -8,7 +8,7 @@ function setup(source = html) {
   const elements = new Map();
   const element = () => ({ value: '', style: {}, children: [], attributes:{}, open:false, isConnected:true,
     focus(){state.focus=this},setAttribute(k,v){this.attributes[k]=v},removeAttribute(k){delete this.attributes[k]},showModal(){this.open=true},close(){this.open=false},
-    classList: {add(){}, remove(){}}, appendChild(c){this.children.push(c)}, set innerHTML(v){this.html=v;this.children=[]}, get innerHTML(){return this.html || ''} });
+    querySelector(){return get('child')}, classList: {add(){}, remove(){},toggle(){},contains(){return false}}, appendChild(c){this.children.push(c)}, set innerHTML(v){this.html=v;this.children=[]}, get innerHTML(){return this.html || ''} });
   const get = id => { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); };
   const state = { rows: [], accounts:[], storage:new Map(), error: null, writes: [], alerts: [], zeroUpdates: false, reads:[], release:null, hold:false, holdWrites:false, writeWaiters:[], notifications:[], toasts:[] };
   const db = { from(table) {
@@ -144,7 +144,7 @@ test('local mock runs offline, filters before paging, saves reasons, and blocks 
 });
 
 test('main notification, linking, deep-link and request-submit functions remain unchanged',()=>{
- const cp=require('node:child_process');const base=cp.execFileSync('git',['show','f0cf2f9:Participant.html'],{encoding:'utf8'});const before=setup(base),after=setup();
+ const cp=require('node:child_process');const base=cp.execFileSync('git',['show','f3abe363f24811c2a1ed7c2eddb1b73841b5a764:Participant.html'],{encoding:'utf8'});const before=setup(base),after=setup();
  for(const name of ['callNotifyGas','notifyMessage','notifyRequest','notifyRequestStatus','issueLineLinkCode','showLineLinkCode','refreshLineStatus','renderLineLinkCard','readDeepLink','applyDeepLink','submitRequestForm'])assert.equal(after.run(name+'.toString()').replace(/\r\n/g,'\n'),before.run(name+'.toString()').replace(/\r\n/g,'\n'),name);
  for(const name of ['handleLogin','handleRegisterTroupe'])assert.equal(after.run(name+'.toString()').replace(/resetMessageSession\(\);\r?\n/g,'').replace(/\r\n/g,'\n'),before.run(name+'.toString()').replace(/\r\n/g,'\n'),name);
 });
@@ -183,4 +183,31 @@ test('polling an incoming message adds sender and preserves unread until convers
 
 test('read completion updates current cache even when refresh replaced its objects during save',async()=>{
  const {run,state}=setup();state.rows=[{id:'r',fromTroupeId:'b',toTroupeId:'a',read:false}];await run('refreshMessages()');state.holdWrites=true;const reading=run("markConversationRead('b')");await new Promise(setImmediate);state.rows=[{id:'r',fromTroupeId:'b',toTroupeId:'a',read:false}];await run('refreshMessages()');state.writeWaiters.shift()();await reading;assert.equal(run('messagesData[0].read'),true);
+});
+
+
+test('integrated dashboard has unique inbox targets and keeps main sections',()=>{
+ for(const id of ['dashboard-inbox','dashboard-sent','dashboard-action-list','mp-line','mp-perfs','mp-profile']) assert.equal([...html.matchAll(new RegExp('id="'+id+'"','g'))].length,1,id);
+ const {run,get}=setup();run("incomingRequests=[{id:'r',toTroupeId:'a',status:'pending'}];renderMyPage()");
+ assert.equal(get('dashboard-action-list').children.length,1);assert.equal(get('dashboard-inbox').children.length,1);assert.equal(get('badge-mypage').textContent,'1');
+});
+test('main badges reflect read completion and logout clears both notification systems',async()=>{
+ const {run,get}=setup();run("messagesData=[{id:'m',fromTroupeId:'b',toTroupeId:'a',read:false}];updateBadges()");assert.equal(get('badge-chat').textContent,'1');
+ await run("markConversationRead('b')");assert.equal(get('badge-chat').textContent,'');
+ run("globalPollTimer=1;chatPollTimer=2;knownRequestIds=new Set(['r']);knownMessageIds=new Set(['m']);handleLogout()");
+ assert.equal(run('globalPollTimer'),null);assert.equal(run('chatPollTimer'),null);assert.equal(run('knownMessageIds'),null);assert.equal(get('conv-list').innerHTML,'');assert.equal(get('badge-mypage').textContent,'');
+});
+test('main notifications share paginated message refresh with chat polling',async()=>{
+ const {run,state,get}=setup();run('refreshRequests=async()=>false');state.hold=true;state.rows=[{id:'m',fromTroupeId:'b',toTroupeId:'a',read:false}];
+ const chat=run('refreshMessages()');const notification=run('pollNotifications()');assert.equal(state.reads.length,1);state.hold=false;state.release();await Promise.all([chat,notification]);
+ assert.equal(get('badge-chat').textContent,'1');assert.equal(run("knownMessageIds.has('m')"),true);
+});
+test('stale main notification poll cannot initialize a new login notification baseline',async()=>{
+ const {run,state}=setup();run('refreshRequests=async()=>false');state.hold=true;const pending=run('pollNotifications()');
+ run("handleLogout();currentUser={id:'c'};resetMessageSession()");state.release();await pending;
+ assert.equal(run('knownMessageIds'),null);
+});
+test('main performance summaries and guide tracking remain unchanged',()=>{
+ const cp=require('node:child_process');const before=setup(cp.execFileSync('git',['show','f3abe363f24811c2a1ed7c2eddb1b73841b5a764:Participant.html'],{encoding:'utf8'})),after=setup();
+ for(const name of ['computePerfStats','renderMyPerformances','renderGuideTourStep','positionTourOverlay','startTourTracking','checkNotifications']) assert.equal(after.run(name+'.toString()'),before.run(name+'.toString()'),name);
 });
