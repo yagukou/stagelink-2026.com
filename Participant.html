@@ -1407,6 +1407,7 @@ onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.pr
 <div class="panel-section-title"><i class="ti ti-file-text"></i>劇団紹介</div>
 <p id="tsp-description" style="white-space:pre-wrap; font-size:13px; color:var(--ink-mid); line-height:1.7; background:var(--surface); padding:12px; border-radius:var(--radius-md); border:0.5px solid var(--border-neutral); margin-bottom:16px;"></p>
 
+<button type="button" class="btn-primary" id="tsp-message-btn" style="margin-bottom:16px;">メッセージを送る</button>
 <div class="panel-section-title"><i class="ti ti-link"></i>リンク</div>
 <div id="tsp-links" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
 
@@ -1418,6 +1419,7 @@ onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.pr
 </div>
 
 </div>
+
 
 <!-- ===================== TUTORIAL MODAL ===================== -->
 <div class="tutorial-overlay" id="tutorial-overlay">
@@ -1497,6 +1499,17 @@ let troupesData = [];
 let performancesData = [];
 let incomingRequests = [];
 let messagesData = [];
+let messageSession = 0;
+let messageRevision = 0;
+let messageRefresh = null;
+
+function resetMessageSession() {
+  messageSession++;
+  messageRevision++;
+  messageRefresh = null;
+  messagesData = [];
+  activeChatPartnerId = null;
+}
 let currentUser = null;
 let currentDate = new Date();
 let selectedPerformanceId = null;
@@ -1520,6 +1533,7 @@ if (saved) {
 const parsed = JSON.parse(saved);
 const { data: freshData } = await db.from('troupes').select('*').eq('id', parsed.id);
 if (freshData && freshData.length > 0) {
+resetMessageSession();
 currentUser = freshData[0];
 } else {
 localStorage.removeItem('currentUser');
@@ -1528,6 +1542,7 @@ localStorage.removeItem('currentUser');
 } catch(e) {
 localStorage.removeItem('currentUser');
 }
+await refreshMessages();
 updateFilterDropdown();
 renderLegend();
 renderTroupes(troupesData);
@@ -1558,13 +1573,6 @@ const { data: requests, error: requestsError } = await db.from('requests').selec
 if (requestsError) throw requestsError;
 incomingRequests = requests || [];
 
-    // 【修正】messages の読み込み失敗を握りつぶさずログに出す
-const { data: msgs, error: msgsError } = await db.from('messages').select('*');
-    if (msgsError) {
-      console.error('messages テーブル読み込みエラー:', msgsError);
-    } else if (msgs) {
-      messagesData = msgs;
-    }
 
 } catch (error) {
     console.error('データ読み込みエラー（フォールバック使用）:', error);
@@ -1585,17 +1593,48 @@ async function refreshRequests() {
 }
 
 // 【修正】メッセージをDBから再取得。件数・既読状態が変わったら true を返す
-async function refreshMessages() {
-  const { data, error } = await db.from('messages').select('*');
-  if (error) {
-    console.error('messages 再取得エラー:', error);
-    return false;
+// Filter at PostgREST, not in the browser. Quoted values handle reserved characters.
+async function loadMessages(userId = currentUser?.id, session = messageSession) {
+  if (!userId || currentUser?.id !== userId) return { data: [], error: null };
+  const rows = [];
+  const value = JSON.stringify(String(userId));
+  for (let offset = 0; ; ) {
+    if (session !== messageSession || currentUser?.id !== userId) return { data: null, cancelled: true };
+    const { data, error } = await db.from('messages').select('*')
+      .or('fromTroupeId.eq.' + value + ',toTroupeId.eq.' + value)
+      .order('id').range(offset, offset + 499);
+    if (error) return { data: null, error };
+    if (!data?.length) return { data: rows, error: null };
+    rows.push(...data);
+    offset += data.length;
   }
-  const next = data || [];
-  const sig = arr => arr.map(m => m.id + ':' + (m.read ? 1 : 0)).sort().join('|');
-  const changed = sig(next) !== sig(messagesData);
-  messagesData = next;
-  return changed;
+}
+
+function refreshMessages() {
+  if (!currentUser) return Promise.resolve(false);
+  if (messageRefresh) return messageRefresh;
+  const userId = currentUser.id;
+  const session = messageSession;
+  const revision = messageRevision;
+  const pending = (async () => {
+    try {
+      const { data, error, cancelled } = await loadMessages(userId, session);
+      if (error) throw error;
+      // Discard responses from an old login or a snapshot started before a local write.
+      if (cancelled || session !== messageSession || currentUser?.id !== userId || revision !== messageRevision) return false;
+      const next = data || [];
+      const sig = arr => JSON.stringify(arr.map(m => [m.id, m.fromTroupeId, m.toTroupeId, m.timestamp, m.read, m.text]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))));
+      const changed = sig(next) !== sig(messagesData);
+      messagesData = next;
+      return changed;
+    } catch (error) {
+      console.error('messages 再取得エラー:', error);
+      return false;
+    }
+  })();
+  messageRefresh = pending;
+  pending.finally(() => { if (messageRefresh === pending) messageRefresh = null; });
+  return pending;
 }
 
 // 【修正】タイムスタンプ表示用（ISO文字列・旧形式どちらにも対応）
@@ -1614,10 +1653,12 @@ function formatTimestamp(ts, timeOnly) {
 
 // 【修正】メッセージの並び順キー（ID末尾の数値=送信時刻を使うので旧データでも正しく並ぶ）
 function messageSortKey(m) {
-  const n = parseInt(String(m.id || '').replace(/^msg_/, ''), 10);
-  if (!isNaN(n)) return n;
-  const t = new Date(m.timestamp).getTime();
-  return isNaN(t) ? 0 : t;
+  const t = m.timestamp ? new Date(m.timestamp).getTime() : NaN;
+  if (Number.isFinite(t)) return t;
+  // 旧データの時刻のみの表示は msg_<epoch milliseconds> から復元する。
+  const match = /^msg_(\d+)$/.exec(String(m.id || ''));
+  const n = match ? Number(match[1]) : NaN;
+  return Number.isSafeInteger(n) && n >= 0 && n <= 8640000000000000 ? n : 0;
 }
 
 function escapeHtml(str) {
@@ -1837,7 +1878,7 @@ grid.appendChild(card);
 }
 
 function filterTroupes() {
-const keyword = document.querySelector('.search-input').value.toLowerCase();
+const keyword = document.querySelector('.search-input').value.trim().toLowerCase();
 const univ = document.getElementById('univ-filter').value;
 const acceptOnly = document.getElementById('accept-filter').value;
 
@@ -1859,6 +1900,10 @@ function openTroupeModal(troupeId) {
 const troupe = troupesData.find(t => t.id === troupeId);
 if (!troupe) return;
 
+const messageButton = document.getElementById('tsp-message-btn');
+messageButton.disabled = currentUser?.id === troupeId;
+messageButton.textContent = messageButton.disabled ? '自分の劇団には送信できません' : 'メッセージを送る';
+messageButton.onclick = () => startTroupeChat(troupeId);
 const colorClass = getTroupeColorClass(troupe.id);
 let dummy = document.createElement('div');
 dummy.className = colorClass;
@@ -1933,6 +1978,14 @@ perfListWrap.appendChild(item);
 
 document.getElementById('troupe-panel-overlay').classList.add('open');
 document.getElementById('troupe-side-panel').classList.add('open');
+}
+
+async function startTroupeChat(troupeId) {
+  if (!troupesData.some(t => t.id === troupeId) || currentUser?.id === troupeId) return;
+  closeTroupeModal();
+  pendingDeepLink = { page: 'chat', withId: troupeId };
+  if (!currentUser) alert('メッセージを送るにはログインしてください。');
+  await applyDeepLink();
 }
 
 function closeTroupeModal() {
@@ -2509,6 +2562,7 @@ inboxList.innerHTML = '<div class="empty-state"><i class="ti ti-inbox-off"></i>�
     incoming.forEach(req => inboxList.appendChild(buildInboxItem(req)));
 }
 
+
   renderMyPerformances(); // 【追加】これまでの公演
 fillProfileForm();
   renderLineLinkCard(); // 【追加】
@@ -2580,6 +2634,7 @@ const { error } = await db.from('troupes').insert([newTroupe]);
 if (error) throw error;
 
 troupesData.push(newTroupe);
+resetMessageSession();
 currentUser = newTroupe;
 localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
@@ -2616,6 +2671,7 @@ alert('メールアドレスまたはパスワードが正しくありません�
 return;
 }
 
+resetMessageSession();
 currentUser = data;
 localStorage.setItem('currentUser', JSON.stringify(currentUser));
 updateAuthUI();
@@ -2631,9 +2687,17 @@ alert('ログイン処理でエラーが発生しました。');
 }
 
 function handleLogout() {
+resetMessageSession();
 currentUser = null;
   activeChatPartnerId = null;
   stopChatPolling();
+  document.getElementById('chat-text-input').value = '';
+  document.getElementById('chat-messages').innerHTML = '';
+  document.getElementById('conv-list').innerHTML = '';
+  document.getElementById('chat-layout').style.display = 'none';
+  document.getElementById('chat-login-prompt').style.display = 'block';
+  document.getElementById('chat-view').style.display = 'none';
+  document.getElementById('chat-empty-state').style.display = 'flex';
   stopNotificationPolling(); // 【追加】バッジを消して新着確認を止める
 localStorage.removeItem('currentUser');
 updateAuthUI();
@@ -2777,7 +2841,10 @@ function checkNotifications() {
 
 async function pollNotifications() {
   if (!currentUser || document.hidden) return;
+  const session = messageSession;
+  const userId = currentUser.id;
   await Promise.all([refreshRequests(), refreshMessages()]);
+  if (session !== messageSession || currentUser?.id !== userId) return;
   checkNotifications();
 }
 
@@ -3174,6 +3241,7 @@ function stopChatPolling() {
 // 【修正】開いた会話の未読を既読にする
 async function markConversationRead(partnerId) {
   if (!currentUser) return;
+  const session = messageSession;
   const unread = messagesData.filter(m => m.fromTroupeId === partnerId && m.toTroupeId === currentUser.id && !m.read);
   if (unread.length === 0) return;
   const { error } = await db.from('messages').update({ read: true })
@@ -3182,8 +3250,11 @@ async function markConversationRead(partnerId) {
     console.error('既読更新エラー:', error);
     return;
   }
-  unread.forEach(m => { m.read = true; });
-  updateBadges(); // 【追加】読んだらチャットのバッジを減らす
+  if (session !== messageSession) return;
+  messageRevision++;
+  const readIds = new Set(unread.map(m => m.id));
+  messagesData.forEach(m => { if (readIds.has(m.id)) m.read = true; });
+  updateBadges();
 }
 
 async function initChat() {
@@ -3203,6 +3274,7 @@ renderChatConversations();
   // 【修正】開いた時点で最新メッセージを取得し、以後は定期的に確認
   await refreshMessages();
   renderChatConversations();
+  if (!currentUser) return;
   if (activeChatPartnerId) renderChatMessages();
   startChatPolling();
 }
@@ -3211,10 +3283,19 @@ function renderChatConversations() {
 const list = document.getElementById('conv-list');
 list.innerHTML = '';
 
-const partners = troupesData.filter(t => t.id !== currentUser.id);
+if (!currentUser) return;
+const latest = new Map();
+for (const message of messagesData) {
+  const partnerId = message.fromTroupeId === currentUser.id ? message.toTroupeId
+    : message.toTroupeId === currentUser.id ? message.fromTroupeId : null;
+  if (!partnerId || partnerId === currentUser.id) continue;
+  latest.set(partnerId, Math.max(latest.get(partnerId) ?? -Infinity, messageSortKey(message)));
+}
+const partners = troupesData.filter(t => t.id !== currentUser.id && latest.has(t.id))
+  .sort((a, b) => latest.get(b.id) - latest.get(a.id) || String(a.id).localeCompare(String(b.id)));
 
 if (partners.length === 0) {
-list.innerHTML = '<div style="padding:16px; font-size:12px; color:#9A9B9E;">メッセージ可能な劇団がありません</div>';
+list.innerHTML = '<div style="padding:16px; font-size:12px; color:#9A9B9E;">会話履歴はまだありません。劇団一覧の詳細から「メッセージを送る」を選んでください。</div>';
 return;
 }
 
@@ -3236,9 +3317,11 @@ list.appendChild(item);
 }
 
 async function selectChatPartner(partnerId) {
-activeChatPartnerId = partnerId;
+if (!currentUser || partnerId === currentUser.id) return;
 const partner = troupesData.find(t => t.id === partnerId);
 if (!partner) return;
+if (activeChatPartnerId !== partnerId) document.getElementById('chat-text-input').value = '';
+activeChatPartnerId = partnerId;
 
 renderChatConversations();
 
@@ -3253,6 +3336,7 @@ renderChatMessages();
 
   // 【修正】相手を選んだら最新を取得して既読化
   await refreshMessages();
+  if (!currentUser || activeChatPartnerId !== partnerId) return;
   await markConversationRead(partnerId);
   renderChatConversations();
   renderChatMessages();
@@ -3262,7 +3346,7 @@ function renderChatMessages() {
 const container = document.getElementById('chat-messages');
 container.innerHTML = '';
 
-if (!activeChatPartnerId) return;
+if (!activeChatPartnerId || !currentUser) return;
 
   // 【修正】"19:05" のような時刻文字列は new Date() で解釈できず並びが崩れるため、ID由来の時刻で並べる
 const msgs = messagesData.filter(m => 
@@ -3300,38 +3384,33 @@ container.appendChild(group);
 container.scrollTop = container.scrollHeight;
 }
 
+const pendingMessageSends = new Set();
 async function sendChatMessage() {
-const input = document.getElementById('chat-text-input');
-const text = input.value.trim();
-
-if (!text || !activeChatPartnerId || !currentUser) return;
-
-const newMsg = {
-id: 'msg_' + Date.now(),
-fromTroupeId: currentUser.id,
-toTroupeId: activeChatPartnerId,
-text,
-    // 【修正】"19:05" だけでは日付型カラムに保存できないためISO形式で保存（表示は時刻に整形）
-    timestamp: new Date().toISOString(),
-read: false
-};
-
-try {
-    // 【修正】保存失敗を握りつぶして「送れたように見える」状態をやめる
-    const { data, error } = await db.from('messages').insert([newMsg]).select();
+  const input = document.getElementById('chat-text-input');
+  const text = input.value.trim();
+  if (!text || !currentUser || !activeChatPartnerId || activeChatPartnerId === currentUser.id) return;
+  const session = messageSession;
+  const operation = session + ':' + activeChatPartnerId;
+  if (pendingMessageSends.has(operation)) return;
+  pendingMessageSends.add(operation);
+  const newMsg = { id: 'msg_' + Date.now(), fromTroupeId: currentUser.id, toTroupeId: activeChatPartnerId, text, timestamp: new Date().toISOString(), read: false };
+  let saved;
+  try {
+    const {data, error} = await db.from('messages').insert([newMsg]).select();
     if (error) throw error;
-    if (!data || data.length === 0) {
-      throw new Error('メッセージがデータベースに保存されませんでした（RLSポリシーを確認してください）');
-    }
-
-    messagesData.push(data[0]);
-input.value = '';
-renderChatMessages();
-    notifyMessage(newMsg.id); // 【追加】相手のLINEに通知
-} catch (e) {
-console.error('メッセージ送信エラー:', e);
-    alert('メッセージの送信に失敗しました: ' + (e.message || JSON.stringify(e)));
-}
+    if (!data?.length) throw new Error('メッセージが保存されませんでした。');
+    saved = data[0];
+  } catch (error) {
+    if (session === messageSession) alert('メッセージの送信に失敗しました: ' + error.message);
+    return;
+  } finally { pendingMessageSends.delete(operation); }
+  try { notifyMessage(saved.id || newMsg.id); } catch (error) { console.error('LINE通知の呼び出しに失敗（保存済み）:', error); }
+  if (session !== messageSession || currentUser?.id !== newMsg.fromTroupeId) return;
+  messageRevision++;
+  if (!messagesData.some(m => m.id === saved.id)) messagesData.push(saved);
+  if (activeChatPartnerId === newMsg.toTroupeId && input.value.trim() === text) input.value = '';
+  try { renderChatConversations(); renderChatMessages(); }
+  catch (error) { console.error('メッセージは保存済みですが画面更新に失敗しました:', error); }
 }
 
 function initEmojiPicker() {
