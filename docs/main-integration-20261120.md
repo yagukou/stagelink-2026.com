@@ -1,3 +1,5 @@
+> 過去の実装記録です。辞退理由は今回のPRから除外しました。現在の範囲と検証結果は [chat-only-scope.md](chat-only-scope.md) を参照してください。
+
 ﻿# main integration — 2026-11-20
 
 Dedicated worktree: C:/Users/kouse/stagelink-message-port-20261117

@@ -80,26 +80,6 @@ test('existing history opens and marks incoming messages read; new outgoing move
  await run("selectChatPartner('b')");assert.match(get('chat-messages').children[0].innerHTML,/old message/);assert.equal(run('messagesData[0].read'),true);
  get('chat-text-input').value='new message';await run('sendChatMessage()');assert.match(get('conv-list').children[0].innerHTML,/創像/);
 });
-test('requester sees saved reason escaped and historical missing reason',()=>{
- const {run,get}=setup();
- run("fillProfileForm=()=>{};renderLineLinkCard=()=>{};incomingRequests=[{id:'r',fromTroupeId:'a',toTroupeId:'b',status:'declined',decline_reason:'<b>満員</b>'},{id:'old',fromTroupeId:'a',toTroupeId:'c',status:'declined'}];renderMyPage()");
- assert.match(get('dashboard-sent').children[0].innerHTML,/&lt;b&gt;満員&lt;\/b&gt;/);
- assert.match(get('dashboard-sent').children[1].innerHTML,/過去の依頼/);
-});
-test('decline modal cancel/blank/valid/error/zero updates; approval and recipient guard',async()=>{
- const {run,state,get}=setup();run("renderMyPage=()=>{};incomingRequests=[{id:'r',toTroupeId:'a',status:'pending'}]");
- await run("handleRequestStatus('r','declined')");assert.equal(state.writes.length,0);
- assert.equal(get('decline-dialog').open,true);run('closeDeclineModal()');assert.equal(get('decline-dialog').open,false);assert.equal(state.writes.length,0);
- await run("handleRequestStatus('r','declined')");
- for(const blank of ['', ' ', '　', '\n', '　 \n ']) {get('decline-reason').value=blank;await run('confirmDecline()');assert.equal(state.writes.length,0);assert.equal(get('decline-reason').value,blank);assert.match(get('decline-error').textContent,/辞退理由/);}
- get('decline-reason').value=' 満員です ';state.error={message:'offline'};await run('confirmDecline()');assert.equal(run('incomingRequests[0].status'),'pending');assert.equal(get('decline-dialog').open,true);assert.equal(get('decline-reason').value,' 満員です ');assert.match(get('decline-error').textContent,/offline/);
- state.error=null;state.zeroUpdates=true;await run('confirmDecline()');assert.equal(run('incomingRequests[0].status'),'pending');
- state.zeroUpdates=false;const pending=run('confirmDecline()');const repeated=run('confirmDecline()');assert.equal(get('decline-confirm').disabled,true);run('closeDeclineModal()');assert.equal(get('decline-dialog').open,true);await pending;await repeated;
- assert.equal(run('incomingRequests[0].decline_reason'),'満員です');assert.equal(run('incomingRequests[0].status'),'declined');assert.equal(get('decline-dialog').open,false);
- assert.match(run("renderDeclineReason({status:'declined',decline_reason:'<script>'})"),/&lt;script&gt;/);
- run("incomingRequests[0].status='pending'");await run("handleRequestStatus('r','accepted')");assert.equal(JSON.stringify(state.writes.at(-1).payload),JSON.stringify({status:'accepted'}));
- run("currentUser={id:'b'}");const n=state.writes.length;await run("handleRequestStatus('r','declined')");assert.equal(state.writes.length,n);
-});
 test('server-side participant filter, no anonymous fetch, logout clears cached messages',async()=>{
  const {run,state}=setup();state.rows=[{id:'1',fromTroupeId:'b',toTroupeId:'c'},{id:'2',fromTroupeId:'b',toTroupeId:'a'},{id:'3',fromTroupeId:'a',toTroupeId:'c'}];
  await run('refreshMessages()');assert.equal(run('messagesData.length'),2);assert.ok(state.reads.every(r=>r.participant==='a'));
@@ -130,14 +110,14 @@ test('preview serves only mock SDK with network-denying CSP; production code has
  const denied=await fetch(`http://127.0.0.1:${server.address().port}/../Participant-source.html`);assert.equal(denied.status,404);
  }finally{await new Promise(resolve=>server.close(resolve));}
 });
-test('local mock runs offline, filters before paging, saves reasons, and blocks network APIs',async()=>{
+test('local mock runs offline, filters before paging, saves request status, and blocks network APIs',async()=>{
  const storage=new Map();const ctx=vm.createContext({window:{},navigator:{},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},document:{addEventListener(){}},setTimeout,location:{reload(){}}});
  vm.runInContext(fs.readFileSync('tests/local-mock.js','utf8'),ctx);
  const exec=source=>vm.runInContext(source,ctx);
  assert.equal((await exec(`window.supabase.createClient().from('messages').select('*').or('fromTroupeId.eq."a",toTroupeId.eq."a"').order('id').range(0,499)`)).data.length,2);
  assert.ok((await exec("window.supabase.createClient().from('messages').select('*')")).error);
- await exec("window.supabase.createClient().from('requests').update({status:'declined',decline_reason:'満員です'}).eq('id','r-ca').select()");
- assert.equal(exec('window.localMock.tables.requests[0].decline_reason'),'満員です');
+ await exec("window.supabase.createClient().from('requests').update({status:'declined'}).eq('id','r-ca').select()");
+ assert.equal(exec('window.localMock.tables.requests[0].status'),'declined');
  await assert.rejects(exec("window.fetch('https://example.invalid')"),/Network disabled/);
  assert.throws(()=>exec("new window.XMLHttpRequest()"),/Network disabled/);
  assert.equal(exec('navigator.sendBeacon()'),false);
@@ -145,7 +125,7 @@ test('local mock runs offline, filters before paging, saves reasons, and blocks 
 
 test('main notification, linking, deep-link and request-submit functions remain unchanged',()=>{
  const cp=require('node:child_process');const base=cp.execFileSync('git',['show','f3abe363f24811c2a1ed7c2eddb1b73841b5a764:Participant.html'],{encoding:'utf8'});const before=setup(base),after=setup();
- for(const name of ['callNotifyGas','notifyMessage','notifyRequest','notifyRequestStatus','issueLineLinkCode','showLineLinkCode','refreshLineStatus','renderLineLinkCard','readDeepLink','applyDeepLink','submitRequestForm'])assert.equal(after.run(name+'.toString()').replace(/\r\n/g,'\n'),before.run(name+'.toString()').replace(/\r\n/g,'\n'),name);
+ for(const name of ['callNotifyGas','notifyMessage','notifyRequest','notifyRequestStatus','issueLineLinkCode','showLineLinkCode','refreshLineStatus','renderLineLinkCard','readDeepLink','applyDeepLink','submitRequestForm','handleRequestStatus'])assert.equal(after.run(name+'.toString()').replace(/\r\n/g,'\n'),before.run(name+'.toString()').replace(/\r\n/g,'\n'),name);
  for(const name of ['handleLogin','handleRegisterTroupe'])assert.equal(after.run(name+'.toString()').replace(/resetMessageSession\(\);\r?\n/g,'').replace(/\r\n/g,'\n'),before.run(name+'.toString()').replace(/\r\n/g,'\n'),name);
 });
 test('successful message notifies once through current GAS wrapper with keepalive; failures never notify',async()=>{
@@ -165,17 +145,10 @@ test('successful send notifies before rendering; a render failure never reports 
 test('approval and decline retain status notifications, including account change during save',async()=>{
  for(const status of ['accepted','declined']){
   const {run,get,state}=setup();run("renderMyPage=()=>{};updateAuthUI=()=>{};incomingRequests=[{id:'r',toTroupeId:'a',status:'pending'}]");
-  if(status==='declined'){await run("handleRequestStatus('r','declined')");get('decline-reason').value='満員です';}
-  state.holdWrites=true;const saving=run(status==='declined'?'confirmDecline()':"handleRequestStatus('r','accepted')");await new Promise(setImmediate);
+  state.holdWrites=true;const saving=run("handleRequestStatus('r','"+status+"')");await new Promise(setImmediate);
   run("handleLogout();currentUser={id:'c'}");state.writeWaiters.shift()();await saving;
   assert.equal(state.notifications.length,1);assert.deepEqual(JSON.parse(state.notifications[0].options.body),{type:'status',requestId:'r'});assert.equal(state.notifications[0].options.keepalive,true);
  }
-});
-test('decline cancel/empty/DB failure notify zero times; retry notifies once',async()=>{
- const {run,get,state}=setup();run("renderMyPage=()=>{};incomingRequests=[{id:'r',toTroupeId:'a',status:'pending'}]");
- await run("handleRequestStatus('r','declined')");await run('confirmDecline()');run('closeDeclineModal()');assert.equal(state.notifications.length,0);
- await run("handleRequestStatus('r','declined')");get('decline-reason').value='理由';state.error={message:'missing column'};await run('confirmDecline()');assert.equal(state.notifications.length,0);assert.equal(run('incomingRequests[0].status'),'pending');assert.equal(get('decline-dialog').open,true);
- state.error=null;await run('confirmDecline()');assert.equal(state.notifications.length,1);assert.equal(run('incomingRequests[0].decline_reason'),'理由');
 });
 test('polling an incoming message adds sender and preserves unread until conversation is opened',async()=>{
  const {run,state,get}=setup();state.rows=[{id:'1',fromTroupeId:'a',toTroupeId:'b',timestamp:'2025-01-01'}];await run('refreshMessages()');run('startChatPolling()');state.rows.push({id:'2',fromTroupeId:'c',toTroupeId:'a',timestamp:'2026-01-01',text:'incoming',read:false});await state.poll();assert.match(get('conv-list').children[0].innerHTML,/EnTRoPy/);assert.match(get('conv-list').children[0].innerHTML,/chat-unread/);await run("selectChatPartner('c')");assert.doesNotMatch(get('conv-list').children[0].innerHTML,/chat-unread/);
@@ -187,7 +160,7 @@ test('read completion updates current cache even when refresh replaced its objec
 
 
 test('integrated dashboard has unique inbox targets and keeps main sections',()=>{
- for(const id of ['dashboard-inbox','dashboard-sent','dashboard-action-list','mp-line','mp-perfs','mp-profile']) assert.equal([...html.matchAll(new RegExp('id="'+id+'"','g'))].length,1,id);
+ for(const id of ['dashboard-inbox','dashboard-action-list','mp-line','mp-perfs','mp-profile']) assert.equal([...html.matchAll(new RegExp('id="'+id+'"','g'))].length,1,id);
  const {run,get}=setup();run("incomingRequests=[{id:'r',toTroupeId:'a',status:'pending'}];renderMyPage()");
  assert.equal(get('dashboard-action-list').children.length,1);assert.equal(get('dashboard-inbox').children.length,1);assert.equal(get('badge-mypage').textContent,'1');
 });
@@ -210,4 +183,12 @@ test('stale main notification poll cannot initialize a new login notification ba
 test('main performance summaries and guide tracking remain unchanged',()=>{
  const cp=require('node:child_process');const before=setup(cp.execFileSync('git',['show','f3abe363f24811c2a1ed7c2eddb1b73841b5a764:Participant.html'],{encoding:'utf8'})),after=setup();
  for(const name of ['computePerfStats','renderMyPerformances','renderGuideTourStep','positionTourOverlay','startTourTracking','checkNotifications']) assert.equal(after.run(name+'.toString()'),before.run(name+'.toString()'),name);
+});
+
+test('deferred decline reason has no UI, schema or write dependency; normal decline retries safely',async()=>{
+ assert.doesNotMatch(html,/decline_reason|decline-dialog|confirmDecline|dashboard-sent/);
+ assert.equal(fs.existsSync('supabase/migrations/20261117_request_decline_reason.sql'),false);
+ const {run,state}=setup();run("renderMyPage=()=>{};incomingRequests=[{id:'r',toTroupeId:'a',status:'pending'}]");
+ for(const fail of ['error','zero']){state.error=fail==='error'?{message:'offline'}:null;state.zeroUpdates=fail==='zero';await run("handleRequestStatus('r','declined')");assert.equal(run('incomingRequests[0].status'),'pending');assert.equal(state.notifications.length,0);}
+ state.error=null;state.zeroUpdates=false;await run("handleRequestStatus('r','declined')");assert.equal(run('incomingRequests[0].status'),'declined');assert.deepEqual(state.writes.at(-1).payload.status,'declined');assert.deepEqual(Object.keys(state.writes.at(-1).payload),['status']);assert.equal(state.notifications.length,1);
 });
