@@ -192,3 +192,26 @@ test('deferred decline reason has no UI, schema or write dependency; normal decl
  for(const fail of ['error','zero']){state.error=fail==='error'?{message:'offline'}:null;state.zeroUpdates=fail==='zero';await run("handleRequestStatus('r','declined')");assert.equal(run('incomingRequests[0].status'),'pending');assert.equal(state.notifications.length,0);}
  state.error=null;state.zeroUpdates=false;await run("handleRequestStatus('r','declined')");assert.equal(run('incomingRequests[0].status'),'declined');assert.deepEqual(state.writes.at(-1).payload.status,'declined');assert.deepEqual(Object.keys(state.writes.at(-1).payload),['status']);assert.equal(state.notifications.length,1);
 });
+
+test('chat search finds all troupes by name or university, ignores case and whitespace, excludes self',()=>{
+ const {run,get,state}=setup();
+ for(const [term,name] of [[' 創像 ','創像'],['　ENTROPY　','EnTRoPy'],['大学C','EnTRoPy']]){get('chat-troupe-search').value=term;run('renderChatConversations()');assert.equal(get('conv-list').children.length,1);assert.match(get('conv-list').children[0].innerHTML,new RegExp(name));}
+ get('chat-troupe-search').value='A';run('renderChatConversations()');assert.equal(get('conv-list').children.length,0);assert.match(get('conv-list').innerHTML,/該当する劇団がありません/);assert.equal(state.writes.length,0);assert.equal(state.reads.length,0);
+});
+test('search opens an unsent chat without adding history, preserves draft and sends through existing notification',async()=>{
+ const {run,get,state}=setup();get('chat-troupe-search').value='entropy';run('renderChatConversations()');await get('conv-list').children[0].onclick();assert.equal(run('activeChatPartnerId'),'c');assert.equal(state.writes.length,0);
+ get('chat-text-input').value='hello';get('chat-troupe-search').value='';run('renderChatConversations()');assert.equal(get('conv-list').children.length,0);assert.equal(get('chat-text-input').value,'hello');await run('sendChatMessage()');assert.equal(get('conv-list').children.length,1);assert.equal(state.notifications.length,1);
+});
+test('search survives polling, keeps unread and newest ordering, clears on account change',async()=>{
+ const {run,get,state}=setup();state.rows=[{id:'1',fromTroupeId:'b',toTroupeId:'a',timestamp:'2025-01-01',read:false}];get('chat-troupe-search').value='大学';await run('refreshMessages()');run('renderChatConversations();startChatPolling()');assert.match(get('conv-list').children[0].innerHTML,/chat-unread/);
+ state.rows.push({id:'2',fromTroupeId:'c',toTroupeId:'a',timestamp:'2026-01-01',read:false});await state.poll();assert.equal(get('chat-troupe-search').value,'大学');assert.match(get('conv-list').children[0].innerHTML,/EnTRoPy/);
+ run('handleLogout();renderChatConversations()');assert.equal(get('chat-troupe-search').value,'');assert.equal(get('conv-list').children.length,0);
+});
+test('search escapes troupe names and exposes keyboard-operable buttons',()=>{
+ const {run,get}=setup();run("troupesData.push({id:'x',name:'<img src=x onerror=alert(1)>',affiliation:null})");get('chat-troupe-search').value='<img';run('renderChatConversations()');const row=get('conv-list').children[0];assert.doesNotMatch(row.innerHTML,/<img/);assert.match(row.innerHTML,/&lt;img/);assert.equal(row.type,'button');assert.match(row.attributes['aria-label'],/新しい会話/);
+ get('chat-troupe-search').value='　 ';run('renderChatConversations()');assert.equal(get('conv-list').children.length,0);assert.match(get('conv-list').innerHTML,/会話履歴はまだありません/);
+});
+test('chat search keeps saved-message notification, auth and deep-link functions unchanged from merged main',()=>{
+ const cp=require('node:child_process');const before=setup(cp.execFileSync('git',['show','1a75382:Participant.html'],{encoding:'utf8'})),after=setup();
+ for(const name of ['sendChatMessage','selectChatPartner','startTroupeChat','handleLogin','handleLogout','applyDeepLink','notifyMessage','callNotifyGas','handleRequestStatus'])assert.equal(after.run(name+'.toString()'),before.run(name+'.toString()'),name);
+});
