@@ -125,64 +125,66 @@
     .hamburger { display: none; }
 
     /* --------------------------------------------------
-       ✉️ お問い合わせフォーム専用：公式ブランドデザイン
+       ✉️ お問い合わせ：カードではなく「舞台書面・紙面」スタイル
     ----------------------------------------------------- */
     .container {
-      max-width: 660px;
-      margin: 56px auto 80px;
-      padding: 0 20px;
+      max-width: 720px;
+      margin: 64px auto 96px;
+      padding: 0 24px;
       box-sizing: border-box;
     }
 
-    .form-container {
-      background: #ffffff;
-      color: #1a1a1a;
-      padding: 46px 38px;
-      box-shadow: 0 16px 40px rgba(26, 26, 26, 0.12);
-      border: 1px solid #e6dcc8;
-      border-top: 4px solid #c5a059;
-      border-radius: 6px;
+    .inquiry-sheet {
+      background: transparent;
+      border-top: 2px solid #1a1a1a;
+      border-bottom: 1px solid #c9beab;
+      padding: 44px 0 52px;
       box-sizing: border-box;
-      position: relative;
     }
 
     .form-eyebrow {
       text-align: center;
       font-family: "Times New Roman", serif;
       font-size: 12px;
-      letter-spacing: 4px;
-      color: #c5a059;
+      letter-spacing: 5px;
+      color: #9e7b34;
       font-weight: bold;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     h2 {
       text-align: center;
       font-family: "Yu Mincho", "游明朝", serif;
       color: #b90e0e;
-      margin: 0 0 16px;
-      font-size: 28px;
-      letter-spacing: 2px;
+      margin: 0 0 18px;
+      font-size: 30px;
+      letter-spacing: 3px;
+      font-weight: 600;
     }
 
     .form-divider {
-      width: 48px;
+      width: 64px;
       height: 1px;
       background: #c5a059;
-      margin: 0 auto 20px;
+      margin: 0 auto 24px;
     }
 
     .form-lead {
       font-family: "Yu Mincho", "游明朝", serif;
       font-size: 14px;
-      line-height: 1.85;
-      color: #3a352f;
+      line-height: 1.95;
+      color: #2c2824;
       text-align: center;
-      margin: 0 0 28px;
+      margin: 0 0 40px;
     }
 
     .field-group {
-      margin-top: 22px;
+      padding: 20px 0;
+      border-top: 1px solid #dfd6c5;
+    }
+
+    .field-group:last-of-type {
+      border-bottom: 1px solid #dfd6c5;
     }
 
     label {
@@ -191,9 +193,10 @@
       gap: 8px;
       font-size: 13px;
       font-weight: bold;
-      color: #222;
-      margin-bottom: 7px;
+      color: #1a1a1a;
+      margin-bottom: 10px;
       font-family: sans-serif;
+      letter-spacing: 0.4px;
     }
 
     .badge-req {
@@ -201,7 +204,7 @@
       font-weight: 700;
       letter-spacing: 0.5px;
       padding: 2px 6px;
-      border-radius: 3px;
+      border-radius: 2px;
       background: #b90e0e;
       color: #ffffff;
     }
@@ -211,47 +214,44 @@
       font-weight: 700;
       letter-spacing: 0.5px;
       padding: 2px 6px;
-      border-radius: 3px;
-      background: #efe9dc;
-      color: #6b5e47;
+      border-radius: 2px;
+      background: #e6decb;
+      color: #5c513e;
     }
 
     input, select, textarea {
       width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #cfc6b6;
-      background: #fbf9f6;
+      padding: 11px 14px;
+      border: 1px solid #c5b9a5;
+      background: #faf7f2;
       color: #1a1a1a;
       font-size: 14px;
       box-sizing: border-box;
-      border-radius: 4px;
-      transition: 0.25s;
+      border-radius: 2px;
+      transition: border-color 0.25s, background-color 0.25s;
       font-family: sans-serif;
     }
 
     input:focus, select:focus, textarea:focus {
       border-color: #b90e0e;
-      box-shadow: 0 0 0 3px rgba(185, 14, 14, 0.08);
-      outline: none;
       background: #ffffff;
+      outline: none;
     }
 
     textarea {
       resize: vertical;
-      min-height: 150px;
-      line-height: 1.7;
+      min-height: 160px;
+      line-height: 1.75;
     }
 
     .form-note {
-      margin-top: 22px;
-      padding: 14px 16px;
-      background: #faf7f2;
-      border-left: 3px solid #c5a059;
+      margin-top: 26px;
+      padding-left: 14px;
+      border-left: 2px solid #c5a059;
       font-size: 12px;
-      line-height: 1.75;
-      color: #555;
+      line-height: 1.8;
+      color: #575046;
       font-family: sans-serif;
-      border-radius: 0 4px 4px 0;
     }
 
     .form-note p {
@@ -264,24 +264,23 @@
 
     button.submit-btn {
       width: 100%;
-      margin-top: 28px;
+      margin-top: 32px;
       background: #141414;
       color: #e2be72;
       border: 1px solid #c5a059;
-      padding: 15px 20px;
+      padding: 16px 24px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       transition: 0.3s;
       font-family: "Yu Mincho", "游明朝", serif;
-      border-radius: 4px;
+      border-radius: 2px;
     }
 
     button.submit-btn:hover {
       background: #c5a059;
       color: #141414;
-      transform: translateY(-1px);
     }
 
     /* --- フッター --- */
@@ -367,11 +366,12 @@
       }
 
       .container {
-        margin: 28px auto 50px;
+        margin: 36px auto 60px;
+        padding: 0 18px;
       }
 
-      .form-container {
-        padding: 30px 20px;
+      .inquiry-sheet {
+        padding: 32px 0 36px;
       }
 
       h2 {
@@ -438,13 +438,13 @@
 
     <!-- メインコンテンツエリア -->
     <div class="container">
-      <div class="form-container">
+      <div class="inquiry-sheet">
         <div class="form-eyebrow">CONTACT</div>
         <h2>お問い合わせ</h2>
         <div class="form-divider"></div>
         <p class="form-lead">
           企画やビラネットワーク、取材・出演などに関するご質問やご相談は<br>
-          下記フォームよりお送りください。内容を確認のうえ、担当者よりご連絡いたします。
+          下記よりお送りください。内容を確認のうえ、担当者よりご連絡いたします。
         </p>
 
         <form action="https://formspree.io/mgodpzjw" method="POST">
