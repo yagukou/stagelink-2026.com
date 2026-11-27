@@ -6,20 +6,26 @@
   <title>公演一覧｜Stage Link</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <style>
     :root {
-      --bg: #fcfbf9;             /* 劇団四季風のグレー背景 */
-      --card-outer: #e0e0e0;     /* カード外枠・ヘッダー背景 */
+      --bg: #fcfbf9;
+      --card-outer: #e0e0e0;
       --card-bg: #ffffff;
       --text: #000000;
       --text-sub: #555555;
-      --pink-bg: #fde8ed;        /* 上演中！等のピンク背景 */
-      --red-text: #cc0000;       /* 上演中！の赤文字 */
-      --btn-gray: #dcdcdc;       /* 右側ボタンのグレー */
+      --pink-bg: #fde8ed;
+      --red-text: #cc0000;
+      --open-bg: #e5f3ee;
+      --open-text: #1a6b4a;
+      --soon-bg: #fff4e5;
+      --soon-text: #8b5a1a;
+      --muted-bg: #eeeeee;
+      --muted-text: #555555;
+      --btn-gray: #dcdcdc;
       --border: #cccccc;
       --tab-active-bg: #ffffff;
-      --wine: #7c2946;           /* StageLinkのブランドカラー */
+      --wine: #7c2946;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +43,7 @@
       padding: 0 16px;
     }
 
-    /* 上部ナビゲーションタブ（四季風） */
+    /* 上部ナビゲーションタブ */
     .top-tabs {
       display: flex;
       background: #f0f0f0;
@@ -66,7 +72,7 @@
       border-top: 3px solid var(--wine);
     }
 
-    /* メインコンテンツエリア（白い枠線付き背景） */
+    /* メインコンテンツエリア */
     .content-box {
       background: #ffffff;
       padding: 30px;
@@ -75,7 +81,7 @@
     }
 
     .section-header {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .section-title {
       font-size: 22px;
@@ -84,6 +90,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
     .count-badge {
       font-size: 14px;
@@ -91,29 +99,34 @@
       color: var(--text-sub);
     }
 
-    /* 検索バー */
+    /* 検索・絞り込みバー */
     .filter-bar {
       margin-top: 12px;
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
     }
-    .search-input {
+    .search-input, .filter-select {
       padding: 8px 12px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 13px;
-      width: 100%;
-      max-width: 300px;
+      background: #fff;
+      color: var(--text);
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      max-width: 340px;
     }
 
-    /* 四季風 グリッドレイアウト（2列） */
+    /* グリッドレイアウト（2列） */
     .shiki-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
 
-    /* 四季風 カードデザイン */
     .shiki-card {
       background: #ececec;
       border-radius: 4px;
@@ -128,38 +141,54 @@
       display: flex;
       gap: 14px;
       background: #ececec;
-      min-height: 100px;
+      min-height: 112px;
     }
     .card-thumb {
-      width: 70px;
-      height: 70px;
+      width: 72px;
+      height: 72px;
       background: var(--wine);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
       border-radius: 4px;
       flex-shrink: 0;
       text-align: center;
       padding: 4px;
+      line-height: 1.3;
     }
+    .card-thumb.perf-thumb {
+      background: #3b2330;
+    }
+    .card-thumb.req-thumb {
+      background: #5c1f2e;
+    }
+
     .card-info {
       flex-grow: 1;
+      min-width: 0;
     }
     .card-title {
       font-size: 17px;
       font-weight: 700;
       color: var(--text);
       margin-bottom: 4px;
-      line-height: 1.3;
+      line-height: 1.35;
     }
     .card-subtitle {
       font-size: 12px;
       color: #0056b3;
+      margin-bottom: 5px;
+      display: block;
+      font-weight: 500;
+    }
+    .card-meta-line {
+      font-size: 12px;
+      color: #333;
       margin-bottom: 4px;
-      display: inline-block;
+      line-height: 1.45;
     }
     .card-desc {
       font-size: 12px;
@@ -168,7 +197,7 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .card-bottom {
@@ -190,8 +219,27 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-height: 64px;
+      min-height: 68px;
     }
+    .status-box.is-open {
+      background: var(--open-bg);
+    }
+    .status-box.is-open .status-main {
+      color: var(--open-text);
+    }
+    .status-box.is-soon {
+      background: var(--soon-bg);
+    }
+    .status-box.is-soon .status-main {
+      color: var(--soon-text);
+    }
+    .status-box.is-ended {
+      background: var(--muted-bg);
+    }
+    .status-box.is-ended .status-main {
+      color: var(--muted-text);
+    }
+
     .status-main {
       font-size: 15px;
       font-weight: 700;
@@ -201,13 +249,14 @@
     .status-sub {
       font-size: 11px;
       color: var(--text-sub);
+      line-height: 1.4;
     }
 
     .action-btns {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      width: 140px;
+      width: 148px;
       flex-shrink: 0;
     }
     .btn-shiki {
@@ -247,12 +296,73 @@
 
     .hidden { display: none !important; }
 
-    /* --- ヘッダー：赤背景・チケット配置 --- */
+    /* 詳細モーダル */
+    .detail-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .detail-modal-backdrop.open {
+      display: flex;
+    }
+    .detail-modal {
+      background: #fff;
+      width: 100%;
+      max-width: 540px;
+      border-radius: 6px;
+      border-top: 4px solid var(--wine);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .detail-modal-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .detail-modal-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .detail-modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: #555;
+      line-height: 1;
+    }
+    .detail-modal-body {
+      padding: 18px 20px;
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+    .detail-row-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--wine);
+      display: block;
+    }
+
+    /* --- ヘッダー --- */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #b90e0e !important; 
+      background-color: #b90e0e !important;
       padding: 0 30px;
       height: 90px;
       position: relative;
@@ -275,14 +385,14 @@
       text-align: center;
       line-height: 1.2;
       display: flex;
-      flex-direction: column;  
+      flex-direction: column;
       align-items: center;
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%); 
+      transform: translate(-50%, -50%);
       z-index: 1;
-      max-width: 40%;  
+      max-width: 40%;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -292,13 +402,13 @@
       font-size: 24px;
       font-weight: bold;
       letter-spacing: 3px;
-      color: #ffffff; 
+      color: #ffffff;
     }
 
-    .logo-sub {   
-      font-size: 13px;   
+    .logo-sub {
+      font-size: 13px;
       letter-spacing: 2px;
-      color: #d4af37; 
+      color: #d4af37;
       margin-top: 2px;
     }
 
@@ -307,32 +417,32 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: transparent !important; 
+      background: transparent !important;
       box-shadow: none !important;
-      width: auto !important;   
-      height: auto !important;  
+      width: auto !important;
+      height: auto !important;
       padding: 5px 10px;
       transition: 0.3s;
       text-decoration: none;
     }
 
     .menu-1 img {
-       width: 30px;
-       height: 30px;
-       margin-bottom: 5px;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 5px;
     }
 
     .menu-1 span {
       display: block;
       width: 100%;
-      text-align: center;       
+      text-align: center;
       margin-top: 5px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: 12px;
       font-weight: 600;
-      color: #ffffff !important; 
+      color: #ffffff !important;
     }
 
     .menu-1:hover {
@@ -341,7 +451,7 @@
 
     .hamburger { display: none; }
 
-    /* 🌐 右側からスライドインするメニュー */
+    /* スライドインメニュー */
     #global-dropdown {
       position: fixed;
       top: 0;
@@ -351,7 +461,7 @@
       background: #111111;
       box-shadow: -5px 0 25px rgba(0,0,0,0.7);
       z-index: 9999;
-      display: flex; 
+      display: flex;
       flex-direction: column;
       padding-top: 60px;
       transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -369,7 +479,6 @@
       border-bottom: 1px solid #222;
     }
 
-    /* 暗い背景レイヤー */
     #menu-overlay {
       position: fixed;
       inset: 0;
@@ -384,10 +493,9 @@
       opacity: 1;
     }
 
-    /* スマホ対応 */
     @media (max-width: 768px) {
-      header { 
-        height: 70px !important; 
+      header {
+        height: 70px !important;
         padding: 0 20px !important;
         display: flex !important;
         flex-direction: row !important;
@@ -395,13 +503,13 @@
         align-items: center !important;
       }
 
-      .logo { 
-        position: absolute; 
-        left: 50%; 
-        top: 50%; 
-        transform: translate(-50%, -50%); 
-        margin: 0; 
-        max-width: 55% !important; 
+      .logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        max-width: 55% !important;
       }
       .logo-main { font-size: 20px; }
       .logo-sub { font-size: 11px; }
@@ -415,7 +523,7 @@
         right: 20px;
         transform: translateY(-50%);
         font-size: 28px;
-        color: white !important; 
+        color: white !important;
         cursor: pointer;
         z-index: 9999 !important;
         font-family: sans-serif;
@@ -431,15 +539,13 @@
 </head>
 <body>
 
-  <!-- 背景オーバーレイ -->
   <div id="menu-overlay"></div>
 
-  <!-- ヘッダー -->
   <header>
     <div class="menu-left">
-      <a href="what.html" class="menu-1"><img src="what3.png"><span>企画</span></a>
-      <a href="Participant.html" class="menu-1"><img src="Participant3.png"><span>ビラネット</span></a>
-      <a href="Schedule.html" class="menu-1"><img src="Schedule3.png"><span>スケジュール</span></a>
+      <a href="what.html" class="menu-1"><img src="what3.png" alt="企画"><span>企画</span></a>
+      <a href="Participant.html" class="menu-1"><img src="Participant3.png" alt="ビラネット"><span>ビラネット</span></a>
+      <a href="Schedule.html" class="menu-1"><img src="Schedule3.png" alt="スケジュール"><span>スケジュール</span></a>
     </div>
 
     <a href="index.html" class="logo">
@@ -448,15 +554,14 @@
     </a>
 
     <div class="menu-right">
-      <a href="news.html" class="menu-1"><img src="news3.png"><span>ニュース</span></a>
-      <a href="Inquiry.html" class="menu-1"><img src="Inquiry3.png"><span>お問い合わせ</span></a>
-      <a href="#" class="menu-1 pc-menu-btn"><img src="menu3.png"><span>メニュー</span></a>
+      <a href="news.html" class="menu-1"><img src="news3.png" alt="ニュース"><span>ニュース</span></a>
+      <a href="Inquiry.html" class="menu-1"><img src="Inquiry3.png" alt="お問い合わせ"><span>お問い合わせ</span></a>
+      <a href="#" class="menu-1 pc-menu-btn"><img src="menu3.png" alt="メニュー"><span>メニュー</span></a>
     </div>
 
     <div class="hamburger">☰</div>
   </header>
 
-  <!-- ハンバーガーメニューの中身 -->
   <nav id="global-dropdown">
     <a href="Philosophy.html">・私たちの思い ーPhilosophy</a>
     <a href="what.html">・企画紹介</a>
@@ -466,278 +571,553 @@
     <a href="member.html">・メンバー</a>
     <a href="Inquiry.html">・お問い合わせ</a>
   </nav>
-  
-<div class="container">
 
-  <!-- 四季風 トップタブ -->
-  <div class="top-tabs">
-    <button class="top-tab active" onclick="switchTab('all', this)">
-      <span></span> スケジュール一覧
-    </button>
-    <button class="top-tab" onclick="switchTab('events', this)">
-      <span></span> 公演・企画
-    </button>
-    <button class="top-tab" onclick="switchTab('requests', this)">
-      <span></span> ビラ折込
-    </button>
-  </div>
-
-  <!-- メインコンテンツボックス -->
-  <div class="content-box">
-    
-    <!-- 1. 公演・企画スケジュールエリア -->
-    <div id="events-section">
-      <div class="section-header">
-        <div class="section-title">
-          <span>公演・企画スケジュール</span>
-          <span id="events-count" class="count-badge">0件</span>
-        </div>
-        <div class="filter-bar">
-          <input type="text" id="events-search" class="search-input" placeholder="企画名やキーワードで検索..." oninput="filterEvents()">
-        </div>
-      </div>
-
-      <div id="events-container" class="shiki-grid">
-        <div class="loading">公演・企画情報を読み込んでいます...</div>
-      </div>
+  <div class="container">
+    <div class="top-tabs">
+      <button class="top-tab active" onclick="switchTab('all', this)">
+        <span></span> スケジュール一覧
+      </button>
+      <button class="top-tab" onclick="switchTab('events', this)">
+        <span></span> 公演・企画
+      </button>
+      <button class="top-tab" onclick="switchTab('requests', this)">
+        <span></span> ビラ折込
+      </button>
     </div>
 
-    <!-- 2. ビラ折込スケジュールエリア -->
-    <div id="requests-section" style="margin-top: 40px;">
-      <div class="section-header">
-        <div class="section-title">
-          <span>ビラ折込スケジュール</span>
-          <span id="requests-count" class="count-badge">0件</span>
+    <div class="content-box">
+      <!-- 1. 公演・企画スケジュール（events + performances） -->
+      <div id="events-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span>公演・企画スケジュール</span>
+            <span id="events-count" class="count-badge">0件</span>
+          </div>
+          <div class="filter-bar">
+            <input type="text" id="events-search" class="search-input" placeholder="公演名・企画名・劇団名・会場で検索..." oninput="filterScheduleItems()">
+            <select id="events-kind-filter" class="filter-select" onchange="filterScheduleItems()">
+              <option value="all">種別：すべて</option>
+              <option value="performance">参加劇団の公演</option>
+              <option value="event">企画・イベント</option>
+            </select>
+            <select id="events-troupe-filter" class="filter-select" onchange="filterScheduleItems()">
+              <option value="">劇団：すべて</option>
+            </select>
+          </div>
         </div>
-        <div class="filter-bar">
-          <input type="text" id="requests-search" class="search-input" placeholder="劇団名や受渡方法で検索..." oninput="filterRequests()">
+
+        <div id="events-container" class="shiki-grid">
+          <div class="loading">公演・企画情報を読み込んでいます...</div>
         </div>
       </div>
 
-      <div id="requests-container" class="shiki-grid">
-        <div class="loading">折込スケジュール情報を読み込んでいます...</div>
+      <!-- 2. ビラ折込スケジュール（requests + performances + troupes） -->
+      <div id="requests-section" style="margin-top: 40px;">
+        <div class="section-header">
+          <div class="section-title">
+            <span>ビラ折込スケジュール</span>
+            <span id="requests-count" class="count-badge">0件</span>
+          </div>
+          <div class="filter-bar">
+            <input type="text" id="requests-search" class="search-input" placeholder="劇団名・対象公演名・受渡方法で検索..." oninput="filterScheduleItems()">
+            <select id="requests-status-filter" class="filter-select" onchange="filterScheduleItems()">
+              <option value="">状態：すべて</option>
+              <option value="accepted">承認済み</option>
+              <option value="pending">申請中</option>
+              <option value="declined">辞退</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="requests-container" class="shiki-grid">
+          <div class="loading">折込スケジュール情報を読み込んでいます...</div>
+        </div>
       </div>
     </div>
-
   </div>
-</div>
 
-<script>
-  let allEvents = [];
-  let allRequests = [];
+  <!-- 詳細表示モーダル -->
+  <div class="detail-modal-backdrop" id="detail-modal-backdrop" onclick="if (event.target === this) closeDetailModal()">
+    <div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+      <div class="detail-modal-head">
+        <div class="detail-modal-title" id="detail-modal-title">詳細</div>
+        <button type="button" class="detail-modal-close" onclick="closeDetailModal()" aria-label="閉じる">×</button>
+      </div>
+      <div class="detail-modal-body" id="detail-modal-body"></div>
+    </div>
+  </div>
 
-  // ① ビラネ用 Supabase 設定
-  const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-  });
+  <script>
+    let allScheduleItems = [];
+    let allPerformances = [];
+    let allTroupes = [];
+    let allRequests = [];
 
-  // ② 企画用 Supabase 設定
-  const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
-  const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
-  const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-  });
+    // ビラネット用 Supabase 設定
+    const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    fetchAllData();
-  });
+    // 企画用 Supabase 設定
+    const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
+    const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
+    const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    });
 
-  // タブ切り替え
-  function switchTab(type, btnElement) {
-    document.querySelectorAll('.top-tab').forEach(btn => btn.classList.remove('active'));
-    btnElement.classList.add('active');
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchAllData();
+    });
 
-    const eventsSec = document.getElementById('events-section');
-    const requestsSec = document.getElementById('requests-section');
-
-    if (type === 'all') {
-      eventsSec.classList.remove('hidden');
-      requestsSec.classList.remove('hidden');
-    } else if (type === 'events') {
-      eventsSec.classList.remove('hidden');
-      requestsSec.classList.add('hidden');
-    } else if (type === 'requests') {
-      eventsSec.classList.add('hidden');
-      requestsSec.classList.remove('hidden');
-    }
-  }
-
-  // データ取得
-  async function fetchAllData() {
-    const { data: eventsData, error: eventsError } = await dbEvents.from('events').select('*');
-    if (eventsError) {
-      console.error('Events取得エラー:', eventsError);
-      document.getElementById('events-container').innerHTML = `<div class="empty" style="color:red;">取得エラー: ${escapeHtml(eventsError.message)}</div>`;
-    } else {
-      allEvents = eventsData || [];
+    function getTodayStr() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
 
-    const { data: requestsData, error: requestsError } = await db.from('requests').select('*');
-    if (requestsError) {
-      console.error('Requests取得エラー:', requestsError);
-      document.getElementById('requests-container').innerHTML = `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(requestsError.message)}</div>`;
-    } else {
-      allRequests = requestsData || [];
-      allRequests.sort((a, b) => {
-        const dateA = a.foldingDate || a.folding_date || '';
-        const dateB = b.foldingDate || b.folding_date || '';
-        return dateB.localeCompare(dateA);
+    function getPerformancePhase(perf) {
+      const today = getTodayStr();
+      if (perf.start && perf.end) {
+        if (today < perf.start) return { main: '公演予定', sub: `${perf.start} ～ ${perf.end}`, cls: 'is-soon' };
+        if (today <= perf.end) return { main: '上演中！', sub: `${perf.start} ～ ${perf.end}`, cls: '' };
+        return { main: '公演終了', sub: `${perf.start} ～ ${perf.end}`, cls: 'is-ended' };
+      }
+      return { main: 'スケジュール掲載', sub: perf.start || '日程未定', cls: 'is-soon' };
+    }
+
+    function getAcceptanceState(perf) {
+      if (!perf || !perf.acceptStart || !perf.acceptEnd) {
+        return { label: '受付期間未設定', open: false };
+      }
+      const today = getTodayStr();
+      if (today < perf.acceptStart) return { label: `受付前（${perf.acceptStart}～）`, open: false };
+      if (today <= perf.acceptEnd) return { label: `折込受付中（～${perf.acceptEnd}）`, open: true };
+      return { label: '折込受付終了', open: false };
+    }
+
+    function getTroupeById(troupeId) {
+      return allTroupes.find(t => t.id === troupeId) || null;
+    }
+
+    function getPerformanceById(perfId) {
+      return allPerformances.find(p => p.id === perfId) || null;
+    }
+
+    function switchTab(type, btnElement) {
+      document.querySelectorAll('.top-tab').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      const eventsSec = document.getElementById('events-section');
+      const requestsSec = document.getElementById('requests-section');
+
+      if (type === 'all') {
+        eventsSec.classList.remove('hidden');
+        requestsSec.classList.remove('hidden');
+      } else if (type === 'events') {
+        eventsSec.classList.remove('hidden');
+        requestsSec.classList.add('hidden');
+      } else if (type === 'requests') {
+        eventsSec.classList.add('hidden');
+        requestsSec.classList.remove('hidden');
+      }
+    }
+
+    async function fetchAllData() {
+      const [eventsRes, perfsRes, troupesRes, reqsRes] = await Promise.all([
+        dbEvents.from('events').select('*'),
+        db.from('performances').select('*'),
+        db.from('troupes').select('*'),
+        db.from('requests').select('*')
+      ]);
+
+      allPerformances = perfsRes.error ? [] : (perfsRes.data || []);
+      allTroupes = troupesRes.error ? [] : (troupesRes.data || []);
+      populateTroupeFilter();
+
+      if (eventsRes.error && perfsRes.error) {
+        console.error('公演・企画取得エラー:', eventsRes.error, perfsRes.error);
+        document.getElementById('events-container').innerHTML =
+          `<div class="empty" style="color:red;">取得エラー: ${escapeHtml(eventsRes.error.message)}</div>`;
+        allScheduleItems = [];
+      } else {
+        const eventItems = (eventsRes.data || []).map(ev => ({
+          kind: 'event',
+          id: ev.id,
+          troupeId: '',
+          title: ev.title || 'タイトルなし',
+          subtitle: ev.subtitle ? `📍 ${ev.subtitle}` : '企画・イベント',
+          dateText: ev.date || ev.start || '',
+          venueText: ev.subtitle || '',
+          acceptText: '',
+          description: stripHtml(ev.description || ''),
+          statusMain: '受付中！',
+          statusSub: `企画 #${ev.id}`,
+          statusClass: '',
+          raw: ev
+        }));
+
+        const perfItems = allPerformances.map(perf => {
+          const troupe = getTroupeById(perf.troupeId);
+          const troupeLabel = troupe
+            ? `${troupe.name}${troupe.affiliation ? `（${troupe.affiliation}）` : ''}`
+            : '参加劇団';
+          const phase = getPerformancePhase(perf);
+          const accept = getAcceptanceState(perf);
+
+          return {
+            kind: 'performance',
+            id: perf.id,
+            troupeId: perf.troupeId || '',
+            title: perf.title || '公演タイトル未設定',
+            subtitle: `🎭 ${troupeLabel}`,
+            dateText: `${perf.start || '日程未定'} ～ ${perf.end || ''}`,
+            venueText: perf.venue || '会場未定',
+            acceptText: accept.label,
+            description: perf.desc || `会場：${perf.venue || '未定'} / 折込：${accept.label}`,
+            statusMain: phase.main,
+            statusSub: `${phase.sub}｜${accept.label}`,
+            statusClass: phase.cls,
+            raw: perf
+          };
+        });
+
+        allScheduleItems = [...perfItems, ...eventItems];
+      }
+
+      if (reqsRes.error) {
+        console.error('Requests取得エラー:', reqsRes.error);
+        document.getElementById('requests-container').innerHTML =
+          `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(reqsRes.error.message)}</div>`;
+        allRequests = [];
+      } else {
+        allRequests = (reqsRes.data || []).slice().sort((a, b) => {
+          const dateA = a.foldingDate || a.folding_date || a.timestamp || '';
+          const dateB = b.foldingDate || b.folding_date || b.timestamp || '';
+          return String(dateB).localeCompare(String(dateA));
+        });
+      }
+
+      filterScheduleItems();
+    }
+
+    function populateTroupeFilter() {
+      const select = document.getElementById('events-troupe-filter');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">劇団：すべて</option>';
+      allTroupes.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        select.appendChild(opt);
       });
+      select.value = currentVal;
     }
 
-    renderEvents(allEvents);
-    renderRequests(allRequests);
-  }
+    function filterScheduleItems() {
+      const evKeyword = (document.getElementById('events-search')?.value || '').trim().toLowerCase();
+      const kindFilter = document.getElementById('events-kind-filter')?.value || 'all';
+      const troupeFilter = document.getElementById('events-troupe-filter')?.value || '';
 
-  // 企画絞り込み
-  function filterEvents() {
-    const keyword = document.getElementById('events-search').value.toLowerCase();
-    const filtered = allEvents.filter(item => {
-      const title = (item.title || '').toLowerCase();
-      const subtitle = (item.subtitle || '').toLowerCase();
-      const desc = (item.description || '').toLowerCase();
-      return title.includes(keyword) || subtitle.includes(keyword) || desc.includes(keyword);
-    });
-    renderEvents(filtered);
-  }
+      const filteredSchedule = allScheduleItems.filter(item => {
+        if (kindFilter !== 'all' && item.kind !== kindFilter) return false;
+        if (troupeFilter && item.troupeId !== troupeFilter) return false;
+        if (!evKeyword) return true;
+        const hay = `${item.title} ${item.subtitle} ${item.dateText} ${item.venueText} ${item.acceptText} ${item.description}`.toLowerCase();
+        return hay.includes(evKeyword);
+      });
 
-  // 折込絞り込み
-  function filterRequests() {
-    const keyword = document.getElementById('requests-search').value.toLowerCase();
-    const filtered = allRequests.filter(item => {
-      const troupeName = (item.fromName || item.troupe_name || item.from_name || '').toLowerCase();
-      const delivery = (item.deliveryMethod || item.delivery_method || '').toLowerCase();
-      return troupeName.includes(keyword) || delivery.includes(keyword);
-    });
-    renderRequests(filtered);
-  }
+      const reqKeyword = (document.getElementById('requests-search')?.value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('requests-status-filter')?.value || '';
 
-  // 企画描画（四季風2列カード）
-  function renderEvents(events) {
-    const container = document.getElementById('events-container');
-    document.getElementById('events-count').textContent = `（${events.length}件）`;
+      const filteredRequests = allRequests.filter(item => {
+        const statusCode = item.status || '';
+        if (statusFilter && statusCode !== statusFilter) return false;
+        if (!reqKeyword) return true;
 
-    if (events.length === 0) {
-      container.innerHTML = '<div class="empty">該当する企画スケジュールはありません。</div>';
-      return;
+        const senderTroupe = getTroupeById(item.fromTroupeId);
+        const hostTroupe = getTroupeById(item.toTroupeId);
+        const targetPerf = getPerformanceById(item.perfId);
+
+        const troupeName = (senderTroupe?.name || item.fromName || item.troupe_name || item.from_name || '').toLowerCase();
+        const hostName = (hostTroupe?.name || '').toLowerCase();
+        const perfTitle = (targetPerf?.title || '').toLowerCase();
+        const delivery = (item.deliveryMethod || item.delivery_method || '').toLowerCase();
+        const size = (item.size || '').toLowerCase();
+
+        return (
+          troupeName.includes(reqKeyword) ||
+          hostName.includes(reqKeyword) ||
+          perfTitle.includes(reqKeyword) ||
+          delivery.includes(reqKeyword) ||
+          size.includes(reqKeyword)
+        );
+      });
+
+      renderScheduleItems(filteredSchedule);
+      renderRequests(filteredRequests);
     }
 
-    container.innerHTML = '';
-    events.forEach(item => {
+    function renderScheduleItems(items) {
+      const container = document.getElementById('events-container');
+      document.getElementById('events-count').textContent = `（${items.length}件）`;
+
+      if (items.length === 0) {
+        container.innerHTML = '<div class="empty">該当する公演・企画スケジュールはありません。</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      items.forEach((item, idx) => {
+        const isPerf = item.kind === 'performance';
+        const thumbClass = isPerf ? 'card-thumb perf-thumb' : 'card-thumb';
+        const thumbText = isPerf ? '劇団<br>公演' : 'Stage<br>Link';
+        const metaHtml = isPerf
+          ? `<div class="card-meta-line">📅 ${escapeHtml(item.dateText)} ／ 🏛 ${escapeHtml(item.venueText)}</div>`
+          : (item.dateText ? `<div class="card-meta-line">📅 ${escapeHtml(item.dateText)}</div>` : '');
+
+        const firstBtnLabel = isPerf ? '公演・受付詳細' : '企画スケジュール';
+        const secondBtnLabel = isPerf ? '劇団情報を見る' : '作品紹介';
+
+        const cardHtml = `
+          <div class="shiki-card">
+            <div class="card-top">
+              <div class="${thumbClass}">${thumbText}</div>
+              <div class="card-info">
+                <div class="card-title">${escapeHtml(item.title)}</div>
+                <div class="card-subtitle">${escapeHtml(item.subtitle)}</div>
+                ${metaHtml}
+                <div class="card-desc">${escapeHtml(item.description)}</div>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <div class="status-box ${item.statusClass}">
+                <div class="status-main">${escapeHtml(item.statusMain)}</div>
+                <div class="status-sub">${escapeHtml(item.statusSub)}</div>
+              </div>
+              <div class="action-btns">
+                <button type="button" class="btn-shiki" onclick="openScheduleItemDetail(${idx}, 'schedule')">${firstBtnLabel}</button>
+                <button type="button" class="btn-shiki" onclick="openScheduleItemDetail(${idx}, 'secondary')">${secondBtnLabel}</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+      });
+
+      window.__currentRenderedScheduleItems = items;
+    }
+
+    function renderRequests(requests) {
+      const container = document.getElementById('requests-container');
+      document.getElementById('requests-count').textContent = `（${requests.length}件）`;
+
+      if (requests.length === 0) {
+        container.innerHTML = '<div class="empty">該当する折込予定はありません。</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      requests.forEach((item, idx) => {
+        const senderTroupe = getTroupeById(item.fromTroupeId);
+        const targetPerf = getPerformanceById(item.perfId);
+
+        const foldingDate = item.foldingDate || item.folding_date || (targetPerf ? `${targetPerf.start} ～ ${targetPerf.end}` : '日程未定');
+        const troupeName = senderTroupe?.name || item.fromName || item.troupe_name || item.from_name || '名称未設定';
+        const affiliation = senderTroupe?.affiliation ? `（${senderTroupe.affiliation}）` : '';
+        const perfTitle = targetPerf?.title || '';
+        const copies = item.copies ? `${item.copies}部` : '部数未設定';
+        const size = item.size ? `（${item.size}）` : '';
+        const delivery = item.deliveryMethod || item.delivery_method || '未定';
+
+        const statusCode = item.status || '';
+        let statusText = '受付中！';
+        let statusCls = '';
+        if (statusCode === 'accepted') {
+          statusText = '承認済み！';
+          statusCls = 'is-open';
+        } else if (statusCode === 'pending') {
+          statusText = '申請中';
+          statusCls = 'is-soon';
+        } else if (statusCode === 'declined') {
+          statusText = '辞退';
+          statusCls = 'is-ended';
+        }
+
+        const targetLine = perfTitle
+          ? `<div class="card-meta-line">🎪 対象公演：${escapeHtml(perfTitle)}</div>`
+          : '';
+
+        const cardHtml = `
+          <div class="shiki-card">
+            <div class="card-top">
+              <div class="card-thumb req-thumb">ビラ<br>折込</div>
+              <div class="card-info">
+                <div class="card-title">${escapeHtml(troupeName)}${escapeHtml(affiliation)}</div>
+                <div class="card-subtitle">受渡：${escapeHtml(delivery)}</div>
+                ${targetLine}
+                <div class="card-desc">予定部数：${escapeHtml(copies)} ${escapeHtml(size)}${item.notes ? ` ／ ${escapeHtml(item.notes)}` : ''}</div>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <div class="status-box ${statusCls}">
+                <div class="status-main">${escapeHtml(statusText)}</div>
+                <div class="status-sub">${escapeHtml(foldingDate)}</div>
+              </div>
+              <div class="action-btns">
+                <button type="button" class="btn-shiki" onclick="openRequestDetail(${idx}, 'request')">折込詳細を見る</button>
+                <button type="button" class="btn-shiki" onclick="openRequestDetail(${idx}, 'troupe')">劇団紹介</button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+      });
+
+      window.__currentRenderedRequests = requests;
+    }
+
+    function openScheduleItemDetail(idx, mode) {
+      const list = window.__currentRenderedScheduleItems || [];
+      const item = list[idx];
+      if (!item) return;
+
+      if (item.kind === 'performance') {
+        const perf = item.raw;
+        const troupe = getTroupeById(perf.troupeId);
+        const accept = getAcceptanceState(perf);
+
+        if (mode === 'secondary' && troupe) {
+          showModal(
+            troupe.name,
+            [
+              ['所属大学・拠点', troupe.affiliation || '未登録'],
+              ['劇団紹介', troupe.description || '紹介文はまだ登録されていません。'],
+              ['公式HP', troupe.homepage || '未登録'],
+              ['X / Instagram', troupe.sns || troupe.instagram || '未登録']
+            ]
+          );
+          return;
+        }
+
+        showModal(
+          perf.title || '公演詳細',
+          [
+            ['主催劇団', troupe ? `${troupe.name}${troupe.affiliation ? `（${troupe.affiliation}）` : ''}` : '未設定'],
+            ['公演日程', `${perf.start || '未定'} ～ ${perf.end || ''}`],
+            ['会場', perf.venue || '未定'],
+            ['折り込み受付期間', `${perf.acceptStart || '未定'} ～ ${perf.acceptEnd || ''}（${accept.label}）`],
+            ['上限部数', `1団体 ${perf.maxQuota || 300}部 ／ 総枠 ${perf.totalQuota || 1000}部`],
+            ['受け渡し方法', perf.deliveryMethod || '未設定'],
+            ['公演概要', perf.desc || '詳細情報はありません。']
+          ]
+        );
+        return;
+      }
+
+      const ev = item.raw;
+      showModal(
+        ev.title || '企画詳細',
+        [
+          ['サブタイトル・会場', ev.subtitle || '未設定'],
+          ['日程', ev.date || ev.start || '未定'],
+          ['概要', stripHtml(ev.description || '') || '詳細情報はありません。']
+        ]
+      );
+    }
+
+    function openRequestDetail(idx, mode) {
+      const list = window.__currentRenderedRequests || [];
+      const req = list[idx];
+      if (!req) return;
+
+      const senderTroupe = getTroupeById(req.fromTroupeId);
+      const targetPerf = getPerformanceById(req.perfId);
+      const hostTroupe = targetPerf ? getTroupeById(targetPerf.troupeId) : getTroupeById(req.toTroupeId);
+
+      if (mode === 'troupe') {
+        const troupeName = senderTroupe?.name || req.fromName || '劇団情報';
+        showModal(
+          troupeName,
+          [
+            ['所属大学・拠点', senderTroupe?.affiliation || '未登録'],
+            ['劇団紹介', senderTroupe?.description || '紹介文はまだ登録されていません。'],
+            ['連絡先メール', req.fromEmail || senderTroupe?.email || '未公開'],
+            ['公式HP / SNS', senderTroupe?.homepage || senderTroupe?.sns || senderTroupe?.instagram || '未登録']
+          ]
+        );
+        return;
+      }
+
+      showModal(
+        'ビラ折込詳細',
+        [
+          ['依頼元劇団', `${senderTroupe?.name || req.fromName || '名称未設定'}${senderTroupe?.affiliation ? `（${senderTroupe.affiliation}）` : ''}`],
+          ['折り込み先劇団', hostTroupe?.name || '未設定'],
+          ['対象公演', targetPerf ? `${targetPerf.title}（${targetPerf.start} ～ ${targetPerf.end}）` : '未指定'],
+          ['希望部数・サイズ', `${req.copies || '-'}部 ${req.size ? `（${req.size}）` : ''}`],
+          ['受け渡し方法', req.deliveryMethod || req.delivery_method || '未定'],
+          ['状態', req.status === 'accepted' ? '承認済み' : (req.status === 'declined' ? '辞退' : '申請中')],
+          ['備考', req.notes || 'なし']
+        ]
+      );
+    }
+
+    function showModal(title, rows) {
+      document.getElementById('detail-modal-title').textContent = title;
+      document.getElementById('detail-modal-body').innerHTML = rows.map(([label, val]) => `
+        <div>
+          <span class="detail-row-label">${escapeHtml(label)}</span>
+          <div>${escapeHtml(String(val))}</div>
+        </div>
+      `).join('');
+      document.getElementById('detail-modal-backdrop').classList.add('open');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal-backdrop').classList.remove('open');
+    }
+
+    function stripHtml(htmlStr) {
       const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.description || '';
-      const plainText = tempDiv.textContent || tempDiv.innerText || '';
-      const subtitleHtml = item.subtitle ? `<div class="card-subtitle">📍 ${escapeHtml(item.subtitle)}</div>` : '';
-
-      const cardHtml = `
-        <div class="shiki-card">
-          <div class="card-top">
-            <div class="card-thumb">Stage<br>Link</div>
-            <div class="card-info">
-              <div class="card-title">${escapeHtml(item.title || 'タイトルなし')}</div>
-              ${subtitleHtml}
-              <div class="card-desc">${escapeHtml(plainText)}</div>
-            </div>
-          </div>
-          <div class="card-bottom">
-            <div class="status-box">
-              <div class="status-main">受付中！</div>
-              <div class="status-sub">ID: #${item.id}</div>
-            </div>
-            <div class="action-btns">
-              <button class="btn-shiki" onclick="alert('企画詳細画面へ連携可能')">公演スケジュール</button>
-              <button class="btn-shiki" onclick="alert('詳細画面へ連携可能')">作品紹介</button>
-            </div>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML('beforeend', cardHtml);
-    });
-  }
-
-  // ビラ折込描画（四季風2列カード）
-  function renderRequests(requests) {
-    const container = document.getElementById('requests-container');
-    document.getElementById('requests-count').textContent = `（${requests.length}件）`;
-
-    if (requests.length === 0) {
-      container.innerHTML = '<div class="empty">該当する折込予定はありません。</div>';
-      return;
+      tempDiv.innerHTML = htmlStr || '';
+      return (tempDiv.textContent || tempDiv.innerText || '').trim();
     }
 
-    container.innerHTML = '';
-    requests.forEach(item => {
-      const foldingDate = item.foldingDate || item.folding_date || '日付未定';
-      const troupeName = item.fromName || item.troupe_name || item.from_name || '名称未設定';
-      const copies = item.copies ? `${item.copies}部` : '部数未設定';
-      const size = item.size ? `(${item.size})` : '';
-      const statusCode = item.status || '';
-      const statusText = statusCode === 'accepted' ? '承認済み！' : (statusCode === 'pending' ? '申請中' : '受付中！');
-      const delivery = item.deliveryMethod || item.delivery_method || '未定';
-
-      const cardHtml = `
-        <div class="shiki-card">
-          <div class="card-top">
-            <div class="card-thumb">ビラ<br>折込</div>
-            <div class="card-info">
-              <div class="card-title">${escapeHtml(troupeName)}</div>
-              <div class="card-subtitle">受渡: ${escapeHtml(delivery)}</div>
-              <div class="card-desc">予定部数: ${escapeHtml(copies)} ${escapeHtml(size)}</div>
-            </div>
-          </div>
-          <div class="card-bottom">
-            <div class="status-box">
-              <div class="status-main">${escapeHtml(statusText)}</div>
-              <div class="status-sub">${escapeHtml(foldingDate)} 折込分</div>
-            </div>
-            <div class="action-btns">
-              <button class="btn-shiki" onclick="alert('折込申請詳細へ')">折込スケジュール</button>
-              <button class="btn-shiki" onclick="alert('劇団詳細へ')">劇団紹介</button>
-            </div>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML('beforeend', cardHtml);
-    });
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  /* サイドメニューの開閉処理 */
-  const hamburgerBtn = document.querySelector(".hamburger");
-  const pcMenuBtn = document.querySelector(".pc-menu-btn");
-  const globalDropdown = document.getElementById("global-dropdown");
-  const menuOverlay = document.getElementById("menu-overlay");
-
-  function toggleMenu(e) {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
-    globalDropdown.classList.toggle("open");
-    menuOverlay.classList.toggle("open");
-  }
 
-  if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
-  if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
-  if (menuOverlay) menuOverlay.onclick = toggleMenu;
+    const hamburgerBtn = document.querySelector(".hamburger");
+    const pcMenuBtn = document.querySelector(".pc-menu-btn");
+    const globalDropdown = document.getElementById("global-dropdown");
+    const menuOverlay = document.getElementById("menu-overlay");
 
-  document.querySelectorAll("#global-dropdown a").forEach(link => {
-    link.onclick = () => {
-      globalDropdown.classList.remove("open");
-      menuOverlay.classList.remove("open");
-    };
-  });
-</script>
+    function toggleMenu(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      globalDropdown.classList.toggle("open");
+      menuOverlay.classList.toggle("open");
+    }
 
+    if (hamburgerBtn) hamburgerBtn.onclick = toggleMenu;
+    if (pcMenuBtn) pcMenuBtn.onclick = toggleMenu;
+    if (menuOverlay) menuOverlay.onclick = toggleMenu;
+
+    document.querySelectorAll("#global-dropdown a").forEach(link => {
+      link.onclick = () => {
+        globalDropdown.classList.remove("open");
+        menuOverlay.classList.remove("open");
+      };
+    });
+  </script>
 </body>
 </html>
