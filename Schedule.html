@@ -1,360 +1,38 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" translate="no">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>公演一覧｜Stage Link</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta name="google" content="notranslate">
+  <title>スケジュール｜StageLink</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --bg: #fcfbf9;
-      --card-outer: #e0e0e0;
+      --bg: #f4efe6;
+      --paper: #faf7f2;
       --card-bg: #ffffff;
-      --text: #000000;
-      --text-sub: #555555;
-      --pink-bg: #fde8ed;
-      --red-text: #cc0000;
-      --open-bg: #e5f3ee;
-      --open-text: #1a6b4a;
-      --soon-bg: #fff4e5;
-      --soon-text: #8b5a1a;
-      --muted-bg: #eeeeee;
-      --muted-text: #555555;
-      --btn-gray: #dcdcdc;
-      --border: #cccccc;
-      --tab-active-bg: #ffffff;
-      --wine: #7c2946;
+      --text: #1a1a1a;
+      --text-sub: #5c544a;
+      --crimson: #b90e0e;
+      --gold: #c5a059;
+      --open-bg: #e7f1ec;
+      --open-text: #1c5c40;
+      --soon-bg: #f6efe0;
+      --soon-text: #7c5818;
+      --muted-bg: #eae4d9;
+      --muted-text: #5c544a;
+      --border: #d8cfc0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Noto Sans JP', sans-serif;
+      font-family: "Times New Roman", "Yu Mincho", "游明朝", "Noto Serif JP", serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 60px;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 20px auto 0;
-      padding: 0 16px;
-    }
-
-    /* 上部ナビゲーションタブ */
-    .top-tabs {
-      display: flex;
-      background: #f0f0f0;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: 20px;
-    }
-    .top-tab {
-      flex: 1;
-      padding: 16px 10px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-      background: #e8e8e8;
-      border: none;
-      border-right: 1px solid var(--border);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .top-tab:last-child { border-right: none; }
-    .top-tab.active {
-      background: var(--tab-active-bg);
-      border-top: 3px solid var(--wine);
-    }
-
-    /* メインコンテンツエリア */
-    .content-box {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-
-    .section-header {
-      margin-bottom: 20px;
-    }
-    .section-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .count-badge {
-      font-size: 14px;
-      font-weight: normal;
-      color: var(--text-sub);
-    }
-
-    /* 検索・絞り込みバー */
-    .filter-bar {
-      margin-top: 12px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .search-input, .filter-select {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 13px;
-      background: #fff;
-      color: var(--text);
-    }
-    .search-input {
-      flex: 1;
-      min-width: 220px;
-      max-width: 340px;
-    }
-
-    /* グリッドレイアウト（2列） */
-    .shiki-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .shiki-card {
-      background: #ececec;
-      border-radius: 4px;
-      overflow: hidden;
-      border: 1px solid #d4d4d4;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-top {
-      padding: 16px;
-      display: flex;
-      gap: 14px;
-      background: #ececec;
-      min-height: 112px;
-    }
-    .card-thumb {
-      width: 72px;
-      height: 72px;
-      background: var(--wine);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 13px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      text-align: center;
-      padding: 4px;
-      line-height: 1.3;
-    }
-    .card-thumb.perf-thumb {
-      background: #3b2330;
-    }
-    .card-thumb.req-thumb {
-      background: #5c1f2e;
-    }
-
-    .card-info {
-      flex-grow: 1;
-      min-width: 0;
-    }
-    .card-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-      line-height: 1.35;
-    }
-    .card-subtitle {
-      font-size: 12px;
-      color: #0056b3;
-      margin-bottom: 5px;
-      display: block;
-      font-weight: 500;
-    }
-    .card-meta-line {
-      font-size: 12px;
-      color: #333;
-      margin-bottom: 4px;
-      line-height: 1.45;
-    }
-    .card-desc {
-      font-size: 12px;
-      color: var(--text-sub);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      line-height: 1.45;
-    }
-
-    .card-bottom {
-      background: #ffffff;
-      padding: 12px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin: 0 12px 12px 12px;
-      border-radius: 4px;
-    }
-
-    .status-box {
-      flex: 1;
-      background: var(--pink-bg);
-      padding: 10px;
-      text-align: center;
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 68px;
-    }
-    .status-box.is-open {
-      background: var(--open-bg);
-    }
-    .status-box.is-open .status-main {
-      color: var(--open-text);
-    }
-    .status-box.is-soon {
-      background: var(--soon-bg);
-    }
-    .status-box.is-soon .status-main {
-      color: var(--soon-text);
-    }
-    .status-box.is-ended {
-      background: var(--muted-bg);
-    }
-    .status-box.is-ended .status-main {
-      color: var(--muted-text);
-    }
-
-    .status-main {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--red-text);
-      margin-bottom: 2px;
-    }
-    .status-sub {
-      font-size: 11px;
-      color: var(--text-sub);
-      line-height: 1.4;
-    }
-
-    .action-btns {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 148px;
-      flex-shrink: 0;
-    }
-    .btn-shiki {
-      background: var(--btn-gray);
-      color: var(--text);
-      text-decoration: none;
-      padding: 8px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 6px;
-      border: 1px solid #c8c8c8;
-      cursor: pointer;
-    }
-    .btn-shiki:hover {
-      background: #d0d0d0;
-    }
-    .btn-shiki::before {
-      content: '›';
-      font-size: 16px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .loading, .empty {
-      grid-column: span 2;
-      text-align: center;
-      padding: 40px;
-      color: var(--text-sub);
-      background: #f9f9f9;
-      border-radius: 4px;
-      border: 1px dashed #ccc;
-    }
-
-    .hidden { display: none !important; }
-
-    /* 詳細モーダル */
-    .detail-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      z-index: 10000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .detail-modal-backdrop.open {
-      display: flex;
-    }
-    .detail-modal {
-      background: #fff;
-      width: 100%;
-      max-width: 540px;
-      border-radius: 6px;
-      border-top: 4px solid var(--wine);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
-      overflow: hidden;
-    }
-    .detail-modal-head {
-      padding: 16px 20px;
-      border-bottom: 1px solid #e5e5e5;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .detail-modal-title {
-      font-size: 17px;
-      font-weight: 700;
-    }
-    .detail-modal-close {
-      background: none;
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
-      color: #555;
-      line-height: 1;
-    }
-    .detail-modal-body {
-      padding: 18px 20px;
-      font-size: 13.5px;
-      line-height: 1.7;
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 75vh;
-      overflow-y: auto;
-    }
-    .detail-row-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--wine);
-      display: block;
+      padding-bottom: 64px;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* --- ヘッダー --- */
@@ -366,8 +44,8 @@
       padding: 0 30px;
       height: 90px;
       position: relative;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-family: sans-serif;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      font-family: "Yu Mincho", "游明朝", serif;
     }
 
     .menu-left, .menu-right {
@@ -458,8 +136,8 @@
       right: -300px;
       width: 300px;
       height: 100vh;
-      background: #111111;
-      box-shadow: -5px 0 25px rgba(0,0,0,0.7);
+      background: #141414;
+      box-shadow: -5px 0 25px rgba(0,0,0,0.6);
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -472,17 +150,17 @@
     }
 
     #global-dropdown a {
-      color: #fff;
+      color: #f4efe6;
       padding: 20px 30px;
       text-decoration: none;
-      font-size: 16px;
-      border-bottom: 1px solid #222;
+      font-size: 15px;
+      border-bottom: 1px solid #262626;
     }
 
     #menu-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.55);
       z-index: 9998;
       display: none;
       opacity: 0;
@@ -491,6 +169,364 @@
     #menu-overlay.open {
       display: block;
       opacity: 1;
+    }
+
+    /* --- 紙面レイアウト --- */
+    .container {
+      max-width: 1060px;
+      margin: 48px auto 0;
+      padding: 0 20px;
+    }
+
+    .page-heading {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .page-eyebrow {
+      font-family: "Times New Roman", serif;
+      font-size: 12px;
+      letter-spacing: 4px;
+      color: #9e7b34;
+      margin-bottom: 6px;
+    }
+
+    .page-heading h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: var(--crimson);
+    }
+
+    .heading-line {
+      width: 56px;
+      height: 1px;
+      background: var(--gold);
+      margin: 16px auto 0;
+    }
+
+    /* タブ切り替え */
+    .top-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      gap: 4px;
+    }
+    .top-tab {
+      flex: 1;
+      padding: 14px 12px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: "Yu Mincho", "游明朝", serif;
+    }
+    .top-tab:hover {
+      color: var(--text);
+    }
+    .top-tab.active {
+      color: var(--crimson);
+      background: var(--paper);
+      border-color: var(--border);
+      border-top: 2px solid var(--crimson);
+    }
+
+    .schedule-sheet {
+      border-top: 2px solid var(--text);
+      padding-top: 24px;
+    }
+
+    .section-header {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      letter-spacing: 1px;
+    }
+    .count-badge {
+      font-size: 13px;
+      font-weight: normal;
+      color: var(--text-sub);
+    }
+
+    .filter-bar {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-input, .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #c5b9a5;
+      border-radius: 2px;
+      font-size: 13px;
+      background: var(--paper);
+      color: var(--text);
+      font-family: "Yu Mincho", "游明朝", serif;
+    }
+    .search-input:focus, .filter-select:focus {
+      outline: none;
+      border-color: var(--crimson);
+      background: #ffffff;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      max-width: 340px;
+    }
+
+    /* 2列グリッド */
+    .shiki-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .shiki-card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--gold);
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-top {
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      min-height: 112px;
+    }
+    .card-thumb {
+      width: 68px;
+      height: 68px;
+      background: var(--crimson);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      text-align: center;
+      padding: 4px;
+      line-height: 1.35;
+      letter-spacing: 1px;
+    }
+    .card-thumb.perf-thumb {
+      background: #4a1414;
+    }
+    .card-thumb.req-thumb {
+      background: #2b2623;
+      color: #e2be72;
+    }
+
+    .card-info {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #7c5818;
+      margin-bottom: 5px;
+      display: block;
+    }
+    .card-meta-line {
+      font-size: 12px;
+      color: #3a342e;
+      margin-bottom: 4px;
+      line-height: 1.5;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.5;
+    }
+
+    .card-bottom {
+      background: #ffffff;
+      border-top: 1px solid #e4dccd;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 0 12px 12px 12px;
+      border-radius: 2px;
+    }
+
+    .status-box {
+      flex: 1;
+      background: #f8ecee;
+      padding: 10px;
+      text-align: center;
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 66px;
+    }
+    .status-box.is-open {
+      background: var(--open-bg);
+    }
+    .status-box.is-open .status-main {
+      color: var(--open-text);
+    }
+    .status-box.is-soon {
+      background: var(--soon-bg);
+    }
+    .status-box.is-soon .status-main {
+      color: var(--soon-text);
+    }
+    .status-box.is-ended {
+      background: var(--muted-bg);
+    }
+    .status-box.is-ended .status-main {
+      color: var(--muted-text);
+    }
+
+    .status-main {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--crimson);
+      margin-bottom: 2px;
+    }
+    .status-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+
+    .action-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 144px;
+      flex-shrink: 0;
+    }
+    .btn-shiki {
+      background: #141414;
+      color: #e2be72;
+      text-decoration: none;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      border: 1px solid var(--gold);
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: "Yu Mincho", "游明朝", serif;
+    }
+    .btn-shiki:hover {
+      background: var(--gold);
+      color: #141414;
+    }
+    .btn-shiki::after {
+      content: '›';
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .loading, .empty {
+      grid-column: span 2;
+      text-align: center;
+      padding: 36px;
+      color: var(--text-sub);
+      background: var(--paper);
+      border-radius: 2px;
+      border: 1px dashed #c5b9a5;
+    }
+
+    .hidden { display: none !important; }
+
+    /* 詳細モーダル */
+    .detail-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .detail-modal-backdrop.open {
+      display: flex;
+    }
+    .detail-modal {
+      background: var(--paper);
+      width: 100%;
+      max-width: 540px;
+      border-radius: 2px;
+      border-top: 3px solid var(--crimson);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .detail-modal-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .detail-modal-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .detail-modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--text-sub);
+      line-height: 1;
+    }
+    .detail-modal-body {
+      padding: 18px 20px;
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+    .detail-row-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8a6520;
+      display: block;
+      margin-bottom: 2px;
     }
 
     @media (max-width: 768px) {
@@ -530,6 +566,7 @@
         line-height: 1;
       }
 
+      .page-heading h1 { font-size: 24px; }
       .shiki-grid { grid-template-columns: 1fr; }
       .card-bottom { flex-direction: column; }
       .action-btns { width: 100%; }
@@ -563,65 +600,65 @@
   </header>
 
   <nav id="global-dropdown">
-    <a href="Philosophy.html">・私たちの思い ーPhilosophy</a>
-    <a href="what.html">・企画紹介</a>
-    <a href="Participant.html">・ビラネット</a>
-    <a href="Schedule.html">・スケジュール</a>
-    <a href="news.html">・ニュース</a>
-    <a href="member.html">・メンバー</a>
-    <a href="Inquiry.html">・お問い合わせ</a>
+    <a href="Philosophy.html">私たちの思い</a>
+    <a href="what.html">企画紹介</a>
+    <a href="Participant.html">ビラネット</a>
+    <a href="Schedule.html">スケジュール</a>
+    <a href="news.html">ニュース</a>
+    <a href="member.html">メンバー</a>
+    <a href="Inquiry.html">お問い合わせ</a>
   </nav>
 
   <div class="container">
-    <div class="top-tabs">
-      <button class="top-tab active" onclick="switchTab('all', this)">
-        <span></span> スケジュール一覧
-      </button>
-      <button class="top-tab" onclick="switchTab('events', this)">
-        <span></span> 公演・企画
-      </button>
-      <button class="top-tab" onclick="switchTab('requests', this)">
-        <span></span> ビラ折込
-      </button>
+    <div class="page-heading">
+      <div class="page-eyebrow">SCHEDULE</div>
+      <h1>スケジュール</h1>
+      <div class="heading-line"></div>
     </div>
 
-    <div class="content-box">
-      <!-- 1. 公演・企画スケジュール（events + performances） -->
+    <div class="top-tabs">
+      <button type="button" class="top-tab active" onclick="switchTab('all', this)">すべて</button>
+      <button type="button" class="top-tab" onclick="switchTab('events', this)">公演・企画</button>
+      <button type="button" class="top-tab" onclick="switchTab('requests', this)">ビラ折込</button>
+    </div>
+
+    <div class="schedule-sheet">
+      <!-- 1. 公演・企画スケジュール（新しい順） -->
       <div id="events-section">
         <div class="section-header">
           <div class="section-title">
-            <span>公演・企画スケジュール</span>
+            <span>公演・企画</span>
             <span id="events-count" class="count-badge">0件</span>
           </div>
           <div class="filter-bar">
-            <input type="text" id="events-search" class="search-input" placeholder="公演名・企画名・劇団名・会場で検索..." oninput="filterScheduleItems()">
+            <input type="text" id="events-search" class="search-input" placeholder="公演名・企画名・劇団名・会場で探す" oninput="filterScheduleItems()">
             <select id="events-kind-filter" class="filter-select" onchange="filterScheduleItems()">
-              <option value="all">種別：すべて</option>
+              <option value="all">すべて</option>
               <option value="performance">参加劇団の公演</option>
-              <option value="event">企画・イベント</option>
+              <option value="event">企画</option>
             </select>
             <select id="events-troupe-filter" class="filter-select" onchange="filterScheduleItems()">
-              <option value="">劇団：すべて</option>
+              <option value="">劇団を指定しない</option>
             </select>
           </div>
         </div>
 
         <div id="events-container" class="shiki-grid">
-          <div class="loading">公演・企画情報を読み込んでいます...</div>
+          <div class="loading">読み込み中</div>
         </div>
       </div>
 
-      <!-- 2. ビラ折込スケジュール（requests + performances + troupes） -->
-      <div id="requests-section" style="margin-top: 40px;">
+      <!-- 2. ビラ折込スケジュール（新しい順） -->
+      <div id="requests-section" style="margin-top: 48px;">
         <div class="section-header">
           <div class="section-title">
-            <span>ビラ折込スケジュール</span>
+            <span>ビラ折込</span>
             <span id="requests-count" class="count-badge">0件</span>
           </div>
           <div class="filter-bar">
-            <input type="text" id="requests-search" class="search-input" placeholder="劇団名・対象公演名・受渡方法で検索..." oninput="filterScheduleItems()">
+            <input type="text" id="requests-search" class="search-input" placeholder="劇団名・公演名・受渡方法で探す" oninput="filterScheduleItems()">
             <select id="requests-status-filter" class="filter-select" onchange="filterScheduleItems()">
-              <option value="">状態：すべて</option>
+              <option value="">すべての状態</option>
               <option value="accepted">承認済み</option>
               <option value="pending">申請中</option>
               <option value="declined">辞退</option>
@@ -630,13 +667,13 @@
         </div>
 
         <div id="requests-container" class="shiki-grid">
-          <div class="loading">折込スケジュール情報を読み込んでいます...</div>
+          <div class="loading">読み込み中</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 詳細表示モーダル -->
+  <!-- 詳細モーダル -->
   <div class="detail-modal-backdrop" id="detail-modal-backdrop" onclick="if (event.target === this) closeDetailModal()">
     <div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
       <div class="detail-modal-head">
@@ -653,14 +690,12 @@
     let allTroupes = [];
     let allRequests = [];
 
-    // ビラネット用 Supabase 設定
     const SUPABASE_URL = "https://azdvqobryrpxriftaale.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6ZHZxb2JyeXJweHJpZnRhYWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMzIzNjYsImV4cCI6MjA5NjkwODM2Nn0.tLopMSF670ok2jXHq6_G-MYtIajdCrxmsQ4TDIv5u_A";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
     });
 
-    // 企画用 Supabase 設定
     const EVENTS_URL = "https://blviywoprvcatwwrrysi.supabase.co";
     const EVENTS_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsdml5d29wcnZjYXR3d3JyeXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MzM2MDUsImV4cCI6MjA5ODAwOTYwNX0.SAp7KNf21RKE5SStRlazyX5zKe-LVVCcEHz_fBV6UP8";
     const dbEvents = supabase.createClient(EVENTS_URL, EVENTS_KEY, {
@@ -676,14 +711,25 @@
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
 
+    // 日付文字列を数値化して「新しい順」比較に使う
+    function toSortTimestamp(val) {
+      if (!val) return 0;
+      if (typeof val === 'number') return val;
+      const str = String(val).trim();
+      const digitsOnly = /^req_(\d+)$/.exec(str);
+      if (digitsOnly) return Number(digitsOnly[1]);
+      const parsed = Date.parse(str.replace(/\//g, '-'));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
     function getPerformancePhase(perf) {
       const today = getTodayStr();
       if (perf.start && perf.end) {
         if (today < perf.start) return { main: '公演予定', sub: `${perf.start} ～ ${perf.end}`, cls: 'is-soon' };
-        if (today <= perf.end) return { main: '上演中！', sub: `${perf.start} ～ ${perf.end}`, cls: '' };
+        if (today <= perf.end) return { main: '上演中', sub: `${perf.start} ～ ${perf.end}`, cls: '' };
         return { main: '公演終了', sub: `${perf.start} ～ ${perf.end}`, cls: 'is-ended' };
       }
-      return { main: 'スケジュール掲載', sub: perf.start || '日程未定', cls: 'is-soon' };
+      return { main: '予定掲載', sub: perf.start || '日程未定', cls: 'is-soon' };
     }
 
     function getAcceptanceState(perf) {
@@ -738,24 +784,28 @@
       if (eventsRes.error && perfsRes.error) {
         console.error('公演・企画取得エラー:', eventsRes.error, perfsRes.error);
         document.getElementById('events-container').innerHTML =
-          `<div class="empty" style="color:red;">取得エラー: ${escapeHtml(eventsRes.error.message)}</div>`;
+          `<div class="empty">読み込みに失敗しました。</div>`;
         allScheduleItems = [];
       } else {
-        const eventItems = (eventsRes.data || []).map(ev => ({
-          kind: 'event',
-          id: ev.id,
-          troupeId: '',
-          title: ev.title || 'タイトルなし',
-          subtitle: ev.subtitle ? `📍 ${ev.subtitle}` : '企画・イベント',
-          dateText: ev.date || ev.start || '',
-          venueText: ev.subtitle || '',
-          acceptText: '',
-          description: stripHtml(ev.description || ''),
-          statusMain: '受付中！',
-          statusSub: `企画 #${ev.id}`,
-          statusClass: '',
-          raw: ev
-        }));
+        const eventItems = (eventsRes.data || []).map(ev => {
+          const dateVal = ev.date || ev.start || ev.created_at || '';
+          return {
+            kind: 'event',
+            id: ev.id,
+            troupeId: '',
+            title: ev.title || 'タイトル未設定',
+            subtitle: ev.subtitle || '企画',
+            dateText: ev.date || ev.start || '',
+            venueText: ev.subtitle || '',
+            acceptText: '',
+            description: stripHtml(ev.description || ''),
+            statusMain: '受付中',
+            statusSub: ev.date || ev.start || `#${ev.id}`,
+            statusClass: '',
+            sortKey: toSortTimestamp(dateVal) || Number(ev.id) || 0,
+            raw: ev
+          };
+        });
 
         const perfItems = allPerformances.map(perf => {
           const troupe = getTroupeById(perf.troupeId);
@@ -764,37 +814,45 @@
             : '参加劇団';
           const phase = getPerformancePhase(perf);
           const accept = getAcceptanceState(perf);
+          const dateVal = perf.start || perf.acceptStart || perf.id || '';
 
           return {
             kind: 'performance',
             id: perf.id,
             troupeId: perf.troupeId || '',
             title: perf.title || '公演タイトル未設定',
-            subtitle: `🎭 ${troupeLabel}`,
+            subtitle: troupeLabel,
             dateText: `${perf.start || '日程未定'} ～ ${perf.end || ''}`,
             venueText: perf.venue || '会場未定',
             acceptText: accept.label,
-            description: perf.desc || `会場：${perf.venue || '未定'} / 折込：${accept.label}`,
+            description: perf.desc || `会場：${perf.venue || '未定'} / ${accept.label}`,
             statusMain: phase.main,
-            statusSub: `${phase.sub}｜${accept.label}`,
+            statusSub: `${phase.sub} / ${accept.label}`,
             statusClass: phase.cls,
+            sortKey: toSortTimestamp(dateVal),
             raw: perf
           };
         });
 
-        allScheduleItems = [...perfItems, ...eventItems];
+        // 新しい順（降順）に並べる
+        allScheduleItems = [...perfItems, ...eventItems].sort((a, b) => {
+          if (b.sortKey !== a.sortKey) return b.sortKey - a.sortKey;
+          return String(b.id).localeCompare(String(a.id));
+        });
       }
 
       if (reqsRes.error) {
         console.error('Requests取得エラー:', reqsRes.error);
         document.getElementById('requests-container').innerHTML =
-          `<div class="empty" style="color:red;">折込データの取得に失敗しました: ${escapeHtml(reqsRes.error.message)}</div>`;
+          `<div class="empty">折込データの読み込みに失敗しました。</div>`;
         allRequests = [];
       } else {
+        // 新しい順（降順）に並べる
         allRequests = (reqsRes.data || []).slice().sort((a, b) => {
-          const dateA = a.foldingDate || a.folding_date || a.timestamp || '';
-          const dateB = b.foldingDate || b.folding_date || b.timestamp || '';
-          return String(dateB).localeCompare(String(dateA));
+          const keyA = toSortTimestamp(a.foldingDate || a.folding_date || a.timestamp || a.created_at || a.id);
+          const keyB = toSortTimestamp(b.foldingDate || b.folding_date || b.timestamp || b.created_at || b.id);
+          if (keyB !== keyA) return keyB - keyA;
+          return String(b.id).localeCompare(String(a.id));
         });
       }
 
@@ -805,7 +863,7 @@
       const select = document.getElementById('events-troupe-filter');
       if (!select) return;
       const currentVal = select.value;
-      select.innerHTML = '<option value="">劇団：すべて</option>';
+      select.innerHTML = '<option value="">劇団を指定しない</option>';
       allTroupes.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t.id;
@@ -861,10 +919,10 @@
 
     function renderScheduleItems(items) {
       const container = document.getElementById('events-container');
-      document.getElementById('events-count').textContent = `（${items.length}件）`;
+      document.getElementById('events-count').textContent = `${items.length}件`;
 
       if (items.length === 0) {
-        container.innerHTML = '<div class="empty">該当する公演・企画スケジュールはありません。</div>';
+        container.innerHTML = '<div class="empty">該当する予定はありません。</div>';
         return;
       }
 
@@ -872,13 +930,13 @@
       items.forEach((item, idx) => {
         const isPerf = item.kind === 'performance';
         const thumbClass = isPerf ? 'card-thumb perf-thumb' : 'card-thumb';
-        const thumbText = isPerf ? '劇団<br>公演' : 'Stage<br>Link';
+        const thumbText = isPerf ? '劇団<br>公演' : '企画';
         const metaHtml = isPerf
-          ? `<div class="card-meta-line">📅 ${escapeHtml(item.dateText)} ／ 🏛 ${escapeHtml(item.venueText)}</div>`
-          : (item.dateText ? `<div class="card-meta-line">📅 ${escapeHtml(item.dateText)}</div>` : '');
+          ? `<div class="card-meta-line">日程：${escapeHtml(item.dateText)} ／ 会場：${escapeHtml(item.venueText)}</div>`
+          : (item.dateText ? `<div class="card-meta-line">日程：${escapeHtml(item.dateText)}</div>` : '');
 
-        const firstBtnLabel = isPerf ? '公演・受付詳細' : '企画スケジュール';
-        const secondBtnLabel = isPerf ? '劇団情報を見る' : '作品紹介';
+        const firstBtnLabel = isPerf ? '公演詳細' : '企画詳細';
+        const secondBtnLabel = isPerf ? '劇団情報' : '概要を見る';
 
         const cardHtml = `
           <div class="shiki-card">
@@ -911,7 +969,7 @@
 
     function renderRequests(requests) {
       const container = document.getElementById('requests-container');
-      document.getElementById('requests-count').textContent = `（${requests.length}件）`;
+      document.getElementById('requests-count').textContent = `${requests.length}件`;
 
       if (requests.length === 0) {
         container.innerHTML = '<div class="empty">該当する折込予定はありません。</div>';
@@ -932,10 +990,10 @@
         const delivery = item.deliveryMethod || item.delivery_method || '未定';
 
         const statusCode = item.status || '';
-        let statusText = '受付中！';
+        let statusText = '受付中';
         let statusCls = '';
         if (statusCode === 'accepted') {
-          statusText = '承認済み！';
+          statusText = '承認済み';
           statusCls = 'is-open';
         } else if (statusCode === 'pending') {
           statusText = '申請中';
@@ -946,7 +1004,7 @@
         }
 
         const targetLine = perfTitle
-          ? `<div class="card-meta-line">🎪 対象公演：${escapeHtml(perfTitle)}</div>`
+          ? `<div class="card-meta-line">対象公演：${escapeHtml(perfTitle)}</div>`
           : '';
 
         const cardHtml = `
@@ -966,8 +1024,8 @@
                 <div class="status-sub">${escapeHtml(foldingDate)}</div>
               </div>
               <div class="action-btns">
-                <button type="button" class="btn-shiki" onclick="openRequestDetail(${idx}, 'request')">折込詳細を見る</button>
-                <button type="button" class="btn-shiki" onclick="openRequestDetail(${idx}, 'troupe')">劇団紹介</button>
+                <button type="button" class="btn-shiki" onclick="openRequestDetail(${idx}, 'request')">折込詳細</button>
+                <button type="button" class="btn-shiki" onclick="openRequestDetail(${idx}, 'troupe')">劇団情報</button>
               </div>
             </div>
           </div>
@@ -992,10 +1050,10 @@
           showModal(
             troupe.name,
             [
-              ['所属大学・拠点', troupe.affiliation || '未登録'],
-              ['劇団紹介', troupe.description || '紹介文はまだ登録されていません。'],
-              ['公式HP', troupe.homepage || '未登録'],
-              ['X / Instagram', troupe.sns || troupe.instagram || '未登録']
+              ['所属', troupe.affiliation || '未登録'],
+              ['紹介', troupe.description || '紹介文はまだ登録されていません。'],
+              ['ホームページ', troupe.homepage || '未登録'],
+              ['SNS', troupe.sns || troupe.instagram || '未登録']
             ]
           );
           return;
@@ -1004,13 +1062,13 @@
         showModal(
           perf.title || '公演詳細',
           [
-            ['主催劇団', troupe ? `${troupe.name}${troupe.affiliation ? `（${troupe.affiliation}）` : ''}` : '未設定'],
+            ['劇団', troupe ? `${troupe.name}${troupe.affiliation ? `（${troupe.affiliation}）` : ''}` : '未設定'],
             ['公演日程', `${perf.start || '未定'} ～ ${perf.end || ''}`],
             ['会場', perf.venue || '未定'],
-            ['折り込み受付期間', `${perf.acceptStart || '未定'} ～ ${perf.acceptEnd || ''}（${accept.label}）`],
+            ['折込受付期間', `${perf.acceptStart || '未定'} ～ ${perf.acceptEnd || ''}（${accept.label}）`],
             ['上限部数', `1団体 ${perf.maxQuota || 300}部 ／ 総枠 ${perf.totalQuota || 1000}部`],
-            ['受け渡し方法', perf.deliveryMethod || '未設定'],
-            ['公演概要', perf.desc || '詳細情報はありません。']
+            ['受渡方法', perf.deliveryMethod || '未設定'],
+            ['概要', perf.desc || '詳細はありません。']
           ]
         );
         return;
@@ -1020,9 +1078,9 @@
       showModal(
         ev.title || '企画詳細',
         [
-          ['サブタイトル・会場', ev.subtitle || '未設定'],
+          ['会場・補足', ev.subtitle || '未設定'],
           ['日程', ev.date || ev.start || '未定'],
-          ['概要', stripHtml(ev.description || '') || '詳細情報はありません。']
+          ['概要', stripHtml(ev.description || '') || '詳細はありません。']
         ]
       );
     }
@@ -1041,10 +1099,10 @@
         showModal(
           troupeName,
           [
-            ['所属大学・拠点', senderTroupe?.affiliation || '未登録'],
-            ['劇団紹介', senderTroupe?.description || '紹介文はまだ登録されていません。'],
-            ['連絡先メール', req.fromEmail || senderTroupe?.email || '未公開'],
-            ['公式HP / SNS', senderTroupe?.homepage || senderTroupe?.sns || senderTroupe?.instagram || '未登録']
+            ['所属', senderTroupe?.affiliation || '未登録'],
+            ['紹介', senderTroupe?.description || '紹介文はまだ登録されていません。'],
+            ['連絡先', req.fromEmail || senderTroupe?.email || '未公開'],
+            ['リンク', senderTroupe?.homepage || senderTroupe?.sns || senderTroupe?.instagram || '未登録']
           ]
         );
         return;
@@ -1053,11 +1111,11 @@
       showModal(
         'ビラ折込詳細',
         [
-          ['依頼元劇団', `${senderTroupe?.name || req.fromName || '名称未設定'}${senderTroupe?.affiliation ? `（${senderTroupe.affiliation}）` : ''}`],
-          ['折り込み先劇団', hostTroupe?.name || '未設定'],
+          ['依頼元', `${senderTroupe?.name || req.fromName || '名称未設定'}${senderTroupe?.affiliation ? `（${senderTroupe.affiliation}）` : ''}`],
+          ['折込先', hostTroupe?.name || '未設定'],
           ['対象公演', targetPerf ? `${targetPerf.title}（${targetPerf.start} ～ ${targetPerf.end}）` : '未指定'],
-          ['希望部数・サイズ', `${req.copies || '-'}部 ${req.size ? `（${req.size}）` : ''}`],
-          ['受け渡し方法', req.deliveryMethod || req.delivery_method || '未定'],
+          ['部数・サイズ', `${req.copies || '-'}部 ${req.size ? `（${req.size}）` : ''}`],
+          ['受渡方法', req.deliveryMethod || req.delivery_method || '未定'],
           ['状態', req.status === 'accepted' ? '承認済み' : (req.status === 'declined' ? '辞退' : '申請中')],
           ['備考', req.notes || 'なし']
         ]
