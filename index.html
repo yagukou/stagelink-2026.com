@@ -286,7 +286,8 @@
     .guide-card p { color: #555; line-height: 1.8; font-size: 14px; margin: 0; }
 
     /* ④ ニュースセクション */
-    .news-section { background: #f4efe6; color: #1a1a1a; padding: 120px 10%; border-top: 1px solid #f0e9e0; }
+    /* ④ ニュースセクション */
+    .news-section { background: #f4efe6; color: #1a1a1a; padding: 120px 10% 40px; border-top: 1px solid #f0e9e0; } 
     .news-section .section-en { color: #c5a059; }
     .news-section .section-head::after { background: #c5a059; }
     .news-list { max-width: 1000px; margin: 60px auto 0; border-top: 1px solid #e5dfd5; }
@@ -300,16 +301,15 @@
     .news-item:hover .news-arrow { color: #b90e0e; transform: translateX(8px); }
 
     /* ⑤ メディア */
-    .media-section { background: #f4efe6; padding: 120px 10%; }
-    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1200px; margin: 60px auto 0; }
-    .media-card { text-decoration: none; overflow: hidden; background: #121212; border: 1px solid #222; transition: 0.4s; }
-    .media-card:hover { border-color: #c5a059; box-shadow: 0 10px 30px rgba(197,160,89,0.1); }
-    .media-thumb-wrapper { position: relative; overflow: hidden; width: 100%; height: 340px; }
-    .media-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
-    .media-card:hover img { transform: scale(1.06); }
-    .media-tag { position: absolute; top: 20px; left: 20px; background: rgba(11,11,11,0.85); color: #c5a059; font-size: 11px; letter-spacing: 2px; padding: 4px 12px; border: 1px solid #c5a059; font-family: sans-serif; }
-    .media-text { padding: 30px 25px; }
-    .media-text h3 { color: white; font-size: 22px; margin: 0; font-family: "Yu Mincho", serif; font-weight: 500; line-height: 1.4; }
+.media-section { background: #f4efe6; padding: 40px 10% 120px; }
+.media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 1200px; margin: 20px auto 0; }
+.media-card { text-decoration: none; overflow: hidden; background: #121212; border: 1px solid #222; transition: 0.4s; display: flex; flex-direction: column; }
+.media-card:hover { border-color: #c5a059; box-shadow: 0 10px 30px rgba(197,160,89,0.1); }
+.media-thumb-wrapper { position: relative; overflow: hidden; width: 100%; height: 220px; background: #f4efe6; display: flex; align-items: center; justify-content: center; }
+.media-card img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.5s ease; }
+.media-card:hover img { transform: scale(1.03); }
+.media-text { padding: 20px; margin-top: auto; }
+.media-text h3 { color: white; font-size: 18px; margin: 0; font-family: "Yu Mincho", serif; font-weight: 500; line-height: 1.4; }
 
     /* フッター */
     footer { background: #000000; border-top: 1px solid #1a1a1a; padding: 60px 5% 40px; text-align: center; }
